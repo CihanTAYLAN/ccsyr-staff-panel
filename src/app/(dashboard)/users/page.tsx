@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space } from 'antd';
+import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar } from 'antd';
 import { UserAddOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
@@ -222,7 +222,16 @@ export default function UsersPage() {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: (text: string | null) => text || 'N/A',
+            render: (_: string, record: UserData) => {
+                return (
+                    <Link href={`/users/${record.id}`} className="flex items-center gap-2 text-theme-text">
+                        <Avatar size={32} style={{ backgroundColor: 'var(--theme)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}>
+                            {record.name?.charAt(0).toUpperCase()}
+                        </Avatar>
+                        {record.name}
+                    </Link>
+                );
+            },
             sorter: true,
         },
         {

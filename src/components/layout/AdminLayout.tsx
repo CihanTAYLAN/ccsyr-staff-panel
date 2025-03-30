@@ -12,7 +12,8 @@ import {
     EnvironmentOutlined,
     ClockCircleOutlined,
     LogoutOutlined,
-    BulbOutlined
+    MoonOutlined,
+    SunOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
@@ -58,12 +59,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const userMenu = [
         {
-            key: '1',
+            key: 'profile',
             label: 'Profile',
             icon: <UserOutlined />,
         },
         {
-            key: '2',
+            key: 'logout',
             label: 'Logout',
             icon: <LogoutOutlined />,
             onClick: () => signOut({ callbackUrl: '/auth/login' }),
@@ -72,22 +73,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const menuItems = [
         {
-            key: '1',
+            key: 'dashboard',
             icon: <DashboardOutlined />,
             label: <Link href="/dashboard">Dashboard</Link>,
         },
         {
-            key: '2',
+            key: 'users',
             icon: <UserOutlined />,
             label: <Link href="/users">Users</Link>,
         },
         {
-            key: '3',
+            key: 'locations',
             icon: <EnvironmentOutlined />,
             label: <Link href="/locations">Locations</Link>,
         },
         {
-            key: '4',
+            key: 'access-logs',
             icon: <ClockCircleOutlined />,
             label: <Link href="/access-logs">Access Logs</Link>,
         },
@@ -109,7 +110,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Menu
                     theme={theme === 'dark' ? 'dark' : 'light'}
                     mode="inline"
-                    defaultSelectedKeys={['1']}
+                    defaultSelectedKeys={window.location.pathname.split('/').slice(1)}
                     items={menuItems}
                     className="border-r-0"
                     style={{ backgroundColor: 'var(--theme-bg-elevated)' }}
@@ -126,12 +127,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="flex items-center gap-4">
                         <Button
                             type="text"
-                            icon={<BulbOutlined />}
+                            icon={theme === 'dark' ? <SunOutlined className='text-yellow-500' /> : <MoonOutlined className='text-gray-500' />}
                             onClick={toggleTheme}
                             className="text-base w-10 h-10"
                         />
                         <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-                            <Avatar size="large" icon={<UserOutlined />} className="cursor-pointer" />
+                            <Avatar size="large" className="cursor-pointer"
+                                style={{ backgroundColor: 'var(--theme)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}
+                            >
+                                {session?.user?.name?.charAt(0).toUpperCase()}
+                            </Avatar>
                         </Dropdown>
                     </div>
                 </Header>
