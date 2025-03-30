@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Dropdown, Avatar, Spin } from 'antd';
+import { Layout, Menu, Button, Dropdown, Avatar, Spin, Image } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {
             key: '1',
             icon: <DashboardOutlined />,
-            label: <Link href="/dashboard">Dashboard</Link>,
+            label: <Link href="/">Dashboard</Link>,
         },
         {
             key: '2',
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ];
 
     return (
-        <Layout className="min-h-screen h-screen flex flex-col">
+        <Layout className="min-h-screen h-screen">
             <Sider
                 trigger={null}
                 collapsible
@@ -102,7 +102,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 theme={theme === 'dark' ? 'dark' : 'light'}
                 className="border-r border-theme h-full"
             >
-                <div className="h-8 m-4 bg-opacity-20 bg-white" />
+                <div className={`${!collapsed ? 'px-4' : ''} h-8 m-4 flex items-center gap-4 justify-start`}>
+                    <Image src="/ccsyr-logo.png" alt="logo" className='h-8 w-auto' />
+                    {!collapsed && <h1 className='text-primary'>CCSYR</h1>}
+                </div>
                 <Menu
                     theme={theme === 'dark' ? 'dark' : 'light'}
                     mode="inline"
