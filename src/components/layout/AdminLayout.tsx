@@ -104,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="border-r border-theme h-full"
             >
                 <Link href="/dashboard" className={`${!collapsed ? 'px-4' : ''} h-8 m-4 flex items-center gap-4 justify-start`}>
-                    <Image src="/ccsyr-logo.png" alt="logo" className='h-8 w-auto' preview={false} />
+                    <Image src="/images/ccsyr-logo.png" alt="logo" className='h-8 w-auto' preview={false} />
                     {!collapsed && <h1 className='text-primary'>CCSYR</h1>}
                 </Link>
                 <Menu

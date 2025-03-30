@@ -51,7 +51,7 @@ export default function LoginPage() {
         <Card className="w-full mx-auto shadow-theme-md">
             <div className="text-center mb-6">
                 <Image
-                    src="/ccsyr-logo.png"
+                    src="/images/ccsyr-logo.png"
                     alt="logo"
                     preview={false}
                     height={64}

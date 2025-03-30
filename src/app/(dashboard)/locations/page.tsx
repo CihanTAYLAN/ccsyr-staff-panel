@@ -1,10 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Modal, Form, message, Tooltip, Breadcrumb, Input, Space } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, EyeOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Button, Card, Modal, Form, message, Tooltip, Breadcrumb, Input, Space, Tabs, Checkbox } from 'antd';
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    ExclamationCircleOutlined,
+    EyeOutlined,
+    EnvironmentOutlined,
+} from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
     DataTable,
     PaginationData,
@@ -14,6 +22,26 @@ import {
 } from '@/components/shared/DataTable';
 
 const { confirm } = Modal;
+const { TabPane } = Tabs;
+
+// dynamic import for MapWithNoSSR
+const MapWithNoSSR = dynamic(
+    () => import('@/components/Map'),
+    {
+        ssr: false,
+        loading: () => (
+            <div
+                className="h-[300px] w-full bg-theme-background-light flex items-center justify-center"
+                style={{
+                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    borderRadius: '8px'
+                }}
+            >
+                Loading map...
+            </div>
+        )
+    }
+);
 
 type LocationData = {
     id: string;
@@ -52,6 +80,11 @@ export default function LocationsPage() {
     const [addLocationModalVisible, setAddLocationModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [markerPosition, setMarkerPosition] = useState<[number, number] | null>(null);
+    const [useManualAddress, setUseManualAddress] = useState(false);
+
+    // Toronto koordinatları (varsayılan konum)
+    const defaultPosition: [number, number] = [43.7181228, -79.5428638];
 
     // Tablo filtre konfigürasyonu
     const tableFilters: Record<string, FilterConfig> = {
@@ -97,12 +130,19 @@ export default function LocationsPage() {
     const handleAddLocation = async (values: any) => {
         setSubmitLoading(true);
         try {
+            // Koordinatları markerPosition'dan al veya manuel giriş değerlerini kullan
+            const payload = {
+                ...values,
+                latitude: markerPosition ? markerPosition[0] : values.latitude ? parseFloat(values.latitude) : null,
+                longitude: markerPosition ? markerPosition[1] : values.longitude ? parseFloat(values.longitude) : null,
+            };
+
             const response = await fetch('/api/locations', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -111,7 +151,7 @@ export default function LocationsPage() {
             }
 
             message.success('Location created successfully');
-            form.resetFields();
+            resetForm();
             setAddLocationModalVisible(false);
             fetchLocations(); // Listeyi yenile
         } catch (error: any) {
@@ -119,6 +159,72 @@ export default function LocationsPage() {
         } finally {
             setSubmitLoading(false);
         }
+    };
+
+    // Form ve ilişkili durumları sıfırla
+    const resetForm = () => {
+        form.resetFields();
+        setMarkerPosition(null);
+        setUseManualAddress(false);
+    };
+
+    // Harita tıklama olayı
+    const handleMapClick = (lat: number, lng: number) => {
+        setMarkerPosition([lat, lng]);
+
+        // Form alanlarını güncelle
+        form.setFieldsValue({
+            latitude: lat.toFixed(6),
+            longitude: lng.toFixed(6),
+        });
+
+        // OpenStreetMap Nominatim API'si ile tersine geocoding
+        const getReverseGeocode = async (lat: number, lng: number) => {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+                    {
+                        headers: {
+                            'Accept-Language': 'en', // Dil tercihini isteğe bağlı olarak değiştirebilirsiniz
+                            'User-Agent': 'CCSYR Staff Panel' // Kullanıcı ajanınızı belirtin
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Geocoding request failed');
+                }
+
+                const data = await response.json();
+
+                if (data && data.display_name) {
+                    // Bulunan adresi forma ekle
+                    form.setFieldsValue({
+                        address: data.display_name
+                    });
+                } else {
+                    // Geocoding başarısız olduysa koordinatları kullan
+                    form.setFieldsValue({
+                        address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching address:', error);
+                // Hata durumunda koordinatları kullan
+                form.setFieldsValue({
+                    address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
+                });
+            }
+        };
+
+        // Tersine geocoding işlemini başlat
+        getReverseGeocode(lat, lng);
+    };
+
+    // Modal kapatıldığında formu sıfırla
+    const handleModalCancel = () => {
+        resetForm();
+        setAddLocationModalVisible(false);
     };
 
     // Lokasyon silme
@@ -301,51 +407,96 @@ export default function LocationsPage() {
             <Modal
                 title="Add New Location"
                 open={addLocationModalVisible}
-                onCancel={() => setAddLocationModalVisible(false)}
+                onCancel={handleModalCancel}
                 footer={null}
+                width={800}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleAddLocation}
                 >
-                    <Form.Item
-                        name="name"
-                        label="Location Name"
-                        rules={[{ required: true, message: 'Please enter location name' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="description"
-                        label="Description"
-                    >
-                        <Input.TextArea rows={2} />
-                    </Form.Item>
-                    <Form.Item
-                        name="address"
-                        label="Address"
-                    >
-                        <Input.TextArea rows={2} />
-                    </Form.Item>
-                    <div className="flex gap-4">
-                        <Form.Item
-                            name="latitude"
-                            label="Latitude"
-                            className="w-1/2"
-                        >
-                            <Input type="number" step="0.0001" />
-                        </Form.Item>
-                        <Form.Item
-                            name="longitude"
-                            label="Longitude"
-                            className="w-1/2"
-                        >
-                            <Input type="number" step="0.0001" />
-                        </Form.Item>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Form.Item
+                                name="name"
+                                label="Location Name"
+                                rules={[{ required: true, message: 'Please enter location name' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="description"
+                                label="Description"
+                            >
+                                <Input.TextArea rows={3} />
+                            </Form.Item>
+
+                            <Form.Item>
+                                <Checkbox
+                                    checked={useManualAddress}
+                                    onChange={(e) => setUseManualAddress(e.target.checked)}
+                                >
+                                    Enter address and coordinates manually
+                                </Checkbox>
+                            </Form.Item>
+
+                            <Form.Item
+                                name="address"
+                                label="Address"
+                            >
+                                <Input.TextArea
+                                    rows={2}
+                                    disabled={!useManualAddress && markerPosition !== null}
+                                />
+                            </Form.Item>
+
+                            <div className="flex gap-4">
+                                <Form.Item
+                                    name="latitude"
+                                    label="Latitude"
+                                    className="w-1/2"
+                                >
+                                    <Input
+                                        type="number"
+                                        step="0.000001"
+                                        disabled={!useManualAddress && markerPosition !== null}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name="longitude"
+                                    label="Longitude"
+                                    className="w-1/2"
+                                >
+                                    <Input
+                                        type="number"
+                                        step="0.000001"
+                                        disabled={!useManualAddress && markerPosition !== null}
+                                    />
+                                </Form.Item>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="mb-2 flex justify-between items-center">
+                                <span className='text-theme-text-secondary h-6'>Select Location on Map</span>
+                            </div>
+                            <div style={{ height: 400, width: '100%', position: 'relative' }}>
+                                <MapWithNoSSR
+                                    centerPosition={defaultPosition}
+                                    markerPosition={markerPosition}
+                                    onMapClick={handleMapClick}
+                                />
+                            </div>
+                            <div className="text-xs text-theme-text-secondary mt-1">
+                                Click on the map to select a location.
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex justify-end gap-2">
-                        <Button onClick={() => setAddLocationModalVisible(false)}>
+
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button onClick={handleModalCancel}>
                             Cancel
                         </Button>
                         <Button type="primary" htmlType="submit" loading={submitLoading}>

@@ -169,8 +169,8 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                 </div>
             </div>
 
-            <Card className="mb-6" title="User Information">
-                <Descriptions bordered size='small'>
+            <Card className="mb-6" title="User Information" styles={{ body: { padding: 0 } }} size='small'>
+                <Descriptions bordered size='small' column={3}>
                     <Descriptions.Item label="Name" span={2}>
                         {user.name || 'N/A'}
                     </Descriptions.Item>
@@ -187,7 +187,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                             </Tag>
                         </Tooltip>
                     </Descriptions.Item>
-                    <Descriptions.Item label="Current Location" span={3}>
+                    <Descriptions.Item label="Current Location" span={2}>
                         {user.currentLocation ? (
                             <Space>
                                 <EnvironmentOutlined />

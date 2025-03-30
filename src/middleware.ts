@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
 	const isPublicPath = path.startsWith("/auth/");
 
 	// Allow access to public files without authentication
-	if (path.startsWith("/_next/") || path.startsWith("/favicon.ico") || path.includes("/ccsyr-logo.png")) {
+	if (path.startsWith("/_next/") || path.startsWith("/favicon.ico") || path.includes("/images/ccsyr-logo.png")) {
 		return NextResponse.next();
 	}
 

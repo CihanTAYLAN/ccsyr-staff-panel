@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import { EUserStatus, EUserType } from '@prisma/client';
+import { EUserType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -11,12 +11,6 @@ const userTypeOptions = [
     { value: EUserType.SUPER_ADMIN, label: 'Super Admin' },
     { value: EUserType.MANAGER_ADMIN, label: 'Manager Admin' },
     { value: EUserType.PERSONAL, label: 'Personal' },
-];
-
-// Kullanıcı durumu seçenekleri
-const userStatusOptions = [
-    { value: EUserStatus.ONLINE, label: 'Online' },
-    { value: EUserStatus.OFFLINE, label: 'Offline' },
 ];
 
 export default function EditUserPage({ params }: { params: { id: string } }) {
@@ -114,12 +108,19 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                 />
             </div>
 
-            <Card title="Edit User">
+            <Card title="Edit User" size='small'>
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={updateUser}
                     className="max-w-xl"
+                    initialValues={{
+                        name: '',
+                        email: '',
+                        userType: undefined,
+                        status: undefined,
+                        password: '',
+                    }}
                 >
                     <Form.Item
                         name="name"

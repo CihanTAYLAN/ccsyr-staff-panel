@@ -201,7 +201,7 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                 </div>
             </div>
 
-            <Card className="mb-6" title="Location Information">
+            <Card className="mb-6" title="Location Information" styles={{ body: { padding: 0 } }} size='small'>
                 <Descriptions bordered size='small'>
                     <Descriptions.Item label="Name" span={3}>
                         <Space>
@@ -217,7 +217,7 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                     </Descriptions.Item>
                     <Descriptions.Item label="Coordinates" span={3}>
                         {location.latitude && location.longitude
-                            ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
+                            ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
                             : 'N/A'
                         }
                     </Descriptions.Item>
@@ -237,44 +237,52 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                 </Descriptions>
             </Card>
 
-            <Tabs defaultActiveKey="1" className="mb-6">
-                <TabPane tab={`Active Users (${activeUsers.length})`} key="1">
-                    <Card bodyStyle={{ padding: 0 }}>
-                        {activeUsers.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <Table
-                                    columns={activeUsersColumns}
-                                    dataSource={activeUsers}
-                                    rowKey="id"
-                                    className="custom-table"
-                                    scroll={{ x: 800 }}
-                                    pagination={{ pageSize: 10, hideOnSinglePage: true }}
-                                />
-                            </div>
-                        ) : (
-                            <Empty description="No active users at this location" />
-                        )}
-                    </Card>
-                </TabPane>
-                <TabPane tab="Access Logs" key="2">
-                    <Card bodyStyle={{ padding: 0 }}>
-                        {accessLogs.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <Table
-                                    columns={accessLogsColumns}
-                                    dataSource={accessLogs}
-                                    rowKey="id"
-                                    className="custom-table"
-                                    scroll={{ x: 800 }}
-                                    pagination={{ pageSize: 10, hideOnSinglePage: true }}
-                                />
-                            </div>
-                        ) : (
-                            <Empty description="No access logs found" />
-                        )}
-                    </Card>
-                </TabPane>
-            </Tabs>
+            <Tabs defaultActiveKey="1" className="mb-6" items={[
+                {
+                    key: '1',
+                    label: `Active Users (${activeUsers.length})`,
+                    children: (
+                        <Card styles={{ body: { padding: 0 } }}>
+                            {activeUsers.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <Table
+                                        columns={activeUsersColumns}
+                                        dataSource={activeUsers}
+                                        rowKey="id"
+                                        className="custom-table"
+                                        scroll={{ x: 800 }}
+                                        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+                                    />
+                                </div>
+                            ) : (
+                                <Empty description="No active users at this location" />
+                            )}
+                        </Card>
+                    )
+                },
+                {
+                    key: '2',
+                    label: `Access Logs (${accessLogs.length})`,
+                    children: (
+                        <Card styles={{ body: { padding: 0 } }}>
+                            {accessLogs.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <Table
+                                        columns={accessLogsColumns}
+                                        dataSource={accessLogs}
+                                        rowKey="id"
+                                        className="custom-table"
+                                        scroll={{ x: 800 }}
+                                        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+                                    />
+                                </div>
+                            ) : (
+                                <Empty description="No access logs found" />
+                            )}
+                        </Card>
+                    )
+                }
+            ]} />
         </>
     );
 } 

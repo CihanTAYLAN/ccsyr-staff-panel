@@ -214,3 +214,29 @@ html.dark body {
 .custom-table .ant-table-pagination {
 	padding: 0 16px;
 }
+
+.leaflet-control-attribution {
+	display: none;
+}
+
+.leaflet-control-zoom {
+	margin-top: 50px !important;
+}
+
+.leaflet-control-zoom a {
+	background-color: var(--theme-bg-elevated) !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	vertical-align: middle !important;
+}
+
+.leaflet-control-zoom a span {
+	color: var(--theme-text) !important;
+	font-size: 14px !important;
+}
+
+.leaflet-control-zoom a:hover {
+	background-color: var(--theme-bg-elevated) !important;
+	opacity: 0.9 !important;
+}
