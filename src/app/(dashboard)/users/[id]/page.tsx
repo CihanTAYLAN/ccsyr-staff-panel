@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip } from 'antd';
-import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ExclamationCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip, Popconfirm } from 'antd';
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType, EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -95,32 +95,22 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
         },
     ];
 
-    const confirmDeleteUser = (userId: string, userName: string | null) => {
-        confirm({
-            title: `Are you sure you want to delete ${userName || 'this user'}?`,
-            icon: <ExclamationCircleOutlined />,
-            content: 'This action cannot be undone.',
-            okText: 'Yes',
-            cancelText: 'No',
-            okType: 'danger',
-            async onOk() {
-                try {
-                    const response = await fetch(`/api/users/${userId}`, {
-                        method: 'DELETE',
-                    });
+    const deleteUser = async (userId: string, userName: string | null) => {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
+            });
 
-                    if (!response.ok) {
-                        throw new Error('Failed to delete user');
-                    }
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
 
-                    message.success('User deleted successfully');
-                    router.push('/users');
-                } catch (error) {
-                    message.error('Failed to delete user');
-                    console.error('Error deleting user:', error);
-                }
-            },
-        });
+            message.success('User deleted successfully');
+            router.push('/users');
+        } catch (error) {
+            message.error('Failed to delete user');
+            console.error('Error deleting user:', error);
+        }
     };
 
     if (loading) {
@@ -146,7 +136,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-6 h-16">
+            <div className="flex justify-between items-center mb-6 h-6">
                 <Breadcrumb
                     items={[
                         { title: <Link href="/dashboard">Dashboard</Link> },
@@ -164,7 +154,17 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                         </Link>
                     </Tooltip>
                     <Tooltip title="Delete User">
-                        <Button type="primary" icon={<DeleteOutlined />} danger onClick={() => confirmDeleteUser(userId, user.name)}></Button>
+                        <Popconfirm
+                            title="Delete user"
+                            description={`Are you sure you want to delete ${user.name || 'this user'}?`}
+                            onConfirm={() => deleteUser(userId, user.name)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement='left'
+                            okButtonProps={{ danger: true }}
+                        >
+                            <Button type="primary" icon={<DeleteOutlined />} danger></Button>
+                        </Popconfirm>
                     </Tooltip>
                 </div>
             </div>

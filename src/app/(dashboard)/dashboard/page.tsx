@@ -10,7 +10,7 @@ import {
 export default function Dashboard() {
     return (
         <>
-            <div className="flex justify-between items-center mb-6 h-16">
+            <div className="flex justify-between items-center mb-6 h-6">
                 <Breadcrumb
                     items={[
                         { title: 'Dashboard' },

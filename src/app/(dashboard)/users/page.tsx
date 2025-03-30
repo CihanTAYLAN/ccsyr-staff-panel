@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar } from 'antd';
-import { UserAddOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar, Popconfirm } from 'antd';
+import { UserAddOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -14,7 +14,6 @@ import {
     SortingState
 } from '@/components/shared/DataTable';
 
-const { confirm } = Modal;
 
 // Kullanıcı tipi bilgileri
 const userTypeOptions = [
@@ -154,32 +153,22 @@ export default function UsersPage() {
     };
 
     // Kullanıcı silme
-    const confirmDeleteUser = (userId: string, userName: string | null) => {
-        confirm({
-            title: `Are you sure you want to delete ${userName || 'this user'}?`,
-            icon: <ExclamationCircleOutlined />,
-            content: 'This action cannot be undone.',
-            okText: 'Yes',
-            cancelText: 'No',
-            okType: 'danger',
-            async onOk() {
-                try {
-                    const response = await fetch(`/api/users/${userId}`, {
-                        method: 'DELETE',
-                    });
+    const deleteUser = async (userId: string, userName: string | null) => {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
+            });
 
-                    if (!response.ok) {
-                        throw new Error('Failed to delete user');
-                    }
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
 
-                    message.success('User deleted successfully');
-                    fetchUsers(); // Listeyi yenile
-                } catch (error) {
-                    message.error('Failed to delete user');
-                    console.error('Error deleting user:', error);
-                }
-            },
-        });
+            message.success('User deleted successfully');
+            fetchUsers(); // Listeyi yenile
+        } catch (error) {
+            message.error('Failed to delete user');
+            console.error('Error deleting user:', error);
+        }
     };
 
     // Filtreleri sıfırla
@@ -287,21 +276,32 @@ export default function UsersPage() {
                 <Space>
                     <Tooltip title="View User">
                         <Link href={`/users/${record.id}`}>
-                            <Button icon={<EyeOutlined />} size="small" type="primary"></Button>
+                            <Button icon={<EyeOutlined />} size="small" type="text"></Button>
                         </Link>
                     </Tooltip>
                     <Tooltip title="Edit User">
                         <Link href={`/users/${record.id}/edit`}>
-                            <Button icon={<EditOutlined />} size="small" type="primary"></Button>
+                            <Button icon={<EditOutlined />} size="small" type="text"></Button>
                         </Link>
                     </Tooltip>
                     <Tooltip title="Delete User">
-                        <Button
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            danger
-                            onClick={() => confirmDeleteUser(record.id, record.name)}
-                        ></Button>
+                        <Popconfirm
+                            title="Delete user"
+                            description={`Are you sure you want to delete ${record.name || 'this user'}?`}
+                            onConfirm={() => deleteUser(record.id, record.name)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement='left'
+                            okButtonProps={{ danger: true }}
+                        >
+                            <Button
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                type="text"
+                                danger
+                            ></Button>
+                        </Popconfirm>
+
                     </Tooltip>
                 </Space>
             ),
@@ -337,7 +337,7 @@ export default function UsersPage() {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-6 h-16">
+            <div className="flex justify-between items-center mb-6 h-6">
                 <Breadcrumb
                     items={[
                         { title: <Link href="/dashboard">Dashboard</Link> },
@@ -380,7 +380,7 @@ export default function UsersPage() {
                         label="Name"
                         rules={[{ required: true, message: 'Please enter a name' }]}
                     >
-                        <Input />
+                        <Input placeholder='Enter name' />
                     </Form.Item>
 
                     <Form.Item
@@ -391,7 +391,7 @@ export default function UsersPage() {
                             { type: 'email', message: 'Please enter a valid email' }
                         ]}
                     >
-                        <Input />
+                        <Input placeholder='Enter email' />
                     </Form.Item>
 
                     <Form.Item
@@ -402,7 +402,7 @@ export default function UsersPage() {
                             { min: 6, message: 'Password must be at least 6 characters' }
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password placeholder='Enter password' />
                     </Form.Item>
 
                     <Form.Item
@@ -410,7 +410,7 @@ export default function UsersPage() {
                         label="User Type"
                         rules={[{ required: true, message: 'Please select a user type' }]}
                     >
-                        <Select options={userTypeOptions} />
+                        <Select options={userTypeOptions} placeholder='Select user type' />
                     </Form.Item>
 
                     <Form.Item>

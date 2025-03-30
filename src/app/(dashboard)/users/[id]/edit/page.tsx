@@ -97,7 +97,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-6 h-16">
+            <div className="flex justify-between items-center mb-6 h-6">
                 <Breadcrumb
                     items={[
                         { title: <Link href="/dashboard">Dashboard</Link> },

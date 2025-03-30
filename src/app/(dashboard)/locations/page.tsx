@@ -372,7 +372,7 @@ export default function LocationsPage() {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 h-6">
                 <Breadcrumb
                     items={[
                         { title: <Link href="/dashboard">Dashboard</Link> },
