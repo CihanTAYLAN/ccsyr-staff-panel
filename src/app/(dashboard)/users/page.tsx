@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Table, Tag, Input, Space, Select, Modal, Form, message, Tooltip, Breadcrumb } from 'antd';
-import { SearchOutlined, UserAddOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space } from 'antd';
+import { UserAddOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {
+    DataTable,
+    PaginationData,
+    FilterState,
+    FilterConfig,
+    SortingState
+} from '@/components/shared/DataTable';
 
 const { confirm } = Modal;
 
@@ -39,15 +46,6 @@ type UserData = {
     };
 };
 
-type PaginationData = {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrevious: boolean;
-};
-
 export default function UsersPage() {
     const router = useRouter();
     const [users, setUsers] = useState<UserData[]>([]);
@@ -60,18 +58,39 @@ export default function UsersPage() {
         hasNext: false,
         hasPrevious: false,
     });
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<FilterState>({
         search: '',
         userType: '',
         status: '',
     });
-    const [sorting, setSorting] = useState({
+    const [sorting, setSorting] = useState<SortingState>({
         sortField: 'created_at',
         sortOrder: 'desc',
     });
     const [addUserModalVisible, setAddUserModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [submitLoading, setSubmitLoading] = useState(false);
+
+    // Tablo filtre konfigürasyonu
+    const tableFilters: Record<string, FilterConfig> = {
+        search: {
+            type: 'text',
+            placeholder: 'Search by name or email',
+            filterKey: 'search'
+        },
+        userType: {
+            type: 'select',
+            placeholder: 'Filter by user type',
+            options: userTypeOptions,
+            filterKey: 'userType'
+        },
+        status: {
+            type: 'select',
+            placeholder: 'Filter by status',
+            options: userStatusOptions,
+            filterKey: 'status'
+        }
+    };
 
     // Kullanıcıları getir
     const fetchUsers = async () => {
@@ -238,55 +257,73 @@ export default function UsersPage() {
             title: 'Current Location',
             dataIndex: 'currentLocation.name',
             key: 'currentLocation',
-            render: (location: string | null) => (
+            render: (_: any, record: UserData) => (
                 <Tooltip title="Automatically updated based on user check-in/check-out">
-                    {location ? location : 'Not assigned'}
+                    {record.currentLocation?.name || 'Not assigned'}
                 </Tooltip>
             ),
             sorter: true,
         },
         {
             title: 'Access Logs',
-            dataIndex: '_count',
+            dataIndex: ['_count', 'logs'],
             key: 'logs',
-            render: (count: { logs: number }) => count.logs,
+            render: (logs: number) => logs || 0,
+            sorter: true,
         },
         {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: UserData) => (
-                <Space size="small">
-                    <Tooltip title="View Details">
-                        <Link href={`/users/${record.id}`}>
-                            <Button type="text" icon={<EyeOutlined />} />
-                        </Link>
-                    </Tooltip>
-                    <Tooltip title="Edit User">
-                        <Link href={`/users/${record.id}/edit`}>
-                            <Button type="text" icon={<EditOutlined />} />
-                        </Link>
-                    </Tooltip>
-                    <Tooltip title="Delete User">
-                        <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => confirmDeleteUser(record.id, record.name)}
-                        />
-                    </Tooltip>
+                <Space>
+                    <Link href={`/users/${record.id}`}>
+                        <Button icon={<EyeOutlined />} size="small" type="primary" ghost>
+                            View
+                        </Button>
+                    </Link>
+                    <Link href={`/users/${record.id}/edit`}>
+                        <Button icon={<EditOutlined />} size="small">
+                            Edit
+                        </Button>
+                    </Link>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        size="small"
+                        danger
+                        onClick={() => confirmDeleteUser(record.id, record.name)}
+                    >
+                        Delete
+                    </Button>
                 </Space>
             ),
         },
     ];
 
-    // Sıralama değiştiğinde yapılacak işlem
+    // Tablo değişikliklerini yönet (sayfalama, sıralama)
     const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        if (sorter && sorter.field) {
+        setPagination(prev => ({
+            ...prev,
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+        }));
+
+        if (sorter.field && sorter.order) {
             setSorting({
                 sortField: sorter.field,
                 sortOrder: sorter.order === 'ascend' ? 'asc' : 'desc',
             });
+        } else {
+            setSorting({
+                sortField: 'created_at',
+                sortOrder: 'desc',
+            });
         }
+    };
+
+    // Filtre değişikliklerini yönet
+    const handleFiltersChange = (newFilters: FilterState) => {
+        setFilters(newFilters);
+        setPagination(prev => ({ ...prev, page: 1 }));
     };
 
     return (
@@ -294,7 +331,7 @@ export default function UsersPage() {
             <div className="flex justify-between items-center mb-6 h-16">
                 <Breadcrumb
                     items={[
-                        { title: 'Dashboard', href: '/' },
+                        { title: 'Dashboard', href: '/dashboard' },
                         { title: 'Users' },
                     ]}
                 />
@@ -307,120 +344,75 @@ export default function UsersPage() {
                 </Button>
             </div>
 
-            <Card styles={{ body: { padding: 0, overflowX: 'auto' } }}>
-                <div className="p-6 pb-0">
-                    <div className="mb-6 flex flex-wrap gap-4">
-                        <Input
-                            placeholder="Search by name or email"
-                            prefix={<SearchOutlined />}
-                            value={filters.search || undefined}
-                            onChange={e => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                            style={{ width: 250 }}
-                            allowClear
-                        />
-
-                        <Select
-                            placeholder="Filter by user type"
-                            style={{ width: 200 }}
-                            value={filters.userType || undefined}
-                            onChange={value => setFilters(prev => ({ ...prev, userType: value }))}
-                            options={userTypeOptions}
-                            allowClear
-                        />
-
-                        <Select
-                            placeholder="Filter by status"
-                            style={{ width: 150 }}
-                            value={filters.status || undefined}
-                            onChange={value => setFilters(prev => ({ ...prev, status: value }))}
-                            options={userStatusOptions}
-                            allowClear
-                        />
-
-                        <Button onClick={resetFilters}>Reset Filters</Button>
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <Table
-                        columns={columns}
-                        dataSource={users}
-                        rowKey="id"
-                        loading={loading}
-                        scroll={{ x: 800 }}
-                        onChange={handleTableChange}
-                        pagination={{
-                            current: pagination.page,
-                            pageSize: pagination.pageSize,
-                            total: pagination.total,
-                            showSizeChanger: true,
-                            showTotal: (total) => `Total ${total} users`,
-                            onChange: (page, pageSize) => {
-                                setPagination(prev => ({ ...prev, page, pageSize }));
-                            },
-                        }}
-                    />
-                </div>
+            <Card title="Users" className="shadow-theme border-theme">
+                <DataTable
+                    dataSource={users}
+                    columns={columns}
+                    loading={loading}
+                    pagination={pagination}
+                    filters={tableFilters}
+                    filterValues={filters}
+                    onFiltersChange={handleFiltersChange}
+                    onTableChange={handleTableChange}
+                    onResetFilters={resetFilters}
+                    onRefresh={fetchUsers}
+                />
             </Card>
 
-            {/* Kullanıcı Ekleme Modalı */}
             <Modal
                 title="Add New User"
                 open={addUserModalVisible}
                 onCancel={() => setAddUserModalVisible(false)}
-                footer={false}
+                footer={null}
             >
-                <p className='text-theme-text-secondary text-sm'>Please fill in the form below to add a new user.</p>
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleAddUser}
-                >
+                <Form form={form} layout="vertical" onFinish={handleAddUser}>
                     <Form.Item
                         name="name"
                         label="Name"
-                        rules={[{ required: true, message: 'Please enter name' }]}
+                        rules={[{ required: true, message: 'Please enter a name' }]}
                     >
-                        <Input placeholder="Enter name" />
+                        <Input />
                     </Form.Item>
 
                     <Form.Item
                         name="email"
                         label="Email"
                         rules={[
-                            { required: true, message: 'Please enter email' },
+                            { required: true, message: 'Please enter an email' },
                             { type: 'email', message: 'Please enter a valid email' }
                         ]}
                     >
-                        <Input placeholder="Enter email" />
+                        <Input />
                     </Form.Item>
 
                     <Form.Item
                         name="password"
                         label="Password"
                         rules={[
-                            { required: true, message: 'Please enter password' },
+                            { required: true, message: 'Please enter a password' },
                             { min: 6, message: 'Password must be at least 6 characters' }
                         ]}
                     >
-                        <Input.Password placeholder="Enter password" />
+                        <Input.Password />
                     </Form.Item>
 
                     <Form.Item
                         name="userType"
                         label="User Type"
-                        rules={[{ required: true, message: 'Please select user type' }]}
+                        rules={[{ required: true, message: 'Please select a user type' }]}
                     >
-                        <Select options={userTypeOptions} placeholder="Select user type" />
+                        <Select options={userTypeOptions} />
                     </Form.Item>
 
-                    <Form.Item className="mb-0 text-right">
-                        <Space>
-                            <Button onClick={() => setAddUserModalVisible(false)}>Cancel</Button>
-                            <Button type="primary" htmlType="submit" loading={submitLoading}>
-                                Add User
+                    <Form.Item>
+                        <div className="flex justify-end space-x-2">
+                            <Button onClick={() => setAddUserModalVisible(false)}>
+                                Cancel
                             </Button>
-                        </Space>
+                            <Button type="primary" htmlType="submit" loading={submitLoading}>
+                                Create User
+                            </Button>
+                        </div>
                     </Form.Item>
                 </Form>
             </Modal>

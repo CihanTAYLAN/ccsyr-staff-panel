@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType, Prisma } from "@prisma/client";
+import { EUserType } from "@prisma/client";
+import { extractRequestParams, getPaginationValues, calculatePaginationMeta, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/users - Kullanıcıları listele (pagination, filtreleme ve arama desteği ile)
 export async function GET(request: NextRequest) {
@@ -15,47 +16,22 @@ export async function GET(request: NextRequest) {
 
 		// URL parametrelerini al
 		const searchParams = request.nextUrl.searchParams;
-		const page = parseInt(searchParams.get("page") || "1");
-		const pageSize = parseInt(searchParams.get("pageSize") || "10");
-		const search = searchParams.get("search") || "";
+		const { page, pageSize, search, sortField, sortOrder } = extractRequestParams(searchParams);
 		const userType = searchParams.get("userType") || undefined;
 		const status = searchParams.get("status") || undefined;
 
 		// Sıralama için parametreleri al
-		let sortQuery: Prisma.UserOrderByWithRelationInput = {
-			created_at: (searchParams.get("sortOrder") as Prisma.SortOrder) || "desc",
-		};
-
-		const sortFieldStringToPrismaQuery = (sortField: string): any => {
-			let s = sortField.split(".");
-			const key = s[0];
-			const subFields = s.slice(1).join(".");
-
-			if (subFields.length === 0) {
-				return { [key]: (searchParams.get("sortOrder") as Prisma.SortOrder) || "desc" };
-			} else {
-				return sortFieldStringToPrismaQuery(subFields);
-			}
-		};
-
-		const sortFieldRequest = searchParams.get("sortField") || "";
-
-		if (sortFieldRequest) {
-			sortQuery = sortFieldStringToPrismaQuery(sortFieldRequest);
-		}
-
-		console.log("TEST");
-		console.log(sortQuery);
+		const sortQuery = parseSortingToQuery({ sortField, sortOrder });
 
 		// Sayfalama için hesaplamalar
-		const skip = (page - 1) * pageSize;
+		const { skip, take } = getPaginationValues({ page, pageSize });
 
 		// Filtreler için where koşulu oluştur
-		const where: any = {};
+		let where: any = {};
 
 		// Arama filtresi
 		if (search) {
-			where.OR = [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }];
+			where = { ...where, ...createSearchQuery({ search, searchFields: ["name", "email"] }) };
 		}
 
 		// Kullanıcı tipi filtresi
@@ -96,24 +72,15 @@ export async function GET(request: NextRequest) {
 			where,
 			orderBy: sortQuery,
 			skip,
-			take: pageSize,
+			take,
 		});
 
 		// Sayfalama bilgilerini hazırla
-		const totalPages = Math.ceil(totalUsers / pageSize);
-		const hasNext = page < totalPages;
-		const hasPrevious = page > 1;
+		const pagination = calculatePaginationMeta(totalUsers, { page, pageSize });
 
 		return NextResponse.json({
 			users,
-			pagination: {
-				page,
-				pageSize,
-				total: totalUsers,
-				totalPages,
-				hasNext,
-				hasPrevious,
-			},
+			pagination,
 		});
 	} catch (error) {
 		console.error("Error fetching users:", error);
