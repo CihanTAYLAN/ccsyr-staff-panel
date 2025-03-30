@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Col, Row, Statistic } from 'antd';
+import { Breadcrumb, Card, Col, Row, Statistic } from 'antd';
 import {
     UserOutlined,
     EnvironmentOutlined,
@@ -10,7 +10,13 @@ import {
 export default function Dashboard() {
     return (
         <>
-            <h1 className="text-2xl font-bold mb-6 text-theme-text">Dashboard</h1>
+            <div className="flex justify-between items-center mb-6 h-16">
+                <Breadcrumb
+                    items={[
+                        { title: 'Dashboard' },
+                    ]}
+                />
+            </div>
             <Row gutter={16}>
                 <Col xs={24} sm={8} className="mb-4">
                     <Card hoverable className="shadow-theme h-full">

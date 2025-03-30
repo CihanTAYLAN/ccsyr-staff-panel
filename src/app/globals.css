@@ -132,11 +132,11 @@ html.dark {
 /* Geçiş animasyonu - smooth olması için hafifletildi */
 html,
 body {
-	transition: background-color 0.2s ease, color 0.2s ease;
+	transition: background-color 0.05s ease, color 0.05s ease;
 }
 
 * {
-	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+	transition: background-color 0.05s ease, color 0.05s ease, border-color 0.05s ease, box-shadow 0.05s ease;
 }
 
 /* Temel stil ayarları */
@@ -158,26 +158,6 @@ html.dark body {
 	color: var(--theme-text);
 }
 
-/* Ant Design bileşenleri için özel stiller */
-.ant-btn-primary {
-	background-color: var(--primary);
-}
-
-.ant-btn-primary:hover {
-	background-color: var(--primary-dark) !important;
-}
-
-.ant-card {
-	background-color: var(--theme-bg-elevated);
-	box-shadow: 0 1px 2px 0 var(--theme-shadow);
-}
-
-.ant-input,
-.ant-input-password {
-	background-color: var(--theme-bg-input);
-	border-color: var(--theme-border);
-}
-
 /* Tailwind dinamik class'ları için yardımcı stiller */
 .text-theme-primary {
 	color: var(--primary);
@@ -191,139 +171,24 @@ html.dark body {
 	background-color: var(--theme-bg-elevated);
 }
 
-.bg-theme-card {
-	background-color: var(--theme-bg-elevated);
-}
-
 .border-theme {
 	border-color: var(--theme-border);
 }
 
-/* Butonlar için hover efektleri */
-.button-hover-effect {
-	position: relative;
-	overflow: hidden;
+.overflow-x-auto {
+	scrollbar-width: thin;
+	scrollbar-color: var(--theme-border) transparent;
 }
 
-.button-hover-effect::after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 0;
-	height: 0;
-	background: rgba(255, 255, 255, 0.2);
-	border-radius: 50%;
-	transform: translate(-50%, -50%);
-	transition: width 0.6s, height 0.6s;
+.overflow-x-auto::-webkit-scrollbar {
+	height: 6px;
 }
 
-.button-hover-effect:hover::after {
-	width: 300%;
-	height: 300%;
+.overflow-x-auto::-webkit-scrollbar-track {
+	background: transparent;
 }
 
-/* Kartlar için hover efektleri */
-.card-hover-effect {
-	transition: all 0.3s ease;
-}
-
-.card-hover-effect:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 8px 24px var(--theme-shadow-dark);
-}
-
-.bg-gradient-primary {
-	background-image: linear-gradient(to right, var(--primary), var(--primary-dark));
-}
-
-.shadow-theme-sm {
-	box-shadow: 0 1px 2px var(--theme-shadow);
-}
-
-.shadow-theme-md {
-	box-shadow: 0 4px 12px var(--theme-shadow);
-}
-
-.shadow-theme-lg {
-	box-shadow: 0 8px 24px var(--theme-shadow-dark);
-}
-
-.text-theme-text {
-	color: var(--theme-text);
-}
-
-.text-theme-secondary {
-	color: var(--theme-text-secondary);
-}
-
-.bg-theme-input {
-	background-color: var(--theme-bg-input);
-}
-
-/* Diğer Genel Stillendirmeler */
-.ant-card,
-.ant-modal,
-.ant-dropdown-menu,
-.ant-drawer-content {
-	background-color: var(--theme-bg-elevated);
-	color: var(--theme-text);
-	border-color: var(--theme-border);
-}
-
-.ant-input,
-.ant-input-affix-wrapper,
-.ant-select-selector,
-.ant-picker {
-	background-color: var(--theme-bg-input) !important;
-	border-color: var(--theme-border) !important;
-	color: var(--theme-text) !important;
-}
-
-.ant-input-affix-wrapper input {
-	background-color: transparent !important;
-}
-
-.ant-menu {
-	background-color: var(--theme-bg-secondary);
-	color: var(--theme-text);
-	border-color: var(--theme-border);
-}
-
-.ant-menu-item:hover,
-.ant-menu-submenu:hover {
-	color: var(--primary) !important;
-}
-
-.ant-menu-item-selected {
-	background-color: var(--primary-lighter) !important;
-	color: var(--primary) !important;
-}
-
-.dark .ant-menu-item-selected {
-	background-color: rgba(25, 128, 168, 0.2) !important;
-}
-
-.ant-table {
-	background-color: var(--theme-bg-elevated);
-	color: var(--theme-text);
-}
-
-.ant-table-thead > tr > th {
-	background-color: var(--theme-bg-secondary) !important;
-	color: var(--theme-text) !important;
-	border-color: var(--theme-border) !important;
-}
-
-.ant-table-tbody > tr > td {
-	border-color: var(--theme-border) !important;
-}
-
-.ant-pagination-item {
-	background-color: var(--theme-bg-input);
-	border-color: var(--theme-border);
-}
-
-.ant-pagination-item-active {
-	border-color: var(--primary) !important;
+.overflow-x-auto::-webkit-scrollbar-thumb {
+	background-color: var(--theme-border);
+	border-radius: 6px;
 }

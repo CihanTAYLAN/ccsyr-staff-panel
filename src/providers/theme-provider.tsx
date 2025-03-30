@@ -39,16 +39,12 @@ const getAntThemeTokens = (mode: Theme) => {
                 colorBorderSecondary: mode === 'light' ? 'var(--theme-border)' : 'var(--theme-border)',
             },
             Menu: {
-                colorItemBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
-                colorItemText: mode === 'light' ? 'var(--theme-text)' : 'var(--theme-text)',
-                colorItemTextSelected: mode === 'light' ? 'var(--primary)' : 'var(--primary)',
-                colorActiveBarWidth: 3,
+                itemBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
+                itemText: mode === 'light' ? 'var(--theme-text)' : 'var(--theme-text)',
+                itemTextSelected: mode === 'light' ? 'var(--primary)' : 'var(--primary)',
+                activeBarWidth: 3,
                 colorActiveBarHeight: 0,
                 colorActiveBarBorderSize: 0,
-            },
-            Table: {
-                colorBgContainer: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
-                headerBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
             },
             Layout: {
                 headerBg: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',

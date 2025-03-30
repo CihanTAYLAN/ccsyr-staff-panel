@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {
             key: '1',
             icon: <DashboardOutlined />,
-            label: <Link href="/">Dashboard</Link>,
+            label: <Link href="/dashboard">Dashboard</Link>,
         },
         {
             key: '2',
@@ -102,10 +102,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 theme={theme === 'dark' ? 'dark' : 'light'}
                 className="border-r border-theme h-full"
             >
-                <div className={`${!collapsed ? 'px-4' : ''} h-8 m-4 flex items-center gap-4 justify-start`}>
+                <Link href="/dashboard" className={`${!collapsed ? 'px-4' : ''} h-8 m-4 flex items-center gap-4 justify-start`}>
                     <Image src="/ccsyr-logo.png" alt="logo" className='h-12 w-auto' preview={false} />
                     {!collapsed && <h1 className='text-primary'>CCSYR</h1>}
-                </div>
+                </Link>
                 <Menu
                     theme={theme === 'dark' ? 'dark' : 'light'}
                     mode="inline"
@@ -134,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </Dropdown>
                     </div>
                 </Header>
-                <Content className="m-6 p-6 bg-theme-card rounded shadow-theme flex-1 overflow-auto">
+                <Content className="m-6 p-6 rounded shadow-theme flex-1 overflow-auto">
                     {children}
                 </Content>
             </Layout>

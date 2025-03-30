@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  id       String      @id @default(dbgenerated("gen_random_uuid()"))
+  id       String       @id @default(dbgenerated("gen_random_uuid()"))
   name     String?
-  email    String      @unique
+  email    String       @unique
   password String
   userType EUserType
-  status   EUserStatus
+  status   EUserStatus? @default(OFFLINE)
 
   logs AccessLog[]
 

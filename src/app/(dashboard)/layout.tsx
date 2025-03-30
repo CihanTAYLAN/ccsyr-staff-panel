@@ -15,4 +15,4 @@ export default function Admin({ children }: { children: React.ReactNode }) {
         return null;
     }
     return <AdminLayout>{children}</AdminLayout>;
-} 
+}
