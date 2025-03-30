@@ -353,7 +353,7 @@ export default function UsersPage() {
                 </Button>
             </div>
 
-            <Card title="Users" className="shadow-theme border-theme">
+            <Card title="Users" className="shadow-theme border-theme" styles={{ body: { padding: 0 } }}>
                 <DataTable
                     dataSource={users}
                     columns={columns}

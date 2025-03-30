@@ -86,7 +86,7 @@ export function DataTable<T>({
     return (
         <div className="data-table-container">
             {Object.keys(filters).length > 0 && (
-                <div className="mb-4 bg-theme-background p-4 rounded-md shadow-theme">
+                <div className="bg-theme-background p-4 rounded-md shadow-theme">
                     <Space wrap className="filters-container">
                         {Object.entries(filters).map(([key, config]) => (
                             <div key={key} className="filter-item">
@@ -118,12 +118,14 @@ export function DataTable<T>({
             )}
 
             <Table
-                className="overflow-x-auto"
+                className="custom-table"
                 dataSource={dataSource}
                 columns={columns}
                 rowKey={rowKey}
                 loading={loading}
                 onChange={onTableChange}
+                scroll={{ x: 1000 }}
+                size='small'
                 pagination={{
                     current: pagination.page,
                     pageSize: pagination.pageSize,

@@ -175,20 +175,20 @@ html.dark body {
 	border-color: var(--theme-border);
 }
 
-.overflow-x-auto {
+.ant-table-content {
 	scrollbar-width: thin;
 	scrollbar-color: var(--theme-border) transparent;
 }
 
-.overflow-x-auto::-webkit-scrollbar {
+.ant-table-content::-webkit-scrollbar {
 	height: 6px;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
+.ant-table-content::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
+.ant-table-content::-webkit-scrollbar-thumb {
 	background-color: var(--theme-border);
 	border-radius: 6px;
 }
@@ -209,4 +209,8 @@ html.dark body {
 .ant-modal-confirm-content {
 	color: var(--theme-text) !important;
 	background-color: transparent !important;
+}
+
+.custom-table .ant-table-pagination {
+	padding: 0 16px;
 }
