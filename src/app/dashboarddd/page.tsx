@@ -1,6 +1,5 @@
 'use client';
 
-import AdminLayout from '@/components/layout/AdminLayout';
 import { Card, Col, Row, Statistic } from 'antd';
 import {
     UserOutlined,
@@ -10,7 +9,7 @@ import {
 
 export default function Dashboard() {
     return (
-        <AdminLayout>
+        <>
             <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
             <Row gutter={16}>
                 <Col xs={24} sm={8}>
@@ -46,6 +45,6 @@ export default function Dashboard() {
                     <p>No recent activity to display</p>
                 </Card>
             </div>
-        </AdminLayout>
+        </>
     );
 } 

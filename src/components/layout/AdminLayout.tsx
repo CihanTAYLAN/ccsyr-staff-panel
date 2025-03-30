@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,8 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     UserOutlined,
-    DashboardOutlined, EnvironmentOutlined,
+    DashboardOutlined,
+    EnvironmentOutlined,
     ClockCircleOutlined,
     LogoutOutlined,
     BulbOutlined
@@ -20,12 +21,30 @@ const { Header, Sider, Content } = Layout;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false);
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
+    const [isMounted, setIsMounted] = useState(false);
 
-    if (!session) {
-        router.push('/auth/login');
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/auth/login');
+        }
+    }, [status, router]);
+
+    if (!isMounted) {
+        return null; // İlk render sırasında hiçbir şey render etme
+    }
+
+    if (status === 'loading') {
+        return <div>Loading...</div>;
+    }
+
+    if (status === 'unauthenticated') {
         return null;
     }
 
