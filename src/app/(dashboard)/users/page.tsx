@@ -236,11 +236,11 @@ export default function UsersPage() {
         },
         {
             title: 'Current Location',
-            dataIndex: 'currentLocation',
+            dataIndex: 'currentLocation.name',
             key: 'currentLocation',
-            render: (location: { id: string; name: string } | null) => (
+            render: (location: string | null) => (
                 <Tooltip title="Automatically updated based on user check-in/check-out">
-                    {location ? location.name : 'Not assigned'}
+                    {location ? location : 'Not assigned'}
                 </Tooltip>
             ),
             sorter: true,

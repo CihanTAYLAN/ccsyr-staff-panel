@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from 'next/font/google';
+import { Noto_Sans } from 'next/font/google';
 import "./globals.css";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 
-const inter = Inter({ subsets: ['latin'] })
+const notoSans = Noto_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans',
+});
 
 export const metadata: Metadata = {
   title: "CCSYR Staff Panel",
@@ -18,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={notoSans.variable}>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -40,7 +45,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={notoSans.className}>
         <AntdRegistry>
           <AuthProvider>
             <ThemeProvider>

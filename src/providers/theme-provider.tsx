@@ -39,7 +39,7 @@ const getAntThemeTokens = (mode: Theme) => {
                 colorBorderSecondary: mode === 'light' ? 'var(--theme-border)' : 'var(--theme-border)',
             },
             Menu: {
-                itemBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
+                itemBg: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
                 itemText: mode === 'light' ? 'var(--theme-text)' : 'var(--theme-text)',
                 itemTextSelected: mode === 'light' ? 'var(--primary)' : 'var(--primary)',
                 activeBarWidth: 3,
@@ -48,6 +48,7 @@ const getAntThemeTokens = (mode: Theme) => {
             },
             Layout: {
                 headerBg: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
+                siderBg: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
                 bodyBg: mode === 'light' ? 'var(--theme-bg-primary)' : 'var(--theme-bg-primary)',
                 triggerBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
             },

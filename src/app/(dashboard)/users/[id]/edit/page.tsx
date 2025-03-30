@@ -113,7 +113,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                 />
             </div>
 
-            <Card>
+            <Card title="Edit User">
                 <Form
                     form={form}
                     layout="vertical"

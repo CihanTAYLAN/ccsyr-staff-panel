@@ -132,16 +132,16 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                 </Link>
             </div>
 
-            <Card className="mb-6">
-                <Descriptions title="User Information" bordered>
-                    <Descriptions.Item label="Name" span={3}>
+            <Card className="mb-6" title="User Information">
+                <Descriptions bordered size='small'>
+                    <Descriptions.Item label="Name" span={2}>
                         {user.name || 'N/A'}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Email" span={3}>
-                        {user.email}
                     </Descriptions.Item>
                     <Descriptions.Item label="User Type">
                         <Tag color={userTypeInfo.color}>{userTypeInfo.text}</Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Email" span={3}>
+                        {user.email}
                     </Descriptions.Item>
                     <Descriptions.Item label="Status">
                         <Tag color={user.status === EUserStatus.ONLINE ? 'success' : 'default'}>
