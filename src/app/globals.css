@@ -240,3 +240,9 @@ html.dark body {
 	background-color: var(--theme-bg-elevated) !important;
 	opacity: 0.9 !important;
 }
+
+.ant-message-notice-content {
+	background-color: var(--theme-bg-elevated) !important;
+	color: var(--theme-text) !important;
+	border: 1px solid var(--theme-border) !important;
+}
