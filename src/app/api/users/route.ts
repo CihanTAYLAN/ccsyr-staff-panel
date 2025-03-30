@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType } from "@prisma/client";
+import { EUserType, Prisma } from "@prisma/client";
 
 // GET /api/users - Kullanıcıları listele (pagination, filtreleme ve arama desteği ile)
 export async function GET(request: NextRequest) {
@@ -22,8 +22,30 @@ export async function GET(request: NextRequest) {
 		const status = searchParams.get("status") || undefined;
 
 		// Sıralama için parametreleri al
-		const sortField = searchParams.get("sortField") || "created_at";
-		const sortOrder = searchParams.get("sortOrder") || "desc";
+		let sortQuery: Prisma.UserOrderByWithRelationInput = {
+			created_at: (searchParams.get("sortOrder") as Prisma.SortOrder) || "desc",
+		};
+
+		const sortFieldStringToPrismaQuery = (sortField: string): any => {
+			let s = sortField.split(".");
+			const key = s[0];
+			const subFields = s.slice(1).join(".");
+
+			if (subFields.length === 0) {
+				return { [key]: (searchParams.get("sortOrder") as Prisma.SortOrder) || "desc" };
+			} else {
+				return sortFieldStringToPrismaQuery(subFields);
+			}
+		};
+
+		const sortFieldRequest = searchParams.get("sortField") || "";
+
+		if (sortFieldRequest) {
+			sortQuery = sortFieldStringToPrismaQuery(sortFieldRequest);
+		}
+
+		console.log("TEST");
+		console.log(sortQuery);
 
 		// Sayfalama için hesaplamalar
 		const skip = (page - 1) * pageSize;
@@ -72,7 +94,7 @@ export async function GET(request: NextRequest) {
 				},
 			},
 			where,
-			orderBy: { [sortField]: sortOrder },
+			orderBy: sortQuery,
 			skip,
 			take: pageSize,
 		});
