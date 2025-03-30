@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Card, Form, Input, message, Typography } from 'antd';
-import { MailOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { MailOutlined, BulbOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
 
@@ -11,8 +10,7 @@ const { Title, Text } = Typography;
 
 export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
-    const { theme } = useTheme();
+    const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -22,45 +20,33 @@ export default function ForgotPasswordPage() {
     const onFinish = async (values: { email: string }) => {
         setLoading(true);
         try {
-            // Bu kısım gerçek şifre sıfırlama işlemini yapacak şekilde düzenlenecek.
-            // Şimdilik sadece yer tutucu olarak mesaj gösteriyoruz.
-            message.success('Password reset instructions sent to your email');
-            setTimeout(() => {
-                router.push('/auth/login');
-            }, 2000);
+            // API isteği gerçekleştirilecek
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
+            message.success('Password reset instructions have been sent to your email address');
         } catch (error) {
-            message.error('An error occurred');
+            message.error('There was an error sending the password reset email');
         } finally {
             setLoading(false);
         }
     };
 
-    // İlk render'da içeriği sakla
     if (!isMounted) {
         return null;
     }
 
     return (
-        <Card
-            style={{
-                width: 400,
-                maxWidth: '90%',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                background: theme === 'dark' ? '#1f1f1f' : '#fff',
-            }}
-        >
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <Title level={2}>Reset Password</Title>
-                <Text type="secondary">
-                    Enter your email and we'll send you a link to reset your password
-                </Text>
+        <Card className="w-full max-w-md shadow-theme-md card-hover-effect">
+            <div className="text-center mb-6">
+                <Title level={2} className="text-theme-text">Reset Password</Title>
+                <Text type="secondary">Enter your email to receive password reset instructions</Text>
             </div>
 
             <Form
-                name="forgotPassword"
+                name="forgot-password"
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 layout="vertical"
+                className="w-full"
             >
                 <Form.Item
                     name="email"
@@ -69,7 +55,12 @@ export default function ForgotPasswordPage() {
                         { type: 'email', message: 'Please enter a valid email' },
                     ]}
                 >
-                    <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
+                    <Input
+                        prefix={<MailOutlined className="text-theme-secondary" />}
+                        placeholder="Email"
+                        size="large"
+                        className="bg-theme-input"
+                    />
                 </Form.Item>
 
                 <Form.Item>
@@ -79,15 +70,29 @@ export default function ForgotPasswordPage() {
                         loading={loading}
                         block
                         size="large"
+                        className="bg-gradient-primary hover:bg-primary-dark button-hover-effect"
                     >
                         Send Reset Link
                     </Button>
                 </Form.Item>
 
-                <div style={{ textAlign: 'center' }}>
-                    <Link href="/auth/login">Back to Login</Link>
+                <div className="text-center mt-4">
+                    <Link href="/auth/login" className="text-primary hover:text-primary-dark">
+                        Back to Login
+                    </Link>
                 </div>
             </Form>
+
+            <div className="text-center mt-4">
+                <Button
+                    type="text"
+                    icon={<BulbOutlined />}
+                    onClick={toggleTheme}
+                    className="text-theme-text hover:text-primary"
+                >
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </Button>
+            </div>
         </Card>
     );
 } 

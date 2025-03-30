@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Form, Input, message, Space, Typography } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, message, Typography } from 'antd';
+import { UserOutlined, LockOutlined, BulbOutlined } from '@ant-design/icons';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -48,16 +48,9 @@ export default function LoginPage() {
     }
 
     return (
-        <Card
-            style={{
-                width: 400,
-                maxWidth: '90%',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                background: theme === 'dark' ? '#1f1f1f' : '#fff',
-            }}
-        >
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <Title level={2}>CCSYR Staff Panel</Title>
+        <Card className="w-full mx-auto shadow-theme-md card-hover-effect">
+            <div className="text-center mb-6">
+                <Title level={2} className="text-theme-text">CCSYR Staff Panel</Title>
                 <Text type="secondary">Sign in to your account</Text>
             </div>
 
@@ -66,6 +59,7 @@ export default function LoginPage() {
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 layout="vertical"
+                className="w-full"
             >
                 <Form.Item
                     name="email"
@@ -74,7 +68,12 @@ export default function LoginPage() {
                         { type: 'email', message: 'Please enter a valid email' },
                     ]}
                 >
-                    <Input prefix={<UserOutlined />} placeholder="Email" size="large" />
+                    <Input
+                        prefix={<UserOutlined className="text-theme-secondary" />}
+                        placeholder="Email"
+                        size="large"
+                        className="bg-theme-input"
+                    />
                 </Form.Item>
 
                 <Form.Item
@@ -82,14 +81,17 @@ export default function LoginPage() {
                     rules={[{ required: true, message: 'Please input your password!' }]}
                 >
                     <Input.Password
-                        prefix={<LockOutlined />}
+                        prefix={<LockOutlined className="text-theme-secondary" />}
                         placeholder="Password"
                         size="large"
+                        className="bg-theme-input"
                     />
                 </Form.Item>
 
                 <Form.Item>
-                    <Link href="/auth/forgot-password">Forgot password?</Link>
+                    <Link href="/auth/forgot-password" className="text-primary hover:text-primary-dark">
+                        Forgot password?
+                    </Link>
                 </Form.Item>
 
                 <Form.Item>
@@ -99,18 +101,22 @@ export default function LoginPage() {
                         loading={loading}
                         block
                         size="large"
+                        className="bg-gradient-primary hover:bg-primary-dark button-hover-effect"
                     >
                         Log in
                     </Button>
                 </Form.Item>
             </Form>
 
-            <div style={{ textAlign: 'center' }}>
-                <Space>
-                    <Button type="text" icon={<UserOutlined />} onClick={toggleTheme}>
-                        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                    </Button>
-                </Space>
+            <div className="text-center">
+                <Button
+                    type="text"
+                    icon={<BulbOutlined />}
+                    onClick={toggleTheme}
+                    className="text-theme-text hover:text-primary"
+                >
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </Button>
             </div>
         </Card>
     );

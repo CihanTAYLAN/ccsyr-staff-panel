@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ant Design Reset CSS */
-@import "antd/dist/reset.css";
-
 /* Override Tailwind preflight styles */
 *,
 ::before,
@@ -22,45 +19,126 @@ body {
 }
 
 :root {
-	--background-light: #ffffff;
-	--text-light: #000000;
-	--background-dark: #141414;
-	--text-dark: #ffffff;
+	/* Ana Renk: #1980a8 */
+	--primary: #1980a8;
+	--primary-dark: #136d90;
+	--primary-light: #3a9bc2;
+	--primary-lighter: #e6f7ff;
+
+	/* Semantik Renkler */
+	--success: #52c41a;
+	--success-light: #b7eb8f;
+	--success-dark: #389e0d;
+
+	--warning: #faad14;
+	--warning-light: #ffe58f;
+	--warning-dark: #d48806;
+
+	--error: #f5222d;
+	--error-light: #ffccc7;
+	--error-dark: #cf1322;
+
+	--info: #1890ff;
+	--info-light: #91caff;
+	--info-dark: #096dd9;
+
+	/* Nötr Renkler */
+	--neutral-50: #fafafa;
+	--neutral-100: #f5f5f5;
+	--neutral-200: #e5e5e5;
+	--neutral-300: #d4d4d4;
+	--neutral-400: #a3a3a3;
+	--neutral-500: #737373;
+	--neutral-600: #525252;
+	--neutral-700: #404040;
+	--neutral-800: #262626;
+	--neutral-900: #171717;
+
+	/* Açık Tema Renkleri */
+	--theme-bg-primary: #ffffff;
+	--theme-bg-secondary: #f8f9fa;
+	--theme-bg-elevated: #ffffff;
+	--theme-bg-input: #f5f8fa;
+
+	--theme-text: #262626;
+	--theme-text-secondary: #737373;
+	--theme-text-disabled: #a3a3a3;
+
+	--theme-border: #e5e5e5;
+	--theme-border-light: #f0f0f0;
+
+	--theme-shadow: rgba(0, 0, 0, 0.08);
+	--theme-shadow-dark: rgba(0, 0, 0, 0.12);
 }
 
-@theme inline {
-	--color-background: var(--background-light);
-	--color-foreground: var(--text-light);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: var(--background-dark);
-		--foreground: var(--text-dark);
-	}
-}
-
-body {
-	background: var(--background-light);
-	color: var(--text-light);
-	font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Tema geçişleri için animasyon ekleyin */
-html {
-	transition: background-color 0.3s ease, color 0.3s ease;
-}
-
+/* Koyu Tema */
 html.dark {
-	background-color: var(--background-dark);
-	color: var(--text-dark);
+	/* Temel renkler - Dark Tema */
+	--primary: #3a9fc7;
+	--primary-dark: #1980a8;
+	--primary-light: #62b7da;
+	--primary-lighter: #133c4d;
+	--primary-contrast: #ffffff;
+
+	/* Nötr renkler - Dark Tema */
+	--neutral-50: #0f172a;
+	--neutral-100: #1e293b;
+	--neutral-200: #334155;
+	--neutral-300: #475569;
+	--neutral-400: #64748b;
+	--neutral-500: #94a3b8;
+	--neutral-600: #cbd5e1;
+	--neutral-700: #e2e8f0;
+	--neutral-800: #f1f5f9;
+	--neutral-900: #f8fafc;
+
+	/* Arka plan renkleri */
+	--bg-base: #121212;
+	--bg-elevated: #1e1e1e;
+	--bg-card: #282828;
+	--bg-input: #1e1e1e;
+
+	/* Metin renkleri */
+	--text-primary: var(--neutral-800);
+	--text-secondary: var(--neutral-600);
+	--text-disabled: var(--neutral-500);
+
+	/* Kenar ve gölge renkleri */
+	--border-color: var(--neutral-300);
+	--shadow-color: rgba(0, 0, 0, 0.3);
+
+	/* Tema Geçiş Efekti */
+	--theme-bg-primary: #121212;
+	--theme-bg-secondary: #1e1e1e;
+	--theme-bg-elevated: #242424;
+	--theme-bg-input: #2a2a2a;
+
+	--theme-text: #e5e5e5;
+	--theme-text-secondary: #a3a3a3;
+	--theme-text-disabled: #737373;
+
+	--theme-border: #404040;
+	--theme-border-light: #333333;
+
+	--theme-shadow: rgba(0, 0, 0, 0.3);
+	--theme-shadow-dark: rgba(0, 0, 0, 0.5);
 }
 
-html.light {
-	background-color: var(--background-light);
-	color: var(--text-light);
+/* Geçiş animasyonu - smooth olması için hafifletildi */
+html,
+body {
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+* {
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Temel stil ayarları */
+body {
+	background-color: var(--theme-bg-primary);
+	color: var(--theme-text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* Tema değişimi sırasında yanıp sönmeyi önle */
@@ -71,12 +149,176 @@ html.light {
 
 /* React komponentleri için dark-mode desteği */
 html.dark body {
-	background-color: var(--background-dark);
-	color: var(--text-dark);
+	background-color: var(--theme-bg-primary);
+	color: var(--theme-text);
 }
 
-/* Tema bağımsız isteğe bağlı genel stil */
-* {
-	padding: 0;
-	margin: 0;
+/* Ant Design bileşenleri için özel stiller */
+.ant-btn-primary {
+	background-color: var(--primary);
+}
+
+.ant-btn-primary:hover {
+	background-color: var(--primary-dark) !important;
+}
+
+.ant-card {
+	background-color: var(--theme-bg-elevated);
+	box-shadow: 0 1px 2px 0 var(--theme-shadow);
+}
+
+.ant-input,
+.ant-input-password {
+	background-color: var(--theme-bg-input);
+	border-color: var(--theme-border);
+}
+
+/* Tailwind dinamik class'ları için yardımcı stiller */
+.text-theme-primary {
+	color: var(--primary);
+}
+
+.bg-theme-base {
+	background-color: var(--theme-bg-primary);
+}
+
+.bg-theme-elevated {
+	background-color: var(--theme-bg-elevated);
+}
+
+.bg-theme-card {
+	background-color: var(--theme-bg-elevated);
+}
+
+.border-theme {
+	border-color: var(--theme-border);
+}
+
+/* Butonlar için hover efektleri */
+.button-hover-effect {
+	position: relative;
+	overflow: hidden;
+}
+
+.button-hover-effect::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 0;
+	height: 0;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	transition: width 0.6s, height 0.6s;
+}
+
+.button-hover-effect:hover::after {
+	width: 300%;
+	height: 300%;
+}
+
+/* Kartlar için hover efektleri */
+.card-hover-effect {
+	transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 8px 24px var(--theme-shadow-dark);
+}
+
+.bg-gradient-primary {
+	background-image: linear-gradient(to right, var(--primary), var(--primary-dark));
+}
+
+.shadow-theme-sm {
+	box-shadow: 0 1px 2px var(--theme-shadow);
+}
+
+.shadow-theme-md {
+	box-shadow: 0 4px 12px var(--theme-shadow);
+}
+
+.shadow-theme-lg {
+	box-shadow: 0 8px 24px var(--theme-shadow-dark);
+}
+
+.text-theme-text {
+	color: var(--theme-text);
+}
+
+.text-theme-secondary {
+	color: var(--theme-text-secondary);
+}
+
+.bg-theme-input {
+	background-color: var(--theme-bg-input);
+}
+
+/* Diğer Genel Stillendirmeler */
+.ant-card,
+.ant-modal,
+.ant-dropdown-menu,
+.ant-drawer-content {
+	background-color: var(--theme-bg-elevated);
+	color: var(--theme-text);
+	border-color: var(--theme-border);
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-picker {
+	background-color: var(--theme-bg-input) !important;
+	border-color: var(--theme-border) !important;
+	color: var(--theme-text) !important;
+}
+
+.ant-input-affix-wrapper input {
+	background-color: transparent !important;
+}
+
+.ant-menu {
+	background-color: var(--theme-bg-secondary);
+	color: var(--theme-text);
+	border-color: var(--theme-border);
+}
+
+.ant-menu-item:hover,
+.ant-menu-submenu:hover {
+	color: var(--primary) !important;
+}
+
+.ant-menu-item-selected {
+	background-color: var(--primary-lighter) !important;
+	color: var(--primary) !important;
+}
+
+.dark .ant-menu-item-selected {
+	background-color: rgba(25, 128, 168, 0.2) !important;
+}
+
+.ant-table {
+	background-color: var(--theme-bg-elevated);
+	color: var(--theme-text);
+}
+
+.ant-table-thead > tr > th {
+	background-color: var(--theme-bg-secondary) !important;
+	color: var(--theme-text) !important;
+	border-color: var(--theme-border) !important;
+}
+
+.ant-table-tbody > tr > td {
+	border-color: var(--theme-border) !important;
+}
+
+.ant-pagination-item {
+	background-color: var(--theme-bg-input);
+	border-color: var(--theme-border);
+}
+
+.ant-pagination-item-active {
+	border-color: var(--primary) !important;
 }

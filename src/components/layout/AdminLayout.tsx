@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
+import { Layout, Menu, Button, Dropdown, Avatar, Spin } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
@@ -41,7 +41,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     if (status === 'loading') {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-theme-bg">
+                <Spin size="large" />
+            </div>
+        );
     }
 
     if (status === 'unauthenticated') {
@@ -90,51 +94,44 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout className="min-h-screen h-screen flex flex-col">
             <Sider
                 trigger={null}
                 collapsible
                 collapsed={collapsed}
                 theme={theme === 'dark' ? 'dark' : 'light'}
+                className="border-r border-theme h-full"
             >
-                <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)' }} />
+                <div className="h-8 m-4 bg-opacity-20 bg-white" />
                 <Menu
                     theme={theme === 'dark' ? 'dark' : 'light'}
                     mode="inline"
                     defaultSelectedKeys={['1']}
                     items={menuItems}
+                    className="border-r-0"
                 />
             </Sider>
-            <Layout>
-                <Header style={{ padding: 0, background: theme === 'dark' ? '#141414' : '#fff' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 16px' }}>
+            <Layout className="h-full flex flex-col">
+                <Header className="p-0 flex justify-between items-center px-4 border-b border-theme h-16 bg-theme-bg">
+                    <Button
+                        type="text"
+                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                        onClick={toggleCollapsed}
+                        className="text-base w-16 h-16"
+                    />
+                    <div className="flex items-center gap-4">
                         <Button
                             type="text"
-                            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                            onClick={toggleCollapsed}
-                            style={{ fontSize: '16px', width: 64, height: 64 }}
+                            icon={<BulbOutlined />}
+                            onClick={toggleTheme}
+                            className="text-base w-10 h-10"
                         />
-                        <div style={{ display: 'flex', gap: '16px' }}>
-                            <Button
-                                type="text"
-                                icon={<BulbOutlined />}
-                                onClick={toggleTheme}
-                                style={{ fontSize: '16px', width: 40, height: 40 }}
-                            />
-                            <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-                                <Avatar size="large" icon={<UserOutlined />} style={{ cursor: 'pointer' }} />
-                            </Dropdown>
-                        </div>
+                        <Dropdown menu={{ items: userMenu }} placement="bottomRight">
+                            <Avatar size="large" icon={<UserOutlined />} className="cursor-pointer" />
+                        </Dropdown>
                     </div>
                 </Header>
-                <Content
-                    style={{
-                        margin: '24px 16px',
-                        padding: 24,
-                        background: theme === 'dark' ? '#141414' : '#fff',
-                        borderRadius: '4px',
-                    }}
-                >
+                <Content className="m-6 p-6 bg-theme-card rounded shadow-theme flex-1 overflow-auto">
                     {children}
                 </Content>
             </Layout>

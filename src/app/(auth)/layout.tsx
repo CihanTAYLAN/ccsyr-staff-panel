@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { ConfigProvider } from 'antd';
 import { useTheme } from '@/providers/theme-provider';
-import { useEffect, useState } from 'react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     const { theme } = useTheme();
@@ -11,22 +12,28 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         setIsMounted(true);
     }, []);
 
-    // İlk render'da içeriği sakla
     if (!isMounted) {
         return null;
     }
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                background: theme === 'dark' ? '#141414' : '#f0f2f5',
+        <ConfigProvider
+            theme={{
+                components: {
+                    Card: {
+                        headerBg: 'transparent',
+                    },
+                },
             }}
         >
-            {children}
-        </div>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-theme-bg-secondary p-4">
+                <div className="w-full max-w-md mx-auto">
+                    {children}
+                </div>
+                <footer className="mt-8 text-center text-theme-text-secondary text-sm">
+                    &copy; {new Date().getFullYear()} CCSYR Staff Panel. All rights reserved.
+                </footer>
+            </div>
+        </ConfigProvider>
     );
 } 
