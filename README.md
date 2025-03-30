@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CCSYR Staff Panel
 
-## Getting Started
+![CCSYR Logo](https://ccsyr.org/wp-content/uploads/2024/12/website-logo-thin.png)
 
-First, run the development server:
+## 📋 Project Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+CCSYR Staff Panel is a personnel management system designed to track employee building access and location monitoring. Different user groups with varied permissions can track and manage staff movements through a single panel interface.
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.1.0-black)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0+-blue)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-cyan)](https://www.prisma.io/)
+[![Status](https://img.shields.io/badge/Status-MVP-green)]()
+
+## 🚀 Features
+
+- **Multi-level Authorization System**
+
+  - Super Admin
+  - Manager Admin
+  - Personal (Staff)
+
+- **Location Tracking**
+
+  - Multiple location support
+  - Staff check-in/check-out recording
+  - Real-time location status
+
+- **User Management**
+
+  - Add, edit, and delete users
+  - Role-based authorization
+
+- **Advanced Logging System**
+
+  - Entry and exit logs
+  - Date and time-based filtering
+  - User and location analytics
+
+- **Dashboard and Reporting**
+  - Customizable dashboard
+  - Analytical graphs and reports
+
+## 🔧 Technology Stack
+
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: NextAuth.js
+- **Deployment**: Vercel / Docker
+
+## 📦 Installation
+
+### Requirements
+
+- Node.js (v16+)
+- PostgreSQL
+- npm/yarn
+
+### Setup Steps
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/CihanTAYLAN/ccsyr-staff-panel.git
+   cd ccsyr-staff-panel
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Configure the `.env` file:
+
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/ccsyr_staff_panel"
+   NEXTAUTH_SECRET="your-secret-key"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. Run database migrations:
+
+   ```bash
+   npx prisma migrate dev
+   # or
+   yarn prisma migrate dev
+   ```
+
+5. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## 🏗️ Project Structure
+
+```
+will be edit
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 👥 User Types and Permissions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Feature                | Super Admin | Manager Admin | Personal |
+| ---------------------- | ----------- | ------------- | -------- |
+| Location Management    | ✅          | ❌            | ❌       |
+| User Management        | ✅          | ❌            | ❌       |
+| All Personnel Tracking | ✅          | ✅            | ❌       |
+| View Own History       | ✅          | ✅            | ✅       |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📊 Database Schema
 
-## Learn More
+```
+[users]
+- id (PK)
+- name
+- email
+- password
+- userType
+- status
+- createdAt
 
-To learn more about Next.js, take a look at the following resources:
+[locations]
+- id (PK)
+- name
+- description
+- address
+- latitude
+- longitude
+- createdAt
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+[access_logs]
+- id (PK)
+- userId (FK -> users.id)
+- locationId (FK -> locations.id)
+- actionType
+- userAgent
+- ipAddress
+- createdAt
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📞 Contact
 
-## Deploy on Vercel
+Project Manager - [@Murat Coskun](https://www.linkedin.com/in/murat-coskun-76a06b227/) - muraatcoskun@gmail.com
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Project Link: [https://github.com/CihanTAYLAN/ccsyr-staff-panel](https://github.com/CihanTAYLAN/ccsyr-staff-panel)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+&copy; 2025 CCSYR Corporation. All Rights Reserved.

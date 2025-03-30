@@ -6,7 +6,7 @@ export const adminSeedData: IAdmin[] = [
 	{
 		id: "1234-5678-9012-3456",
 		name: "Admin",
-		email: "admin@ccsyr.com",
+		email: "admin@ccsyr.org",
 		password: "123456",
 		userType: EUserType.SUPER_ADMIN,
 		status: EUserStatus.ONLINE,
@@ -14,7 +14,7 @@ export const adminSeedData: IAdmin[] = [
 	{
 		id: "2345-6789-0123-4567",
 		name: "Manager",
-		email: "manager@ccsyr.com",
+		email: "manager@ccsyr.org",
 		password: "123456",
 		userType: EUserType.MANAGER_ADMIN,
 		status: EUserStatus.ONLINE,
@@ -22,7 +22,7 @@ export const adminSeedData: IAdmin[] = [
 	{
 		id: "3",
 		name: "Personal",
-		email: "personal@ccsyr.com",
+		email: "personal@ccsyr.org",
 		password: "123456",
 		userType: EUserType.PERSONAL,
 		status: EUserStatus.ONLINE,
