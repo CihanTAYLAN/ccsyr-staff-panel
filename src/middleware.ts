@@ -8,6 +8,11 @@ export async function middleware(request: NextRequest) {
 	// Define public paths that don't require authentication
 	const isPublicPath = path.startsWith("/auth/");
 
+	// Allow access to public files without authentication
+	if (path.startsWith("/_next/") || path.startsWith("/favicon.ico") || path.includes("/ccsyr-logo.png")) {
+		return NextResponse.next();
+	}
+
 	// Get the token
 	const token = await getToken({
 		req: request,

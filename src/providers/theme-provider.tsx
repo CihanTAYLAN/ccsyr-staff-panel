@@ -23,8 +23,8 @@ const ThemeContext = createContext<ThemeContextType>(defaultThemeContext);
 const getAntThemeTokens = (mode: Theme) => {
     return {
         token: {
-            colorPrimary: '#1980a8', // Ana tema rengi
-            colorSuccess: mode === 'light' ? '#52c41a' : '#52c41a',
+            colorPrimary: '#1980a8', // Primary color
+            colorSuccess: '#57963f', // Secondary color - using it for success
             colorWarning: mode === 'light' ? '#faad14' : '#faad14',
             colorError: mode === 'light' ? '#f5222d' : '#f5222d',
             colorInfo: mode === 'light' ? '#1890ff' : '#1890ff',
@@ -51,9 +51,9 @@ const getAntThemeTokens = (mode: Theme) => {
                 headerBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
             },
             Layout: {
-                colorBgHeader: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
-                colorBgBody: mode === 'light' ? 'var(--theme-bg-primary)' : 'var(--theme-bg-primary)',
-                colorBgTrigger: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
+                headerBg: mode === 'light' ? 'var(--theme-bg-elevated)' : 'var(--theme-bg-elevated)',
+                bodyBg: mode === 'light' ? 'var(--theme-bg-primary)' : 'var(--theme-bg-primary)',
+                triggerBg: mode === 'light' ? 'var(--theme-bg-secondary)' : 'var(--theme-bg-secondary)',
             },
             Input: {
                 colorBgContainer: mode === 'light' ? 'var(--theme-bg-input)' : 'var(--theme-bg-input)',

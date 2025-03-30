@@ -26,9 +26,9 @@ body {
 	--primary-lighter: #e6f7ff;
 
 	/* Semantik Renkler */
-	--success: #52c41a;
-	--success-light: #b7eb8f;
-	--success-dark: #389e0d;
+	--success: #57963f;
+	--success-light: #78b162;
+	--success-dark: #447a31;
 
 	--warning: #faad14;
 	--warning-light: #ffe58f;
@@ -79,6 +79,11 @@ html.dark {
 	--primary-light: #62b7da;
 	--primary-lighter: #133c4d;
 	--primary-contrast: #ffffff;
+
+	/* Semantik renkler - Dark Tema */
+	--success: #78b162; /* Secondary color - lighter for dark mode */
+	--success-dark: #57963f;
+	--success-light: #9ac886;
 
 	/* Nötr renkler - Dark Tema */
 	--neutral-50: #0f172a;

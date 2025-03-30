@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Form, Input, message, Typography } from 'antd';
+import { Button, Card, Form, Image, Input, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, BulbOutlined } from '@ant-design/icons';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -48,8 +48,15 @@ export default function LoginPage() {
     }
 
     return (
-        <Card className="w-full mx-auto shadow-theme-md card-hover-effect">
+        <Card className="w-full mx-auto shadow-theme-md">
             <div className="text-center mb-6">
+                <Image
+                    src="/ccsyr-logo.png"
+                    alt="logo"
+                    preview={false}
+                    height={64}
+                    className="mx-auto mb-4"
+                />
                 <Title level={2} className="text-theme-text">CCSYR Staff Panel</Title>
                 <Text type="secondary">Sign in to your account</Text>
             </div>
@@ -101,7 +108,7 @@ export default function LoginPage() {
                         loading={loading}
                         block
                         size="large"
-                        className="bg-gradient-primary hover:bg-primary-dark button-hover-effect"
+                        className="bg-gradient-primary hover:bg-primary-dark"
                     >
                         Log in
                     </Button>
@@ -118,6 +125,6 @@ export default function LoginPage() {
                     {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </Button>
             </div>
-        </Card>
+        </Card >
     );
 } 
