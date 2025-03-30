@@ -59,6 +59,12 @@ export async function GET(request: NextRequest) {
 				status: true,
 				created_at: true,
 				updated_at: true,
+				currentLocation: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
 				_count: {
 					select: {
 						logs: true,
@@ -136,6 +142,12 @@ export async function POST(request: NextRequest) {
 				email: true,
 				userType: true,
 				status: true,
+				currentLocation: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
 				created_at: true,
 			},
 		});

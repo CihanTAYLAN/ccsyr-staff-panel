@@ -30,6 +30,10 @@ type UserData = {
     status: EUserStatus;
     created_at: string;
     updated_at: string;
+    currentLocation?: {
+        id: string;
+        name: string;
+    } | null;
     _count: {
         logs: number;
     };
@@ -227,6 +231,17 @@ export default function UsersPage() {
                 <Tag color={getUserStatusColor(status)}>
                     {status}
                 </Tag>
+            ),
+            sorter: true,
+        },
+        {
+            title: 'Current Location',
+            dataIndex: 'currentLocation',
+            key: 'currentLocation',
+            render: (location: { id: string; name: string } | null) => (
+                <Tooltip title="Automatically updated based on user check-in/check-out">
+                    {location ? location.name : 'Not assigned'}
+                </Tooltip>
             ),
             sorter: true,
         },

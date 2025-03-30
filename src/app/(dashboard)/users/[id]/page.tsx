@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space } from 'antd';
+import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType, EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -147,7 +147,23 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                         <Tag color={user.status === EUserStatus.ONLINE ? 'success' : 'default'}>
                             {user.status}
                         </Tag>
-                        <span className="ml-2 text-theme-text-secondary text-sm">(Automatically updated based on user activity)</span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Current Location" span={3}>
+                        {user.currentLocation ? (
+                            <Space>
+                                <EnvironmentOutlined />
+                                {user.currentLocation.name}
+                                {user.currentLocation.address && (
+                                    <span className="text-theme-text-secondary">({user.currentLocation.address})</span>
+                                )}
+                                <span className="ml-2 text-theme-text-secondary text-sm">(Automatically updated based on user check-in/check-out)</span>
+                            </Space>
+                        ) : (
+                            <Space>
+                                <span className="text-theme-text-secondary">Not assigned</span>
+                                <span className="text-theme-text-secondary text-sm">(Will be updated automatically on next check-in)</span>
+                            </Space>
+                        )}
                     </Descriptions.Item>
                     <Descriptions.Item label="Created At">
                         {dayjs(user.created_at).format('YYYY-MM-DD HH:mm:ss')}

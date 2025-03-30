@@ -24,6 +24,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 				email: true,
 				userType: true,
 				status: true,
+				currentLocation: {
+					select: {
+						id: true,
+						name: true,
+						address: true,
+					},
+				},
 				created_at: true,
 				updated_at: true,
 			},
@@ -120,6 +127,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 				email: true,
 				userType: true,
 				status: true,
+				currentLocation: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
 				updated_at: true,
 			},
 		});
