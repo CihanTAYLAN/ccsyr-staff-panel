@@ -22,8 +22,6 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
             // dayjs için dil ayarını yap
             dayjs.locale(browserLang);
-
-            console.log(`Locale set to: ${browserLang}`);
         } catch (e) {
             console.warn('Error setting dayjs locale:', e);
             // Hata durumunda varsayılan dil olarak İngilizce kullan

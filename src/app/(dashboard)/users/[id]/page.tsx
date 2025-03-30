@@ -149,8 +149,8 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             <div className="flex justify-between items-center mb-6 h-16">
                 <Breadcrumb
                     items={[
-                        { title: 'Dashboard', href: '/' },
-                        { title: 'Users', href: '/users' },
+                        { title: <Link href="/dashboard">Dashboard</Link> },
+                        { title: <Link href="/users">Users</Link> },
                         { title: user.name },
                     ]}
                 />

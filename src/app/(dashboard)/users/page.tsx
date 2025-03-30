@@ -340,7 +340,7 @@ export default function UsersPage() {
             <div className="flex justify-between items-center mb-6 h-16">
                 <Breadcrumb
                     items={[
-                        { title: 'Dashboard', href: '/dashboard' },
+                        { title: <Link href="/dashboard">Dashboard</Link> },
                         { title: 'Users' },
                     ]}
                 />

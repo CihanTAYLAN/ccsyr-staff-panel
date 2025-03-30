@@ -4,6 +4,7 @@ import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb } from 'an
 import { SaveOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // Kullanıcı tipi seçenekleri
 const userTypeOptions = [
@@ -105,8 +106,8 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
             <div className="flex justify-between items-center mb-6 h-16">
                 <Breadcrumb
                     items={[
-                        { title: 'Dashboard', href: '/' },
-                        { title: 'Users', href: '/users' },
+                        { title: <Link href="/dashboard">Dashboard</Link> },
+                        { title: <Link href="/users">Users</Link> },
                         { title: form.getFieldValue('name'), href: `/users/${userId}` },
                         { title: 'Edit User' },
                     ]}
