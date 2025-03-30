@@ -1,3 +1,4 @@
+import { hash } from "bcryptjs";
 import { adminSeedData } from "../data/adminSeedData";
 import { prismaClient } from "../seed";
 
@@ -8,6 +9,7 @@ export async function adminSeed() {
 			update: {},
 			create: {
 				...item,
+				password: await hash(item.password, 10),
 			},
 		});
 	}

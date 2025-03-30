@@ -20,7 +20,7 @@ export const adminSeedData: IAdmin[] = [
 		status: EUserStatus.ONLINE,
 	},
 	{
-		id: "3",
+		id: "3456-7890-1234-5678",
 		name: "Personal",
 		email: "personal@ccsyr.org",
 		password: "123456",
