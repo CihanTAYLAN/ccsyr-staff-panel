@@ -160,8 +160,8 @@ export default function UsersPage() {
             icon: <ExclamationCircleOutlined />,
             content: 'This action cannot be undone.',
             okText: 'Yes',
-            okType: 'danger',
             cancelText: 'No',
+            okType: 'danger',
             async onOk() {
                 try {
                     const response = await fetch(`/api/users/${userId}`, {
@@ -276,24 +276,24 @@ export default function UsersPage() {
             key: 'actions',
             render: (_: any, record: UserData) => (
                 <Space>
-                    <Link href={`/users/${record.id}`}>
-                        <Button icon={<EyeOutlined />} size="small" type="primary" ghost>
-                            View
-                        </Button>
-                    </Link>
-                    <Link href={`/users/${record.id}/edit`}>
-                        <Button icon={<EditOutlined />} size="small">
-                            Edit
-                        </Button>
-                    </Link>
-                    <Button
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        danger
-                        onClick={() => confirmDeleteUser(record.id, record.name)}
-                    >
-                        Delete
-                    </Button>
+                    <Tooltip title="View User">
+                        <Link href={`/users/${record.id}`}>
+                            <Button icon={<EyeOutlined />} size="small" type="primary"></Button>
+                        </Link>
+                    </Tooltip>
+                    <Tooltip title="Edit User">
+                        <Link href={`/users/${record.id}/edit`}>
+                            <Button icon={<EditOutlined />} size="small" type="primary"></Button>
+                        </Link>
+                    </Tooltip>
+                    <Tooltip title="Delete User">
+                        <Button
+                            icon={<DeleteOutlined />}
+                            size="small"
+                            danger
+                            onClick={() => confirmDeleteUser(record.id, record.name)}
+                        ></Button>
+                    </Tooltip>
                 </Space>
             ),
         },

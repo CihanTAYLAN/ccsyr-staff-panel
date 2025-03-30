@@ -99,7 +99,7 @@ html.dark {
 
 	/* Arka plan renkleri */
 	--bg-base: #121212;
-	--bg-elevated: #1e1e1e;
+	--bg-elevated: #313131;
 	--bg-card: #282828;
 	--bg-input: #1e1e1e;
 
@@ -191,4 +191,22 @@ html.dark body {
 .overflow-x-auto::-webkit-scrollbar-thumb {
 	background-color: var(--theme-border);
 	border-radius: 6px;
+}
+
+/* Tema uyumlu modal için stil eklemeleri */
+.ant-modal-content {
+	background-color: var(--theme-bg-elevated) !important;
+	color: var(--theme-text) !important;
+}
+
+.ant-modal-confirm-title,
+.ant-modal-title,
+.ant-modal-header {
+	color: var(--theme-text) !important;
+	background-color: transparent !important;
+}
+
+.ant-modal-confirm-content {
+	color: var(--theme-text) !important;
+	background-color: transparent !important;
 }

@@ -4,6 +4,9 @@ import "./globals.css";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { AuthProvider } from '@/providers/auth-provider';
+import { LocaleProvider } from '@/providers/locale-provider';
+import 'dayjs/locale/en';
+import 'dayjs/locale/fr';
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -30,6 +33,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
+                  // Tema ayarları
                   const savedTheme = localStorage.getItem('theme');
                   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -49,7 +53,9 @@ export default function RootLayout({
         <AntdRegistry>
           <AuthProvider>
             <ThemeProvider>
-              {children}
+              <LocaleProvider>
+                {children}
+              </LocaleProvider>
             </ThemeProvider>
           </AuthProvider>
         </AntdRegistry>

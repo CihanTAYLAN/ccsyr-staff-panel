@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space } from 'antd';
-import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip } from 'antd';
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ExclamationCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType, EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 // Kullanıcı tipi bilgileri
 const getUserTypeLabel = (type: EUserType) => {
@@ -62,7 +63,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             title: 'Date & Time',
             dataIndex: 'created_at',
             key: 'created_at',
-            render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
+            render: (text: string) => dayjs(text).format('LLL'),
         },
         {
             title: 'Action',
@@ -93,6 +94,34 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             render: (text: string) => text || 'N/A',
         },
     ];
+
+    const confirmDeleteUser = (userId: string, userName: string | null) => {
+        confirm({
+            title: `Are you sure you want to delete ${userName || 'this user'}?`,
+            icon: <ExclamationCircleOutlined />,
+            content: 'This action cannot be undone.',
+            okText: 'Yes',
+            cancelText: 'No',
+            okType: 'danger',
+            async onOk() {
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete user');
+                    }
+
+                    message.success('User deleted successfully');
+                    router.push('/users');
+                } catch (error) {
+                    message.error('Failed to delete user');
+                    console.error('Error deleting user:', error);
+                }
+            },
+        });
+    };
 
     if (loading) {
         return (
@@ -125,11 +154,19 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                         { title: user.name },
                     ]}
                 />
-                <Link href={`/users/${userId}/edit`}>
-                    <Button type="primary" icon={<EditOutlined />}>
-                        Edit User
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Tooltip title="Refresh">
+                        <Button type='default' onClick={() => fetchUserDetails()} icon={<ReloadOutlined />} loading={loading}></Button>
+                    </Tooltip>
+                    <Tooltip title="Edit User">
+                        <Link href={`/users/${userId}/edit`}>
+                            <Button type="primary" icon={<EditOutlined />}></Button>
+                        </Link>
+                    </Tooltip>
+                    <Tooltip title="Delete User">
+                        <Button type="primary" icon={<DeleteOutlined />} danger onClick={() => confirmDeleteUser(userId, user.name)}></Button>
+                    </Tooltip>
+                </div>
             </div>
 
             <Card className="mb-6" title="User Information">
@@ -144,9 +181,11 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                         {user.email}
                     </Descriptions.Item>
                     <Descriptions.Item label="Status">
-                        <Tag color={user.status === EUserStatus.ONLINE ? 'success' : 'default'}>
-                            {user.status}
-                        </Tag>
+                        <Tooltip title='Will be updated automatically on next check-in or check-out'>
+                            <Tag color={user.status === EUserStatus.ONLINE ? 'success' : 'default'}>
+                                {user.status}
+                            </Tag>
+                        </Tooltip>
                     </Descriptions.Item>
                     <Descriptions.Item label="Current Location" span={3}>
                         {user.currentLocation ? (
@@ -166,10 +205,14 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                         )}
                     </Descriptions.Item>
                     <Descriptions.Item label="Created At">
-                        {dayjs(user.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                        <Tooltip title={dayjs(user.created_at).fromNow()}>
+                            {dayjs(user.created_at).format('LLL')}
+                        </Tooltip>
                     </Descriptions.Item>
                     <Descriptions.Item label="Last Updated">
-                        {dayjs(user.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                        <Tooltip title={dayjs(user.updated_at).fromNow()}>
+                            {dayjs(user.updated_at).format('LLL')}
+                        </Tooltip>
                     </Descriptions.Item>
                 </Descriptions>
             </Card>
