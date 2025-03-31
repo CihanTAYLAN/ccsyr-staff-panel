@@ -63,18 +63,21 @@ model Location {
 }
 
 model AccessLog {
-  id                    String      @id @default(dbgenerated("gen_random_uuid()"))
-  actionType            EActionType
-  actionDate            DateTime    @default(now())
-  ipAddress             String?
-  userAgent             String?
-  browser               String?
-  os                    String?
-  device                String?
-  locationStaticName    String?
-  locationStaticAddress String?
-  locationStaticLat     Float?
-  locationStaticLong    Float?
+  id                                 String      @id @default(dbgenerated("gen_random_uuid()"))
+  actionType                         EActionType
+  actionDate                         DateTime    @default(now())
+  ipAddress                          String?
+  userAgent                          String?
+  browser                            String?
+  os                                 String?
+  device                             String?
+  userStaticName                     String?
+  userStaticEmail                    String?
+  userStaticLastLoginDate            DateTime?
+  userStaticLastLoginLocationName    String?
+  userStaticLastLoginLocationAddress String?
+  userStaticLastLoginLocationLat     Float?
+  userStaticLastLoginLocationLong    Float?
 
   user       User      @relation(fields: [userId], references: [id])
   userId     String
