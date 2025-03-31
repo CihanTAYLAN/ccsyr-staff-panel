@@ -24,6 +24,20 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 				email: true,
 				userType: true,
 				status: true,
+				userAccountStatus: true,
+				forcePasswordChange: true,
+				lastLoginDate: true,
+				lastLoginIp: true,
+				lastLoginUseragent: true,
+				lastLoginOs: true,
+				lastLoginDevice: true,
+				lastLoginBrowser: true,
+				lastLoginIpAddress: true,
+				lastLogoutDate: true,
+				lastLoginLocationStaticName: true,
+				lastLoginLocationStaticAddress: true,
+				lastLoginLocationStaticLat: true,
+				lastLoginLocationStaticLong: true,
 				currentLocation: {
 					select: {
 						id: true,
@@ -108,7 +122,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 			name: data.name,
 			email: data.email,
 			userType: data.userType,
-			// status admin tarafından güncellenemez
+			userAccountStatus: data.userAccountStatus,
+			forcePasswordChange: data.forcePasswordChange,
+			// status (ONLINE/OFFLINE) admin tarafından güncellenemez
 		};
 
 		// Şifre değiştirilmek isteniyorsa
@@ -127,6 +143,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 				email: true,
 				userType: true,
 				status: true,
+				userAccountStatus: true,
+				forcePasswordChange: true,
 				currentLocation: {
 					select: {
 						id: true,

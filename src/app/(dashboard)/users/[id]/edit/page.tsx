@@ -1,8 +1,8 @@
 'use client';;
 import { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb } from 'antd';
+import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb, Switch } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import { EUserType } from '@prisma/client';
+import { EUserType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -11,6 +11,12 @@ const userTypeOptions = [
     { value: EUserType.SUPER_ADMIN, label: 'Super Admin' },
     { value: EUserType.MANAGER_ADMIN, label: 'Manager Admin' },
     { value: EUserType.PERSONAL, label: 'Personal' },
+];
+
+// Kullanıcı hesap durumu seçenekleri
+const userAccountStatusOptions = [
+    { value: EUserAccountStatus.ACTIVE, label: 'Active' },
+    { value: EUserAccountStatus.INACTIVE, label: 'Inactive' },
 ];
 
 export default function EditUserPage({ params }: { params: { id: string } }) {
@@ -37,6 +43,8 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                 email: data.user.email,
                 userType: data.user.userType,
                 status: data.user.status,
+                userAccountStatus: data.user.userAccountStatus || EUserAccountStatus.ACTIVE,
+                forcePasswordChange: data.user.forcePasswordChange || false,
                 password: '', // Şifreyi güvenlik nedeniyle boş bırak
             });
         } catch (error) {
@@ -119,6 +127,8 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                         email: '',
                         userType: undefined,
                         status: undefined,
+                        userAccountStatus: EUserAccountStatus.ACTIVE,
+                        forcePasswordChange: false,
                         password: '',
                     }}
                 >
@@ -161,10 +171,27 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                     </Form.Item>
 
                     <Form.Item
-                        name="status"
-                        label="Status"
+                        name="userAccountStatus"
+                        label="Account Status"
+                        rules={[{ required: true, message: 'Please select account status' }]}
                     >
-                        <Input disabled placeholder="Status can only be changed by the user's activity" />
+                        <Select placeholder="Select account status" options={userAccountStatusOptions} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="forcePasswordChange"
+                        label="Force Password Change"
+                        valuePropName="checked"
+                        extra="If enabled, the user will be required to change their password on next login"
+                    >
+                        <Switch />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="status"
+                        label="Online Status"
+                    >
+                        <Input disabled placeholder="Online status can only be changed by the user's activity" />
                     </Form.Item>
 
                     <Form.Item className="mb-0">

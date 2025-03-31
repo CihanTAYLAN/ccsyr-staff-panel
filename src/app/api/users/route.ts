@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType } from "@prisma/client";
+import { EUserType, EUserAccountStatus } from "@prisma/client";
 import { extractRequestParams, getPaginationValues, calculatePaginationMeta, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/users - Kullanıcıları listele (pagination, filtreleme ve arama desteği ile)
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 		const { page, pageSize, search, sortField, sortOrder } = extractRequestParams(searchParams);
 		const userType = searchParams.get("userType") || undefined;
 		const status = searchParams.get("status") || undefined;
+		const userAccountStatus = searchParams.get("userAccountStatus") || undefined;
 
 		// Sıralama için parametreleri al
 		const sortQuery = parseSortingToQuery({ sortField, sortOrder });
@@ -44,6 +45,11 @@ export async function GET(request: NextRequest) {
 			where.status = status;
 		}
 
+		// Hesap durumu filtresi
+		if (userAccountStatus) {
+			where.userAccountStatus = userAccountStatus;
+		}
+
 		// Toplam kullanıcı sayısını al
 		const totalUsers = await prisma.user.count({ where });
 
@@ -55,6 +61,8 @@ export async function GET(request: NextRequest) {
 				email: true,
 				userType: true,
 				status: true,
+				userAccountStatus: true,
+				forcePasswordChange: true,
 				created_at: true,
 				updated_at: true,
 				currentLocation: {
@@ -124,6 +132,8 @@ export async function POST(request: NextRequest) {
 				email: data.email,
 				password: hashedPassword,
 				userType: data.userType,
+				userAccountStatus: data.userAccountStatus || EUserAccountStatus.ACTIVE,
+				forcePasswordChange: data.forcePasswordChange || false,
 			},
 			select: {
 				id: true,
@@ -131,6 +141,8 @@ export async function POST(request: NextRequest) {
 				email: true,
 				userType: true,
 				status: true,
+				userAccountStatus: true,
+				forcePasswordChange: true,
 				currentLocation: {
 					select: {
 						id: true,

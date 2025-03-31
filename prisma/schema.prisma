@@ -14,12 +14,30 @@ datasource db {
 }
 
 model User {
-  id       String       @id @default(dbgenerated("gen_random_uuid()"))
-  name     String?
-  email    String       @unique
-  password String
-  userType EUserType
-  status   EUserStatus? @default(OFFLINE)
+  id                  String             @id @default(dbgenerated("gen_random_uuid()"))
+  name                String?
+  email               String             @unique
+  password            String
+  userType            EUserType
+  status              EUserStatus?       @default(OFFLINE)
+  userAccountStatus   EUserAccountStatus @default(ACTIVE)
+  forcePasswordChange Boolean            @default(false)
+
+  // Login bilgileri
+  lastLoginDate      DateTime?
+  lastLoginIp        String?
+  lastLoginUseragent String?
+  lastLoginOs        String?
+  lastLoginDevice    String?
+  lastLoginBrowser   String?
+  lastLoginIpAddress String?
+  lastLogoutDate     DateTime?
+
+  // Son giriş lokasyon bilgileri
+  lastLoginLocationStaticName    String?
+  lastLoginLocationStaticAddress String?
+  lastLoginLocationStaticLat     Float?
+  lastLoginLocationStaticLong    Float?
 
   currentLocation   Location? @relation(fields: [currentLocationId], references: [id])
   currentLocationId String?
@@ -50,6 +68,7 @@ model AccessLog {
   actionType            EActionType
   ipAddress             String?
   userAgent             String?
+  browser               String?
   os                    String?
   device                String?
   locationStaticName    String?
@@ -75,6 +94,11 @@ enum EUserType {
 enum EUserStatus {
   ONLINE
   OFFLINE
+}
+
+enum EUserAccountStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum EActionType {

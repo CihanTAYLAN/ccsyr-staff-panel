@@ -3,6 +3,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { EUserAccountStatus } from "@prisma/client";
 
 declare module "next-auth" {
 	interface Session {
@@ -49,6 +50,10 @@ export const authOptions: NextAuthOptions = {
 
 				if (!user) {
 					return null;
+				}
+
+				if (user.userAccountStatus === EUserAccountStatus.INACTIVE) {
+					throw new Error("Account is inactive. Please contact an administrator.");
 				}
 
 				const isPasswordValid = await bcrypt.compare(credentials.password, user.password);

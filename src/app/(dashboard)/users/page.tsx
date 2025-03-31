@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar, Popconfirm } from 'antd';
 import { UserAddOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
-import { EUserStatus, EUserType } from '@prisma/client';
+import { EUserStatus, EUserType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -28,12 +28,20 @@ const userStatusOptions = [
     { value: EUserStatus.OFFLINE, label: 'Offline' },
 ];
 
+// Kullanıcı hesap durumu bilgileri
+const userAccountStatusOptions = [
+    { value: EUserAccountStatus.ACTIVE, label: 'Active' },
+    { value: EUserAccountStatus.INACTIVE, label: 'Inactive' },
+];
+
 type UserData = {
     id: string;
     name: string | null;
     email: string;
     userType: EUserType;
     status: EUserStatus;
+    userAccountStatus: EUserAccountStatus;
+    forcePasswordChange: boolean;
     created_at: string;
     updated_at: string;
     currentLocation?: {
@@ -61,6 +69,7 @@ export default function UsersPage() {
         search: '',
         userType: '',
         status: '',
+        userAccountStatus: '',
     });
     const [sorting, setSorting] = useState<SortingState>({
         sortField: 'created_at',
@@ -85,9 +94,15 @@ export default function UsersPage() {
         },
         status: {
             type: 'select',
-            placeholder: 'Filter by status',
+            placeholder: 'Filter by online status',
             options: userStatusOptions,
             filterKey: 'status'
+        },
+        userAccountStatus: {
+            type: 'select',
+            placeholder: 'Filter by account status',
+            options: userAccountStatusOptions,
+            filterKey: 'userAccountStatus'
         }
     };
 
@@ -106,6 +121,7 @@ export default function UsersPage() {
             if (filters.search) params.append('search', filters.search);
             if (filters.userType) params.append('userType', filters.userType);
             if (filters.status) params.append('status', filters.status);
+            if (filters.userAccountStatus) params.append('userAccountStatus', filters.userAccountStatus);
 
             const response = await fetch(`/api/users?${params.toString()}`);
 
@@ -133,7 +149,11 @@ export default function UsersPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify({
+                    ...values,
+                    userAccountStatus: EUserAccountStatus.ACTIVE,
+                    forcePasswordChange: false
+                }),
             });
 
             if (!response.ok) {
@@ -177,6 +197,7 @@ export default function UsersPage() {
             search: '',
             userType: '',
             status: '',
+            userAccountStatus: '',
         });
         setPagination(prev => ({ ...prev, page: 1 }));
     };
@@ -203,6 +224,11 @@ export default function UsersPage() {
     // Kullanıcı durumu için renk belirle
     const getUserStatusColor = (status: EUserStatus) => {
         return status === EUserStatus.ONLINE ? 'success' : 'default';
+    };
+
+    // Kullanıcı hesap durumu için renk belirle
+    const getUserAccountStatusColor = (status: EUserAccountStatus) => {
+        return status === EUserAccountStatus.ACTIVE ? 'success' : 'error';
     };
 
     // Tablo sütunları
@@ -241,11 +267,22 @@ export default function UsersPage() {
             sorter: true,
         },
         {
-            title: 'Status',
+            title: 'Online Status',
             dataIndex: 'status',
             key: 'status',
             render: (status: EUserStatus) => (
                 <Tag color={getUserStatusColor(status)}>
+                    {status}
+                </Tag>
+            ),
+            sorter: true,
+        },
+        {
+            title: 'Account Status',
+            dataIndex: 'userAccountStatus',
+            key: 'userAccountStatus',
+            render: (status: EUserAccountStatus) => (
+                <Tag color={getUserAccountStatusColor(status)}>
                     {status}
                 </Tag>
             ),

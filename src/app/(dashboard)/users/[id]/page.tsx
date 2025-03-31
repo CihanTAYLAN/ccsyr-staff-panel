@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
-import { EUserStatus, EUserType, EActionType } from '@prisma/client';
+import { EUserStatus, EUserType, EActionType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
@@ -86,6 +86,12 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             dataIndex: 'location',
             key: 'address',
             render: (location: any) => location.address || 'N/A',
+        },
+        {
+            title: 'Browser',
+            dataIndex: 'browser',
+            key: 'browser',
+            render: (text: string) => text || 'N/A',
         },
         {
             title: 'IP Address',
@@ -180,14 +186,26 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                     <Descriptions.Item label="Email" span={3}>
                         {user.email}
                     </Descriptions.Item>
-                    <Descriptions.Item label="Status">
+                    <Descriptions.Item label="Online Status">
                         <Tooltip title='Will be updated automatically on next check-in or check-out'>
                             <Tag color={user.status === EUserStatus.ONLINE ? 'success' : 'default'}>
                                 {user.status}
                             </Tag>
                         </Tooltip>
                     </Descriptions.Item>
-                    <Descriptions.Item label="Current Location" span={2}>
+                    <Descriptions.Item label="Account Status">
+                        <Tooltip title='Account activation status'>
+                            <Tag color={user.userAccountStatus === EUserAccountStatus.ACTIVE ? 'success' : 'error'}>
+                                {user.userAccountStatus}
+                            </Tag>
+                        </Tooltip>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Force Password Change">
+                        <Tag color={user.forcePasswordChange ? 'warning' : 'default'}>
+                            {user.forcePasswordChange ? 'Yes' : 'No'}
+                        </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Current Location" span={3}>
                         {user.currentLocation ? (
                             <Space>
                                 <EnvironmentOutlined />
@@ -204,6 +222,53 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                             </Space>
                         )}
                     </Descriptions.Item>
+                </Descriptions>
+            </Card>
+
+            <Card className="mb-6" title="Last Login Information" styles={{ body: { padding: 0 } }} size='small'>
+                <Descriptions bordered size='small' column={2}>
+                    <Descriptions.Item label="Last Login Date">
+                        {user.lastLoginDate ? (
+                            <Tooltip title={dayjs(user.lastLoginDate).fromNow()}>
+                                {dayjs(user.lastLoginDate).format('LLL')}
+                            </Tooltip>
+                        ) : 'Never logged in'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Logout Date">
+                        {user.lastLogoutDate ? (
+                            <Tooltip title={dayjs(user.lastLogoutDate).fromNow()}>
+                                {dayjs(user.lastLogoutDate).format('LLL')}
+                            </Tooltip>
+                        ) : 'Never logged out'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login IP">
+                        {user.lastLoginIpAddress || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login Browser">
+                        {user.lastLoginBrowser || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login OS">
+                        {user.lastLoginOs || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login Device">
+                        {user.lastLoginDevice || 'N/A'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login Location" span={2}>
+                        {user.lastLoginLocationStaticName ? (
+                            <Space>
+                                <EnvironmentOutlined />
+                                {user.lastLoginLocationStaticName}
+                                {user.lastLoginLocationStaticAddress && (
+                                    <span className="text-theme-text-secondary">({user.lastLoginLocationStaticAddress})</span>
+                                )}
+                            </Space>
+                        ) : 'N/A'}
+                    </Descriptions.Item>
+                </Descriptions>
+            </Card>
+
+            <Card className="mb-6" title="System Information" styles={{ body: { padding: 0 } }} size='small'>
+                <Descriptions bordered size='small' column={2}>
                     <Descriptions.Item label="Created At">
                         <Tooltip title={dayjs(user.created_at).fromNow()}>
                             {dayjs(user.created_at).format('LLL')}

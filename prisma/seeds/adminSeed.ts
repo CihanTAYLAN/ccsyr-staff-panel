@@ -1,6 +1,7 @@
 import { hash } from "bcryptjs";
 import { adminSeedData } from "../data/adminSeedData";
 import { prismaClient } from "../seed";
+import { EUserAccountStatus } from "@prisma/client";
 
 export async function adminSeed() {
 	for (const item of adminSeedData) {
@@ -10,6 +11,8 @@ export async function adminSeed() {
 			create: {
 				...item,
 				password: await hash(item.password, 10),
+				userAccountStatus: EUserAccountStatus.ACTIVE,
+				forcePasswordChange: false,
 			},
 		});
 	}
