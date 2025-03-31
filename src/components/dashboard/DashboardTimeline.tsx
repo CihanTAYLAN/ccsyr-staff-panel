@@ -168,7 +168,7 @@ const DashboardTimeline: React.FC = () => {
     }
 
     return (
-        <Card className="dashboard-timeline-card">
+        <Card className="dashboard-timeline-card" size='small'>
             <div className="timeline-filters" style={{ marginBottom: 16 }}>
                 <Space wrap>
                     <Select

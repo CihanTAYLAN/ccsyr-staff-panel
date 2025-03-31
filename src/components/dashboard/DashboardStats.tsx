@@ -151,7 +151,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
             </div>
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2' style={{ marginTop: 16 }}>
-                <Card title="Users by Location">
+                <Card title="Users by Location" size='small'>
                     {stats.locationStats.length > 0 ? (
                         <div>
                             {stats.locationStats.map((location) => {
@@ -178,7 +178,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
                         <Alert message="No location data available" type="info" showIcon />
                     )}
                 </Card>
-                <Card title="Active Locations">
+                <Card title="Active Locations" size='small'>
                     {stats.locationStats.map((location) => (
                         <div key={location.id} style={{ marginBottom: 8 }}>
                             <Statistic

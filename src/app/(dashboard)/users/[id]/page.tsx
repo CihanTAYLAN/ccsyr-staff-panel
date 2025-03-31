@@ -282,7 +282,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                 </Descriptions>
             </Card>
 
-            <Card title="Access Logs" className="mb-6" size='small'>
+            <Card title="Access Logs" className="mb-6" size='small' styles={{ body: { padding: 0 } }}>
                 {accessLogs.length > 0 ? (
                     <div className="overflow-x-auto">
                         <Table
