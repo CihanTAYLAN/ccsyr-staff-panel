@@ -18,11 +18,26 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
    - Model
      - name
      - email
+     - password
+     - forcePasswordChange (true/false) default false (true ise kullanıcı ilk girişte yeni şifre modal ı otomatik olarak açılacak, kullanıcı kullanmak istediği şifreyi belirlenen şifre standartlarında güncelleyecek ve forcePasswordChange değeri false olarak güncellenecektir.)
      - userType (Super Admin, Manager Admin, Personal)
      - status (Active, Inactive)
      - created_at
      - updated_at
      - currentLocation
+     - lastLoginDate
+     - lastLoginIp
+     - lastLoginUseragent
+     - lastLoginOs
+     - lastLoginDevice
+     - lastLoginBrowser
+     - lastLoginIpAddress
+     - lastLoginLocation
+     - lastLoginLocationStaticName
+     - lastLoginLocationStaticAddress
+     - lastLoginLocationStaticLat
+     - lastLoginLocationStaticLong
+     - lastLogoutDate
    - Arayüz Özellikleri
      - Kullanıcı listesi
      - Kullanıcı detay görüntüleme
@@ -91,6 +106,12 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
          - Kullanıcı şifresini değiştirebilir
          - Kullancı status'unu değiştiremez
    - Çıkış yapma seçeneği
+
+6. **Auth Bölümü**
+
+   - Kullanıcılar login ve logout işlemlerini yapabilir.
+   - Kullanıcılar dışarıdan kayıt olamazlar.
+   - Kullanıcılar şifrelerini sıfırlayabilirler. (Şifremi Unuttum) (8 Karakterli bir şifre oluşturulacak ve kullanıcıya email ile gönderilecek ve kullanıcının forcePasswordChange değeri true olarak güncellenecektir.)
 
 ## Access Log Sistemi
 
