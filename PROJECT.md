@@ -166,6 +166,7 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 
 - **Frontend**: Next.js, React, TailwindCSS
 - **Backend**: Next.js API Routes
+- **Mail**: Nodemailer
 - **Database**: PostgreSQL
 - **ORM**: Prisma
 - **Authentication**: NextAuth.js
