@@ -164,7 +164,7 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 
 ## Teknik Gereksinimler
 
-- **Frontend**: Next.js, React, TailwindCSS
+- **Frontend**: Next.js, React, Ant Design, TailwindCSS
 - **Backend**: Next.js API Routes
 - **Mail**: Nodemailer
 - **Database**: PostgreSQL
