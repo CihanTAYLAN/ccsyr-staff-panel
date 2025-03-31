@@ -6,10 +6,11 @@ import { SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import type { DynamicMapProps } from '@/types/map';
 
-// dynamic import for MapWithNoSSR
-const MapWithNoSSR = dynamic(
-    () => import('@/components/Map'),
+// dynamic import for DynamicMap
+const DynamicMap = dynamic<DynamicMapProps>(
+    () => import('@/components/shared/DynamicMap'),
     {
         ssr: false,
         loading: () => (
@@ -269,10 +270,12 @@ export default function EditLocationPage({ params }: { params: { id: string } })
                                 <span className='text-theme-text-secondary h-6'>Select Location on Map</span>
                             </div>
                             <div style={{ height: 400, width: '100%', position: 'relative' }}>
-                                <MapWithNoSSR
-                                    centerPosition={centerPosition}
-                                    markerPosition={markerPosition}
+                                <DynamicMap
+                                    center={centerPosition}
+                                    markers={markerPosition ? [{ lat: markerPosition[0], lng: markerPosition[1] }] : []}
                                     onMapClick={handleMapClick}
+                                    height="400px"
+                                    enableSearch={true}
                                 />
                             </div>
                             <div className="text-xs text-theme-text-secondary mt-1">

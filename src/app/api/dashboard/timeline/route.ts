@@ -2,36 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { EUserType } from "@prisma/client";
 
 // GET /api/dashboard/timeline - Dashboard için zaman çizelgesi olayları
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
 	try {
-		// Kullanıcı oturumunu kontrol et
+		// Auth kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session || !session.user) {
+		if (!session) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		// Kullanıcının rolünü kontrol et (sadece SuperAdmin ve ManagerAdmin erişebilir)
-		const user = await prisma.user.findUnique({
-			where: { email: session.user.email as string },
-		});
-
-		if (!user || (user.userType !== EUserType.SUPER_ADMIN && user.userType !== EUserType.MANAGER_ADMIN)) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-		}
-
 		// URL parametrelerini al
-		const url = new URL(req.url);
-		const limit = Number(url.searchParams.get("limit") || 10);
-		const locationId = url.searchParams.get("locationId");
-		const userId = url.searchParams.get("userId");
-		const startDate = url.searchParams.get("startDate") ? new Date(url.searchParams.get("startDate") as string) : undefined;
-		const endDate = url.searchParams.get("endDate") ? new Date(url.searchParams.get("endDate") as string) : undefined;
+		const searchParams = request.nextUrl.searchParams;
+		const page = parseInt(searchParams.get("page") || "1");
+		const limit = parseInt(searchParams.get("limit") || "10");
+		const startDate = searchParams.get("startDate");
+		const endDate = searchParams.get("endDate");
+		const locationId = searchParams.get("locationId");
+		const userId = searchParams.get("userId");
 
-		// Filtreleme için koşulları oluştur
+		// Filtreleme koşullarını oluştur
 		const where: any = {};
+
+		if (startDate && endDate) {
+			where.actionDate = {
+				gte: new Date(startDate),
+				lte: new Date(endDate),
+			};
+		}
 
 		if (locationId) {
 			where.locationId = locationId;
@@ -41,20 +39,11 @@ export async function GET(req: NextRequest) {
 			where.userId = userId;
 		}
 
-		if (startDate || endDate) {
-			where.created_at = {};
+		// Toplam kayıt sayısını al
+		const total = await prisma.accessLog.count({ where });
 
-			if (startDate) {
-				where.created_at.gte = startDate;
-			}
-
-			if (endDate) {
-				where.created_at.lte = endDate;
-			}
-		}
-
-		// En son erişim günlüklerini getir
-		const timeline = await prisma.accessLog.findMany({
+		// Verileri getir
+		const items = await prisma.accessLog.findMany({
 			where,
 			include: {
 				user: {
@@ -73,18 +62,33 @@ export async function GET(req: NextRequest) {
 				},
 			},
 			orderBy: {
-				created_at: "desc",
+				actionDate: "desc",
 			},
+			skip: (page - 1) * limit,
 			take: limit,
 		});
 
+		// Yanıtı oluştur
 		return NextResponse.json({
-			items: timeline,
-			totalCount: timeline.length,
-			hasMore: timeline.length === limit,
+			items: items.map((item) => ({
+				id: item.id,
+				actionType: item.actionType,
+				actionDate: item.actionDate,
+				ipAddress: item.ipAddress,
+				browser: item.browser,
+				os: item.os,
+				device: item.device,
+				locationStaticName: item.locationStaticName,
+				locationStaticAddress: item.locationStaticAddress,
+				user: item.user,
+				location: item.location,
+			})),
+			total,
+			page,
+			limit,
 		});
 	} catch (error) {
-		console.error("Dashboard timeline error:", error);
-		return NextResponse.json({ error: "Failed to fetch dashboard timeline" }, { status: 500 });
+		console.error("Error in dashboard timeline:", error);
+		return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
 	}
 }

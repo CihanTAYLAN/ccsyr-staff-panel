@@ -8,7 +8,7 @@ import {
     DeleteOutlined,
     ExclamationCircleOutlined,
     EyeOutlined,
-    EnvironmentOutlined,
+    EnvironmentOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,27 +20,15 @@ import {
     FilterConfig,
     SortingState
 } from '@/components/shared/DataTable';
+import type { DynamicMapProps } from '@/types/map';
 
 const { confirm } = Modal;
 const { TabPane } = Tabs;
 
 // dynamic import for MapWithNoSSR
-const MapWithNoSSR = dynamic(
-    () => import('@/components/Map'),
-    {
-        ssr: false,
-        loading: () => (
-            <div
-                className="h-[300px] w-full bg-theme-background-light flex items-center justify-center"
-                style={{
-                    backgroundColor: 'rgba(0,0,0,0.05)',
-                    borderRadius: '8px'
-                }}
-            >
-                Loading map...
-            </div>
-        )
-    }
+const DynamicMap = dynamic<DynamicMapProps>(
+    () => import('@/components/shared/DynamicMap'),
+    { ssr: false }
 );
 
 type LocationData = {
@@ -483,10 +471,12 @@ export default function LocationsPage() {
                                 <span className='text-theme-text-secondary h-6'>Select Location on Map</span>
                             </div>
                             <div style={{ height: 400, width: '100%', position: 'relative' }}>
-                                <MapWithNoSSR
-                                    centerPosition={defaultPosition}
-                                    markerPosition={markerPosition}
+                                <DynamicMap
+                                    center={defaultPosition}
+                                    markers={markerPosition ? [{ lat: markerPosition[0], lng: markerPosition[1] }] : []}
                                     onMapClick={handleMapClick}
+                                    height="400px"
+                                    enableSearch={true}
                                 />
                             </div>
                             <div className="text-xs text-theme-text-secondary mt-1">

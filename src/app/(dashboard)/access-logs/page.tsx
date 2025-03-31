@@ -291,12 +291,13 @@ export default function AccessLogsPage() {
             render: (record: AccessLogData) => (
                 <Space size="small">
                     <Tooltip title="View Details">
-                        <Button
-                            type="text"
-                            icon={<EyeOutlined />}
-                            onClick={() => router.push(`/access-logs/${record.id}`)}
-                            className="text-theme-text hover:text-primary"
-                        />
+                        <Link href={`/access-logs/${record.id}`}>
+                            <Button
+                                type="text"
+                                icon={<EyeOutlined />}
+                                className="text-theme-text hover:text-primary"
+                            />
+                        </Link>
                     </Tooltip>
                 </Space>
             ),

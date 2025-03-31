@@ -38,6 +38,7 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - lastLoginLocationStaticLat
      - lastLoginLocationStaticLong
      - lastLogoutDate
+     - userAccountStatus
    - Arayüz Özellikleri
      - Kullanıcı listesi
      - Kullanıcı detay görüntüleme
@@ -75,6 +76,17 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - ipAddress
      - created_at
      - updated_at
+     - userStaticName
+     - userStaticEmail
+     - userStaticLastLoginDate
+     - userStaticLastLoginLocationName
+     - userStaticLastLoginLocationAddress
+     - userStaticLastLoginLocationLat
+     - userStaticLastLoginLocationLong
+     - locationStaticName
+     - locationStaticAddress
+     - locationStaticLat
+     - locationStaticLong
    - Arayüz Özellikleri
      - Access Log listesi
      - Access Log detay görüntüleme
@@ -110,9 +122,6 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
 
 6. **Auth Bölümü**
 
-   - Kullanıcı girişi iki adımdan oluşur:
-     - 1. adım: Email ve password ile giriş yapma
-     - 2. adım: Lokasyon ve session date seçimi
    - Kullanıcılar dışarıdan kayıt olamazlar.
    - Kullanıcılar şifrelerini sıfırlayabilirler. (Şifremi Unuttum) (8 Karakterli bir şifre oluşturulacak ve kullanıcıya email ile gönderilecek ve kullanıcının forcePasswordChange değeri true olarak güncellenecektir.)
 
@@ -193,9 +202,19 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
    - Erişilebilirlik özelliklerinin iyileştirilmesi
 
 5. **Performans Optimizasyonları**
+
    - Veri yükleme stratejilerinin optimize edilmesi
    - Önbelleğe alma mekanizmalarının uygulanması
    - Sayfa yükleme sürelerinin iyileştirilmesi
+
+6. **Auth Sistemi İyileştirmeleri**
+
+   - Kullanıcının giriş sonrası lokasyon ve session date seçimini yapabileceği ikinci adımın tamamlanması
+   - Kullanıcı ilk giriş yaparken şifre değiştirme zorunluluğu mekanizmasının (forcePasswordChange) iyileştirilmesi
+   - Şifremi unuttum fonksiyonunun e-posta gönderme ve yeni şifre oluşturma süreçlerinin optimize edilmesi
+
+7. **Kullanıcı Deneyimi İyileştirmeleri**
+   - Mobil cihazlarda daha iyi deneyim için responsive tasarım iyileştirmeleri
 
 ---
 
@@ -208,3 +227,4 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 - **ORM**: Prisma
 - **Authentication**: NextAuth.js
 - **Deployment**: Vercel / Docker
+- **Harita**: Leaflet.js
