@@ -170,6 +170,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 		// Bu kayıtları silmek yerine null yapmak daha uygun olabilir
 		// Gerektiğinde silmek için deleteMany kullanılabilir
 
+		// Lokasyonla ilişkili erişim kayıtlarını null olarak ayarla
+		await prisma.accessLog.updateMany({
+			where: { locationId: locationId },
+			data: { locationId: undefined },
+		});
+
 		// Lokasyonu sil
 		await prisma.location.delete({
 			where: { id: locationId },

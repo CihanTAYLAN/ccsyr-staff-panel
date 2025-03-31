@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip, Popconfirm } from 'antd';
+import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, Breadcrumb, Space, Modal, Tooltip, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType, EActionType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { App } from 'antd';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -28,6 +29,7 @@ const getUserTypeLabel = (type: EUserType) => {
 // Kullanıcı detayları sayfası
 export default function UserDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const { message } = App.useApp();
     const [user, setUser] = useState<any>(null);
     const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

@@ -10,7 +10,6 @@ import {
     Spin,
     Tabs,
     Empty,
-    message,
     Breadcrumb,
     Space,
     Tooltip,
@@ -21,10 +20,12 @@ import { EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { App } from 'antd';
 
 // Lokasyon detayları sayfası
 export default function LocationDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const { message } = App.useApp();
     const [location, setLocation] = useState<any>(null);
     const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [activeUsers, setActiveUsers] = useState<any[]>([]);

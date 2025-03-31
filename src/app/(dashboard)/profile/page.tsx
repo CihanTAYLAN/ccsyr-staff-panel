@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Avatar, Card, Button, Form, Input, Tabs, message, Descriptions, Badge, Timeline, Space, Divider, Tag, Alert, Modal } from 'antd';
+import { Avatar, Card, Button, Form, Input, Tabs, Descriptions, Badge, Timeline, Space, Divider, Tag, Alert, Modal } from 'antd';
 import { UserOutlined, LockOutlined, SaveOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { App } from 'antd';
 
 // Zaman formatı için
 dayjs.extend(relativeTime);
@@ -45,6 +46,7 @@ interface AccessLog {
 }
 
 const ProfilePage = () => {
+    const { message } = App.useApp();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [logs, setLogs] = useState<AccessLog[]>([]);
     const [loading, setLoading] = useState(true);
