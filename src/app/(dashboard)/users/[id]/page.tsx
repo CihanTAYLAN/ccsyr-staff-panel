@@ -70,7 +70,7 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             dataIndex: 'actionType',
             key: 'actionType',
             render: (actionType: EActionType) => (
-                <Tag color={actionType === EActionType.CHECK_IN ? 'green' : 'orange'}>
+                <Tag color={actionType === EActionType.CHECK_IN ? 'green' : actionType === EActionType.CHECK_OUT ? 'red' : actionType === EActionType.UPDATE_LOCATION ? 'orange' : 'default'}>
                     {actionType.replace('_', ' ')}
                 </Tag>
             ),

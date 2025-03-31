@@ -1,15 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Table, Space, Select, Tag, Button, Breadcrumb, Tooltip, DatePicker, message, Avatar, Input } from 'antd';
-import { SearchOutlined, CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, CalendarOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Card, Space, Tag, Button, Breadcrumb, Tooltip, DatePicker, message, Avatar } from 'antd';
+import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    EyeOutlined,
+    CalendarOutlined,
+    EnvironmentOutlined,
+    ReloadOutlined,
+} from '@ant-design/icons';
 import { EActionType, EUserStatus } from '@prisma/client';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+    DataTable,
+    PaginationData,
+    FilterState,
+    FilterConfig,
+    SortingState
+} from '@/components/shared/DataTable';
 
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 // Access log verileri için tip tanımlaması
 type AccessLogData = {
@@ -40,35 +53,13 @@ type AccessLogData = {
     };
 };
 
-// Action tipi seçenekleri
+// Access Log filtreleri için alanlar
 const actionTypeOptions = [
-    { value: EActionType.CHECK_IN, label: 'Check In' },
-    { value: EActionType.CHECK_OUT, label: 'Check Out' },
+    { value: 'ALL', label: 'All Actions' },
+    { value: 'CHECK_IN', label: 'Check In' },
+    { value: 'CHECK_OUT', label: 'Check Out' },
+    { value: 'UPDATE_LOCATION', label: 'Location Update' },
 ];
-
-// Pagination veri tipi
-type PaginationData = {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrevious: boolean;
-};
-
-// Filtre durumu tipi
-type FilterState = {
-    search: string;
-    actionType: string;
-    dateFrom: string;
-    dateTo: string;
-};
-
-// Sıralama durumu tipi
-type SortingState = {
-    sortField: string;
-    sortOrder: 'asc' | 'desc';
-};
 
 export default function AccessLogsPage() {
     const router = useRouter();
@@ -93,6 +84,21 @@ export default function AccessLogsPage() {
         sortOrder: 'desc',
     });
     const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+
+    // Tablo filtre konfigürasyonu
+    const tableFilters: Record<string, FilterConfig> = {
+        search: {
+            type: 'text',
+            placeholder: 'Search by user or location',
+            filterKey: 'search'
+        },
+        actionType: {
+            type: 'select',
+            placeholder: 'Filter by action type',
+            options: actionTypeOptions,
+            filterKey: 'actionType'
+        }
+    };
 
     // Access logları getir
     const fetchAccessLogs = async () => {
@@ -142,6 +148,7 @@ export default function AccessLogsPage() {
             dateTo: '',
         });
         setDateRange(null);
+        setPagination(prev => ({ ...prev, page: 1 }));
     };
 
     // Action tipi için renk ve ikon belirleme
@@ -159,6 +166,12 @@ export default function AccessLogsPage() {
                     icon: <CloseCircleOutlined />,
                     text: 'Check Out'
                 };
+            case EActionType.UPDATE_LOCATION:
+                return {
+                    color: 'warning',
+                    icon: <EnvironmentOutlined />,
+                    text: 'Location Update'
+                };
             default:
                 return {
                     color: 'default',
@@ -168,9 +181,16 @@ export default function AccessLogsPage() {
         }
     };
 
-    // Arama değişikliklerini işle
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFilters(prev => ({ ...prev, search: e.target.value }));
+    // Filtre değişikliklerini yönet
+    const handleFiltersChange = (newFilters: FilterState) => {
+        const updatedFilters = { ...newFilters };
+
+        // Tarih aralığı değerlerini koru
+        if (filters.dateFrom) updatedFilters.dateFrom = filters.dateFrom;
+        if (filters.dateTo) updatedFilters.dateTo = filters.dateTo;
+
+        setFilters(updatedFilters);
+        setPagination(prev => ({ ...prev, page: 1 }));
     };
 
     // Tarih aralığı değişikliklerini işle
@@ -191,11 +211,6 @@ export default function AccessLogsPage() {
         }
     };
 
-    // Action tipi değişikliklerini işle
-    const handleActionTypeChange = (value: string) => {
-        setFilters(prev => ({ ...prev, actionType: value }));
-    };
-
     // Tablo sütunları
     const columns = [
         {
@@ -204,8 +219,8 @@ export default function AccessLogsPage() {
             key: 'user.name',
             render: (_: any, record: AccessLogData) => (
                 <Space>
-                    <Avatar size="small" icon={<UserOutlined />} className="bg-primary">
-                        {record.user.name ? record.user.name.substring(0, 1).toUpperCase() : 'U'}
+                    <Avatar size={32} style={{ backgroundColor: 'var(--theme)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}>
+                        {record.user.name?.charAt(0).toUpperCase()}
                     </Avatar>
                     <Link href={`/users/${record.user.id}`} className="text-primary hover:text-primary-dark">
                         {record.user.name || record.user.email}
@@ -241,11 +256,6 @@ export default function AccessLogsPage() {
                 );
             },
             sorter: true,
-            filters: actionTypeOptions.map(option => ({
-                text: option.label,
-                value: option.value
-            })),
-            onFilter: (value: any, record: AccessLogData) => record.actionType === value,
         },
         {
             title: 'Date / Time',
@@ -317,64 +327,40 @@ export default function AccessLogsPage() {
     };
 
     return (
-        <div className="access-logs-container">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <Breadcrumb items={[
-                        { title: 'Dashboard', href: '/dashboard' },
-                        { title: 'Access Logs' },
-                    ]} className="mb-2" />
-                    <h1 className="text-2xl font-semibold">Access Logs</h1>
-                </div>
-            </div>
-
-            <Card>
-                <div className="mb-4 flex flex-wrap gap-4">
-                    <Input
-                        placeholder="Search user or location"
-                        prefix={<SearchOutlined />}
-                        value={filters.search}
-                        onChange={handleSearchChange}
-                        style={{ width: 250 }}
-                    />
-
+        <>
+            <div className="flex justify-between items-center mb-6 h-6">
+                <Breadcrumb items={[
+                    { title: <Link href="/dashboard">Dashboard</Link> },
+                    { title: 'Access Logs' },
+                ]} />
+                <Space>
                     <RangePicker
                         value={dateRange}
                         onChange={handleDateRangeChange}
                     />
-
-                    <Select
-                        value={filters.actionType || 'ALL'}
-                        style={{ width: 150 }}
-                        onChange={handleActionTypeChange}
+                    <Button
+                        icon={<ReloadOutlined />}
+                        onClick={fetchAccessLogs}
                     >
-                        <Option value="">All Actions</Option>
-                        {actionTypeOptions.map(option => (
-                            <Option key={option.value} value={option.value}>
-                                {option.label}
-                            </Option>
-                        ))}
-                    </Select>
-
-                    <Button onClick={resetFilters}>
-                        Reset Filters
+                        Refresh
                     </Button>
-                </div>
+                </Space>
+            </div>
 
-                <Table
-                    columns={columns}
+            <Card title="Access Logs" className="shadow-theme border-theme" styles={{ body: { padding: 0 } }}>
+                <DataTable
                     dataSource={logs}
+                    columns={columns}
                     loading={loading}
-                    pagination={{
-                        current: pagination.page,
-                        pageSize: pagination.pageSize,
-                        total: pagination.total,
-                        showSizeChanger: true,
-                    }}
-                    onChange={handleTableChange}
-                    rowKey="id"
+                    pagination={pagination}
+                    filters={tableFilters}
+                    filterValues={filters}
+                    onFiltersChange={handleFiltersChange}
+                    onTableChange={handleTableChange}
+                    onResetFilters={resetFilters}
+                    onRefresh={fetchAccessLogs}
                 />
             </Card>
-        </div>
+        </>
     );
 } 

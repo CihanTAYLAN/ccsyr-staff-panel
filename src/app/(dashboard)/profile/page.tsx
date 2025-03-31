@@ -283,12 +283,12 @@ const ProfilePage = () => {
                             <Timeline
                                 mode="left"
                                 items={logs.map(log => ({
-                                    color: log.actionType === 'CHECK_IN' ? 'green' : 'red',
+                                    color: log.actionType === 'CHECK_IN' ? 'green' : log.actionType === 'CHECK_OUT' ? 'red' : log.actionType === 'UPDATE_LOCATION' ? 'orange' : 'default',
                                     label: dayjs(log.created_at).format('YYYY-MM-DD HH:mm:ss'),
                                     children: (
                                         <div>
                                             <p>
-                                                <strong>{log.actionType === 'CHECK_IN' ? 'Check-in' : 'Check-out'}</strong>
+                                                <strong>{log.actionType === 'CHECK_IN' ? 'Check-in' : log.actionType === 'CHECK_OUT' ? 'Check-out' : 'Location Update'}</strong>
                                                 {' at '}
                                                 <strong>{log.locationStaticName}</strong>
                                                 {log.locationStaticAddress && ` (${log.locationStaticAddress})`}

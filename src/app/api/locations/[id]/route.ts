@@ -62,6 +62,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 							},
 						},
 					},
+					orderBy: {
+						created_at: "desc",
+					},
 				},
 			},
 		});

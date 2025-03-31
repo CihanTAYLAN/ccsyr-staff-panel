@@ -158,11 +158,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         try {
             const checkInData = {
                 locationId: values.locationId,
-                sessionDate: values.sessionDate ? values.sessionDate.toDate() : new Date()
+                sessionDate: values.sessionDate ? values.sessionDate.toDate() : new Date(),
+                // Kullanıcı zaten giriş yapmışsa (lokasyonu varsa) bu bir lokasyon güncelleme işlemidir
+                actionType: session?.user?.currentLocation ? 'UPDATE_LOCATION' : 'CHECK_IN'
             };
 
-            // Check-in işlemi
-            const checkInResponse = await fetch('/api/access-logs/check-in', {
+            // API endpoint'i
+            const endpoint = session?.user?.currentLocation
+                ? '/api/access-logs/update-location'
+                : '/api/access-logs/check-in';
+
+            // Check-in veya Update Location işlemi
+            const checkInResponse = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +179,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             if (checkInResponse.ok) {
                 const responseData = await checkInResponse.json();
-                message.success('Location updated successfully');
+                message.success(session?.user?.currentLocation
+                    ? 'Location updated successfully'
+                    : 'Check-in successful');
                 setLocationModalVisible(false);
 
                 // API'den dönen location bilgisini kullan
@@ -197,11 +206,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }
             } else {
                 const errorData = await checkInResponse.json();
-                message.error(`Check-in failed: ${errorData?.error || 'Unknown error'}`);
+                message.error(`${session?.user?.currentLocation ? 'Location update' : 'Check-in'} failed: ${errorData?.error || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error('Error during check-in:', error);
-            message.error('Check-in failed. Please try again.');
+            console.error(`Error during ${session?.user?.currentLocation ? 'location update' : 'check-in'}:`, error);
+            message.error(`${session?.user?.currentLocation ? 'Location update' : 'Check-in'} failed. Please try again.`);
         } finally {
             setSubmitting(false);
         }

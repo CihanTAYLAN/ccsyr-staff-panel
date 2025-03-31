@@ -137,11 +137,11 @@ const DashboardTimeline: React.FC = () => {
     };
 
     const getItemColor = (actionType: string) => {
-        return actionType === 'CHECK_IN' ? 'green' : 'red';
+        return actionType === 'CHECK_IN' ? 'green' : actionType === 'CHECK_OUT' ? 'red' : actionType === 'UPDATE_LOCATION' ? 'orange' : 'default';
     };
 
     const getItemIcon = (actionType: string) => {
-        return actionType === 'CHECK_IN' ? <LoginOutlined /> : <LogoutOutlined />;
+        return actionType === 'CHECK_IN' ? <LoginOutlined /> : actionType === 'CHECK_OUT' ? <LogoutOutlined /> : actionType === 'UPDATE_LOCATION' ? <EnvironmentOutlined /> : null;
     };
 
     if (loading) {
@@ -223,8 +223,8 @@ const DashboardTimeline: React.FC = () => {
                         children: (
                             <div className="timeline-item">
                                 <div className="timeline-item-header">
-                                    <Tag color={item.actionType === 'CHECK_IN' ? 'success' : 'error'}>
-                                        {item.actionType === 'CHECK_IN' ? 'Check In' : 'Check Out'}
+                                    <Tag color={item.actionType === 'CHECK_IN' ? 'success' : item.actionType === 'CHECK_OUT' ? 'error' : item.actionType === 'UPDATE_LOCATION' ? 'warning' : 'default'}>
+                                        {item.actionType === 'CHECK_IN' ? 'Check In' : item.actionType === 'CHECK_OUT' ? 'Check Out' : item.actionType === 'UPDATE_LOCATION' ? 'Location Update' : 'Unknown'}
                                     </Tag>
                                     <span className="timeline-time">
                                         <ClockCircleOutlined /> {dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss')}
