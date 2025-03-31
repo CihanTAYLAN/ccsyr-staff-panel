@@ -12,12 +12,22 @@ declare module "next-auth" {
 			name?: string | null;
 			email?: string | null;
 			userType: string;
+			currentLocation?: {
+				id: string;
+				name: string;
+				address?: string;
+			} | null;
 		};
 	}
 
 	interface User {
 		id: string;
 		userType: string;
+		currentLocation?: {
+			id: string;
+			name: string;
+			address?: string;
+		} | null;
 	}
 }
 
@@ -25,6 +35,11 @@ declare module "next-auth/jwt" {
 	interface JWT {
 		id: string;
 		userType: string;
+		currentLocation?: {
+			id: string;
+			name: string;
+			address?: string;
+		} | null;
 	}
 }
 
@@ -45,6 +60,9 @@ export const authOptions: NextAuthOptions = {
 				const user = await prisma.user.findUnique({
 					where: {
 						email: credentials.email,
+					},
+					include: {
+						currentLocation: true,
 					},
 				});
 
@@ -67,12 +85,21 @@ export const authOptions: NextAuthOptions = {
 					email: user.email,
 					name: user.name,
 					userType: user.userType,
+					currentLocation: user.currentLocation
+						? {
+								id: user.currentLocation.id,
+								name: user.currentLocation.name,
+								address: user.currentLocation.address || undefined,
+						  }
+						: null,
 				};
 			},
 		}),
 	],
 	session: {
 		strategy: "jwt",
+		maxAge: 30 * 24 * 60 * 60, // 30 gün
+		updateAge: 24 * 60 * 60, // 24 saat
 	},
 	secret: process.env.NEXTAUTH_SECRET,
 	pages: {
@@ -81,17 +108,28 @@ export const authOptions: NextAuthOptions = {
 		signOut: "/auth/signout",
 	},
 	callbacks: {
-		jwt: async ({ token, user }) => {
+		jwt: async ({ token, user, trigger, session }) => {
 			if (user) {
 				token.id = user.id;
 				token.userType = user.userType;
+				token.currentLocation = user.currentLocation;
 			}
+
+			// update() çağrıldığında yeni session verilerini al
+			if (trigger === "update" && session) {
+				// Session nesnesinden currentLocation bilgisini al
+				if (session.currentLocation) {
+					token.currentLocation = session.currentLocation;
+				}
+			}
+
 			return token;
 		},
 		session: async ({ session, token }) => {
 			if (token && session.user) {
 				session.user.id = token.id;
 				session.user.userType = token.userType;
+				session.user.currentLocation = token.currentLocation;
 			}
 			return session;
 		},

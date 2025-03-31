@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Dropdown, Avatar, Spin, Image } from 'antd';
+import { Layout, Menu, Button, Dropdown, Avatar, Spin, Image, Modal, Select, DatePicker, message, Form, Space } from 'antd';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
@@ -14,28 +14,198 @@ import {
     LogoutOutlined,
     MoonOutlined,
     SunOutlined,
+    CalendarOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
+import dayjs from 'dayjs';
 
 const { Header, Sider, Content } = Layout;
+const { Option } = Select;
+
+// Lokasyon arayüzü
+interface Location {
+    id: string;
+    name: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false);
-    const { data: session, status } = useSession();
+    const { data: session, status, update } = useSession();
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
+    const [locationModalVisible, setLocationModalVisible] = useState(false);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [loadingLocations, setLoadingLocations] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
+    const [form] = Form.useForm();
+    const [submitting, setSubmitting] = useState(false);
+
+    // Kullanıcı konumunu al
+    const getUserLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                }
+            );
+        }
+    };
+
+    // En yakın lokasyonu hesapla
+    const findClosestLocation = (): Location | null => {
+        if (!userLocation || !locations.length) return null;
+
+        // Haversine formulü ile iki nokta arasındaki mesafeyi hesapla
+        const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+            const R = 6371; // Dünya yarıçapı km olarak
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        };
+
+        let closestLocation: Location | null = null;
+        let minDistance = Infinity;
+
+        locations.forEach(location => {
+            if (location.latitude && location.longitude) {
+                const distance = getDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    location.latitude,
+                    location.longitude
+                );
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestLocation = location;
+                }
+            }
+        });
+
+        return closestLocation;
+    };
+
+    // Lokasyonları getir
+    const fetchLocations = async () => {
+        setLoadingLocations(true);
+        try {
+            const response = await fetch('/api/locations');
+            if (response.ok) {
+                const data = await response.json();
+                setLocations(data.locations || []);
+            } else {
+                message.error('Failed to load locations');
+            }
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+        } finally {
+            setLoadingLocations(false);
+        }
+    };
+
+    // Kullanıcının konumu ve lokasyonlar değiştiğinde form alanını güncelle
+    useEffect(() => {
+        if (locationModalVisible && userLocation && locations.length > 0) {
+            const closestLocation = findClosestLocation();
+            if (closestLocation) {
+                form.setFieldsValue({ locationId: closestLocation.id });
+            }
+        }
+    }, [userLocation, locations, locationModalVisible, form]);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
+    // Kullanıcı girişini ve lokasyon durumunu kontrol et
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/auth/login');
+        } else if (status === 'authenticated' && session) {
+            // Kullanıcının lokasyon bilgisi yoksa modal'ı aç
+            if (!session.user.currentLocation) {
+                setLocationModalVisible(true);
+                fetchLocations();
+                getUserLocation();
+            }
         }
-    }, [status, router]);
+    }, [status, session, router]);
+
+    // Check-in işlemi yap
+    const handleCheckIn = async (values: { locationId: string; sessionDate?: dayjs.Dayjs }) => {
+        if (!values.locationId) {
+            message.error('Please select a location');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const checkInData = {
+                locationId: values.locationId,
+                sessionDate: values.sessionDate ? values.sessionDate.toDate() : new Date()
+            };
+
+            // Check-in işlemi
+            const checkInResponse = await fetch('/api/access-logs/check-in', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(checkInData),
+            });
+
+            if (checkInResponse.ok) {
+                const responseData = await checkInResponse.json();
+                message.success('Location updated successfully');
+                setLocationModalVisible(false);
+
+                // API'den dönen location bilgisini kullan
+                if (responseData.currentLocation) {
+                    await update({
+                        currentLocation: responseData.currentLocation
+                    });
+                } else {
+                    // Fallback olarak eski yöntemi kullan
+                    const selectedLocation = locations.find(loc => loc.id === values.locationId);
+                    if (selectedLocation) {
+                        await update({
+                            currentLocation: {
+                                id: selectedLocation.id,
+                                name: selectedLocation.name,
+                                address: selectedLocation.address
+                            }
+                        });
+                    } else {
+                        await update();
+                    }
+                }
+            } else {
+                const errorData = await checkInResponse.json();
+                message.error(`Check-in failed: ${errorData?.error || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error during check-in:', error);
+            message.error('Check-in failed. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     if (!isMounted) {
         return null; // İlk render sırasında hiçbir şey render etme
@@ -65,10 +235,47 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick: () => router.push('/profile'),
         },
         {
+            key: 'location',
+            label: 'Change Location',
+            icon: <EnvironmentOutlined />,
+            onClick: () => {
+                setLocationModalVisible(true);
+                fetchLocations();
+                getUserLocation();
+            },
+        },
+        {
             key: 'logout',
             label: 'Logout',
             icon: <LogoutOutlined />,
-            onClick: () => signOut({ callbackUrl: '/auth/login' }),
+            onClick: async () => {
+                // Kullanıcının yeri varsa check-out işlemi yap
+                if (session?.user?.currentLocation) {
+                    try {
+                        const checkOutResponse = await fetch('/api/access-logs/check-out', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                sessionDate: new Date()
+                            }),
+                        });
+
+                        if (checkOutResponse.ok) {
+                            message.success('Check-out successful');
+                        } else {
+                            message.error('Check-out failed, but continuing with logout');
+                        }
+                    } catch (error) {
+                        console.error('Error during check-out:', error);
+                        message.error('Check-out failed, but continuing with logout');
+                    }
+                }
+
+                // Ardından çıkış yap
+                signOut({ callbackUrl: '/auth/login' });
+            },
         },
     ];
 
@@ -126,6 +333,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         className="text-base w-16 h-16"
                     />
                     <div className="flex items-center gap-4">
+                        <Space>
+                            {session?.user?.currentLocation && (
+                                <div className="hidden md:flex items-center gap-2 text-theme-text">
+                                    <EnvironmentOutlined />
+                                    <span>{session.user.currentLocation.name}</span>
+                                </div>
+                            )}
+                        </Space>
                         <Button
                             type="text"
                             icon={theme === 'dark' ? <SunOutlined className='text-yellow-500' /> : <MoonOutlined className='text-gray-500' />}
@@ -136,7 +351,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Avatar size="large" className="cursor-pointer"
                                 style={{ backgroundColor: 'var(--theme)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}
                             >
-                                {session?.user?.name?.charAt(0).toUpperCase()}
+                                {session?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                             </Avatar>
                         </Dropdown>
                     </div>
@@ -145,6 +360,78 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {children}
                 </Content>
             </Layout>
+
+            {/* Location Seçim Modalı */}
+            <Modal
+                title="Select Your Location"
+                open={locationModalVisible}
+                footer={null}
+                closable={!!session?.user?.currentLocation}
+                maskClosable={false}
+                onCancel={() => session?.user?.currentLocation && setLocationModalVisible(false)}
+            >
+                <Form
+                    form={form}
+                    name="location-form"
+                    initialValues={{ sessionDate: dayjs() }}
+                    onFinish={handleCheckIn}
+                    layout="vertical"
+                >
+                    <Form.Item
+                        name="locationId"
+                        label="Location"
+                        rules={[{ required: true, message: 'Please select your location!' }]}
+                        tooltip="Select the location you are checking in from"
+                    >
+                        {loadingLocations ? (
+                            <div className="flex items-center justify-center p-4">
+                                <Spin size="small" />
+                                <span className="ml-2">Loading locations...</span>
+                            </div>
+                        ) : (
+                            <Select
+                                placeholder="Select your location"
+                                size="large"
+                                className="w-full"
+                                suffixIcon={<EnvironmentOutlined />}
+                            >
+                                {locations.map(location => (
+                                    <Option key={location.id} value={location.id}>
+                                        {location.name}
+                                        {location.address && ` (${location.address})`}
+                                    </Option>
+                                ))}
+                            </Select>
+                        )}
+                    </Form.Item>
+
+                    <Form.Item
+                        name="sessionDate"
+                        label="Session Date"
+                        tooltip="Select the date for this session (default: current date/time)"
+                    >
+                        <DatePicker
+                            showTime
+                            format="YYYY-MM-DD HH:mm:ss"
+                            size="large"
+                            className="w-full"
+                            suffixIcon={<CalendarOutlined />}
+                        />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={submitting}
+                            block
+                            size="large"
+                        >
+                            {session?.user?.currentLocation ? 'Update Location' : 'Check In'}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </Layout>
     );
 } 

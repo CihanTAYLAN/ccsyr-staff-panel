@@ -14,7 +14,7 @@ interface DashboardStatsProps { }
 
 interface StatsData {
     totalUsers: number;
-    activeUsers: number;
+    onlineUsers: number;
     totalLocations: number;
     todayCheckIns: number;
     totalAccessLogs: number;
@@ -118,15 +118,15 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
                 <Card>
                     <Statistic
                         title="Total Users"
-                        value={stats.totalUsers}
+                        value={stats.totalActiveUsers}
                         prefix={<TeamOutlined />}
                     />
                 </Card>
 
                 <Card>
                     <Statistic
-                        title="Active Users"
-                        value={stats.activeUsers}
+                        title="Online Users"
+                        value={stats.onlineUsers}
                         prefix={<UserOutlined />}
                         valueStyle={{ color: '#3f8600' }}
                     />

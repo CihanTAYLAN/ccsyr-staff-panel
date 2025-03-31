@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 		});
 
 		// Kullanıcının lokasyonunu ve durumunu güncelle
-		await prisma.user.update({
+		const updatedUser = await prisma.user.update({
 			where: { id: user.id },
 			data: {
 				currentLocationId: location.id,
@@ -83,12 +83,22 @@ export async function POST(request: NextRequest) {
 				lastLoginLocationStaticLat: location.latitude || 0,
 				lastLoginLocationStaticLong: location.longitude || 0,
 			},
+			include: {
+				currentLocation: true,
+			},
 		});
 
 		return NextResponse.json({
 			success: true,
 			message: "Check-in successful",
 			accessLog,
+			currentLocation: updatedUser.currentLocation
+				? {
+						id: updatedUser.currentLocation.id,
+						name: updatedUser.currentLocation.name,
+						address: updatedUser.currentLocation.address,
+				  }
+				: null,
 		});
 	} catch (error) {
 		console.error("Error during check-in:", error);

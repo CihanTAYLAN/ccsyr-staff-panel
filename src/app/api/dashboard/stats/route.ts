@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { EUserAccountStatus, EActionType, EUserType } from "@prisma/client";
+import { EUserAccountStatus, EActionType, EUserType, EUserStatus } from "@prisma/client";
 
 // GET /api/dashboard/stats - Dashboard istatistikleri
 export async function GET(req: NextRequest) {
@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
 		const totalUsers = await prisma.user.count();
 
 		// Aktif kullanıcı sayısı (durumu "Active" olanlar)
-		const activeUsers = await prisma.user.count({
-			where: { userAccountStatus: EUserAccountStatus.ACTIVE },
+		const onlineUsers = await prisma.user.count({
+			where: { status: EUserStatus.ONLINE },
 		});
 
 		const totalActiveUsers = await prisma.user.count({
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
 				address: true,
 				activeUsers: {
 					where: {
-						userAccountStatus: EUserAccountStatus.ACTIVE,
+						status: EUserStatus.ONLINE,
 					},
 					select: {
 						id: true,
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
 		// Yanıt olarak tüm istatistikleri döndür
 		return NextResponse.json({
 			totalUsers,
-			activeUsers,
+			onlineUsers,
 			totalActiveUsers,
 			totalLocations,
 			todayCheckIns,

@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
 		// Kullanıcı bilgilerini getir
 		const user = await prisma.user.findUnique({
 			where: { id: session.user.id },
+			include: {
+				currentLocation: true,
+			},
 		});
 
 		if (!user) {
@@ -47,6 +50,7 @@ export async function POST(request: NextRequest) {
 
 		// actionDate değerini ayarla (gönderilmemişse şu anki tarih)
 		const actionDate = sessionDate ? new Date(sessionDate) : new Date();
+		const currentTime = new Date();
 
 		// AccessLog oluştur
 		const accessLog = await prisma.accessLog.create({
@@ -73,6 +77,7 @@ export async function POST(request: NextRequest) {
 			data: {
 				currentLocationId: null,
 				status: EUserStatus.OFFLINE,
+				lastLogoutDate: currentTime,
 			},
 		});
 

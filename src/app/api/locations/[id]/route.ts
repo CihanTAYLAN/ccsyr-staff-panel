@@ -41,6 +41,28 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 						activeUsers: true,
 					},
 				},
+				logs: {
+					select: {
+						id: true,
+						created_at: true,
+						actionType: true,
+						actionDate: true,
+						locationStaticName: true,
+						locationStaticAddress: true,
+						userAgent: true,
+						browser: true,
+						os: true,
+						device: true,
+						ipAddress: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+					},
+				},
 			},
 		});
 

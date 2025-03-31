@@ -210,10 +210,9 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                             <Space>
                                 <EnvironmentOutlined />
                                 {user.currentLocation.name}
-                                {user.currentLocation.address && (
+                                {user.currentLocation.address ? (
                                     <span className="text-theme-text-secondary">({user.currentLocation.address})</span>
-                                )}
-                                <span className="ml-2 text-theme-text-secondary text-sm">(Automatically updated based on user check-in/check-out)</span>
+                                ) : 'N/A'}
                             </Space>
                         ) : (
                             <Space>

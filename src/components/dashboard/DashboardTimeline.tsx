@@ -79,7 +79,7 @@ const DashboardTimeline: React.FC = () => {
                     throw new Error('Failed to fetch locations');
                 }
                 const data = await response.json();
-                setLocations(data);
+                setLocations(data.locations);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }

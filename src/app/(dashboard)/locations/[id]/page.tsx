@@ -1,15 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, message, Breadcrumb, Space, Modal, Tooltip } from 'antd';
-import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ExclamationCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+    Card,
+    Descriptions,
+    Table,
+    Tag,
+    Button,
+    Spin,
+    Tabs,
+    Empty,
+    message,
+    Breadcrumb,
+    Space,
+    Tooltip,
+    Popconfirm,
+} from 'antd';
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
 import { EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-
-const { TabPane } = Tabs;
-const { confirm } = Modal;
 
 // Lokasyon detayları sayfası
 export default function LocationDetailPage({ params }: { params: { id: string } }) {
@@ -32,7 +43,7 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
             const data = await response.json();
             setLocation(data.location);
             setActiveUsers(data.location.activeUsers || []);
-            setAccessLogs(data.accessLogs || []);
+            setAccessLogs(data.location.logs || []);
         } catch (error) {
             console.error('Error fetching location details:', error);
             message.error('Failed to load location details');
@@ -48,10 +59,20 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
     // Erişim kayıtları için tablo sütunları
     const accessLogsColumns = [
         {
-            title: 'Date & Time',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            render: (text: string) => dayjs(text).format('LLL'),
+            title: 'User',
+            dataIndex: 'user',
+            key: 'user',
+            render: (user: any) => (
+                <Link href={`/users/${user.id}`}>
+                    {user.name || user.email}
+                </Link>
+            ),
+        },
+        {
+            title: 'Session Date',
+            dataIndex: 'actionDate',
+            key: 'actionDate',
+            render: (text: string) => <Tooltip title={dayjs(text).fromNow()}>{dayjs(text).format('LLL')}</Tooltip>,
         },
         {
             title: 'Action',
@@ -64,20 +85,40 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
             ),
         },
         {
-            title: 'User',
-            dataIndex: 'user',
-            key: 'user',
-            render: (user: any) => (
-                <Link href={`/users/${user.id}`}>
-                    {user.name || user.email}
-                </Link>
-            ),
-        },
-        {
             title: 'IP Address',
             dataIndex: 'ipAddress',
             key: 'ipAddress',
             render: (text: string) => text || 'N/A',
+        },
+        {
+            title: 'Browser',
+            dataIndex: 'browser',
+            key: 'browser',
+            render: (text: string) => text || 'N/A',
+        },
+        {
+            title: 'OS',
+            dataIndex: 'os',
+            key: 'os',
+            render: (text: string) => text || 'N/A',
+        },
+        {
+            title: 'Device',
+            dataIndex: 'device',
+            key: 'device',
+            render: (text: string) => text || 'N/A',
+        },
+        {
+            title: 'Location',
+            dataIndex: 'locationStaticName',
+            key: 'locationStaticName',
+            render: (text: string) => text || 'N/A',
+        },
+        {
+            title: 'Log Date',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            render: (text: string) => <Tooltip title={dayjs(text).fromNow()}>{dayjs(text).format('LLL')}</Tooltip>,
         },
     ];
 
@@ -123,33 +164,23 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
         },
     ];
 
-    const confirmDeleteLocation = (locationId: string, locationName: string) => {
-        confirm({
-            title: `Are you sure you want to delete ${locationName}?`,
-            icon: <ExclamationCircleOutlined />,
-            content: 'This action cannot be undone.',
-            okText: 'Yes',
-            cancelText: 'No',
-            okType: 'danger',
-            async onOk() {
-                try {
-                    const response = await fetch(`/api/locations/${locationId}`, {
-                        method: 'DELETE',
-                    });
+    const deleteLocation = async (locationId: string, locationName: string) => {
+        try {
+            const response = await fetch(`/api/locations/${locationId}`, {
+                method: 'DELETE',
+            });
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Failed to delete location');
-                    }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete location');
+            }
 
-                    message.success('Location deleted successfully');
-                    router.push('/locations');
-                } catch (error: any) {
-                    message.error(error.message || 'Failed to delete location');
-                    console.error('Error deleting location:', error);
-                }
-            },
-        });
+            message.success('Location deleted successfully');
+            router.push('/locations');
+        } catch (error: any) {
+            message.error(error.message || 'Failed to delete location');
+            console.error('Error deleting location:', error);
+        }
     };
 
     if (loading) {
@@ -191,12 +222,20 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                         </Link>
                     </Tooltip>
                     <Tooltip title="Delete Location">
-                        <Button
-                            type="primary"
-                            icon={<DeleteOutlined />}
-                            danger
-                            onClick={() => confirmDeleteLocation(locationId, location.name)}
-                        ></Button>
+                        <Popconfirm
+                            title={`Are you sure you want to delete ${location.name}?`}
+                            onConfirm={() => deleteLocation(locationId, location.name)}
+                            okText="Yes"
+                            cancelText="No"
+                            okType="danger"
+                            placement="left"
+                        >
+                            <Button
+                                type="primary"
+                                icon={<DeleteOutlined />}
+                                danger
+                            ></Button>
+                        </Popconfirm>
                     </Tooltip>
                 </div>
             </div>
@@ -222,7 +261,7 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                         }
                     </Descriptions.Item>
                     <Descriptions.Item label="Active Users">
-                        {location._count?.activeUsers || 0}
+                        {location._count?.onlineUsers || 0}
                     </Descriptions.Item>
                     <Descriptions.Item label="Created At">
                         <Tooltip title={dayjs(location.created_at).fromNow()}>

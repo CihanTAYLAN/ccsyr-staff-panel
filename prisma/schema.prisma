@@ -25,7 +25,6 @@ model User {
 
   // Login bilgileri
   lastLoginDate      DateTime?
-  lastLoginIp        String?
   lastLoginUseragent String?
   lastLoginOs        String?
   lastLoginDevice    String?

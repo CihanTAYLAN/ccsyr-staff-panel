@@ -27,7 +27,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 				userAccountStatus: true,
 				forcePasswordChange: true,
 				lastLoginDate: true,
-				lastLoginIp: true,
 				lastLoginUseragent: true,
 				lastLoginOs: true,
 				lastLoginDevice: true,

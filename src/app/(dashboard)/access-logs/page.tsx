@@ -1,209 +1,380 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, Table, Input, DatePicker, Space, Select, Tag } from 'antd';
-import { SearchOutlined, ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { EActionType } from '@prisma/client';
+import { useState, useEffect } from 'react';
+import { Card, Table, Space, Select, Tag, Button, Breadcrumb, Tooltip, DatePicker, message, Avatar, Input } from 'antd';
+import { SearchOutlined, CheckCircleOutlined, CloseCircleOutlined, EyeOutlined, CalendarOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { EActionType, EUserStatus } from '@prisma/client';
 import dayjs from 'dayjs';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-type LogData = {
+// Access log verileri için tip tanımlaması
+type AccessLogData = {
     id: string;
-    userId: string;
-    userName: string;
-    locationId: string;
-    locationName: string;
     actionType: EActionType;
-    timestamp: Date;
-    userAgent: string | null;
+    actionDate: string;
     ipAddress: string | null;
+    userAgent: string | null;
+    browser: string | null;
+    os: string | null;
+    device: string | null;
+    locationStaticName: string | null;
+    locationStaticAddress: string | null;
+    locationStaticLat: number | null;
+    locationStaticLong: number | null;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: string;
+        name: string | null;
+        email: string;
+        status: EUserStatus;
+    };
+    location: {
+        id: string;
+        name: string;
+        address: string | null;
+    };
 };
 
-// Demo data - gerçek uygulamada API'den gelecek
-const mockLogs: LogData[] = [
-    {
-        id: '1',
-        userId: '1',
-        userName: 'Admin User',
-        locationId: '1',
-        locationName: 'Main Office',
-        actionType: EActionType.CHECK_IN,
-        timestamp: new Date(2023, 3, 15, 9, 0, 0),
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        ipAddress: '192.168.1.1',
-    },
-    {
-        id: '2',
-        userId: '1',
-        userName: 'Admin User',
-        locationId: '1',
-        locationName: 'Main Office',
-        actionType: EActionType.CHECK_OUT,
-        timestamp: new Date(2023, 3, 15, 17, 30, 0),
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        ipAddress: '192.168.1.1',
-    },
-    {
-        id: '3',
-        userId: '2',
-        userName: 'Manager User',
-        locationId: '2',
-        locationName: 'Warehouse',
-        actionType: EActionType.CHECK_IN,
-        timestamp: new Date(2023, 3, 15, 8, 45, 0),
-        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X)',
-        ipAddress: '192.168.1.2',
-    },
-    {
-        id: '4',
-        userId: '2',
-        userName: 'Manager User',
-        locationId: '2',
-        locationName: 'Warehouse',
-        actionType: EActionType.CHECK_OUT,
-        timestamp: new Date(2023, 3, 15, 16, 50, 0),
-        userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X)',
-        ipAddress: '192.168.1.2',
-    },
-    {
-        id: '5',
-        userId: '3',
-        userName: 'Staff Member',
-        locationId: '3',
-        locationName: 'Branch Office',
-        actionType: EActionType.CHECK_IN,
-        timestamp: new Date(2023, 3, 15, 9, 15, 0),
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        ipAddress: '192.168.1.3',
-    },
+// Action tipi seçenekleri
+const actionTypeOptions = [
+    { value: EActionType.CHECK_IN, label: 'Check In' },
+    { value: EActionType.CHECK_OUT, label: 'Check Out' },
 ];
 
-export default function AccessLogsPage() {
-    const [logs, setLogs] = useState<LogData[]>(mockLogs);
-    const [searchText, setSearchText] = useState('');
-    const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
-    const [actionTypeFilter, setActionTypeFilter] = useState<EActionType | 'ALL'>('ALL');
+// Pagination veri tipi
+type PaginationData = {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+};
 
+// Filtre durumu tipi
+type FilterState = {
+    search: string;
+    actionType: string;
+    dateFrom: string;
+    dateTo: string;
+};
+
+// Sıralama durumu tipi
+type SortingState = {
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+};
+
+export default function AccessLogsPage() {
+    const router = useRouter();
+    const [logs, setLogs] = useState<AccessLogData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState<PaginationData>({
+        page: 1,
+        pageSize: 10,
+        total: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrevious: false,
+    });
+    const [filters, setFilters] = useState<FilterState>({
+        search: '',
+        actionType: '',
+        dateFrom: '',
+        dateTo: '',
+    });
+    const [sorting, setSorting] = useState<SortingState>({
+        sortField: 'created_at',
+        sortOrder: 'desc',
+    });
+    const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+
+    // Access logları getir
+    const fetchAccessLogs = async () => {
+        setLoading(true);
+        try {
+            // API parametrelerini oluştur
+            const params = new URLSearchParams({
+                page: pagination.page.toString(),
+                pageSize: pagination.pageSize.toString(),
+                sortField: sorting.sortField,
+                sortOrder: sorting.sortOrder,
+            });
+
+            if (filters.search) params.append('search', filters.search);
+            if (filters.actionType) params.append('actionType', filters.actionType);
+            if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+            if (filters.dateTo) params.append('dateTo', filters.dateTo);
+
+            const response = await fetch(`/api/access-logs?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch access logs');
+            }
+
+            const data = await response.json();
+            setLogs(data.logs);
+            setPagination(data.pagination);
+        } catch (error) {
+            console.error('Error fetching access logs:', error);
+            message.error('Failed to load access logs');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // İlk yüklemede ve filtrelerde değişiklik olduğunda logları getir
+    useEffect(() => {
+        fetchAccessLogs();
+    }, [pagination.page, pagination.pageSize, sorting, filters]);
+
+    // Filtreleri sıfırla
+    const resetFilters = () => {
+        setFilters({
+            search: '',
+            actionType: '',
+            dateFrom: '',
+            dateTo: '',
+        });
+        setDateRange(null);
+    };
+
+    // Action tipi için renk ve ikon belirleme
+    const getActionTypeDisplay = (actionType: EActionType) => {
+        switch (actionType) {
+            case EActionType.CHECK_IN:
+                return {
+                    color: 'success',
+                    icon: <CheckCircleOutlined />,
+                    text: 'Check In'
+                };
+            case EActionType.CHECK_OUT:
+                return {
+                    color: 'error',
+                    icon: <CloseCircleOutlined />,
+                    text: 'Check Out'
+                };
+            default:
+                return {
+                    color: 'default',
+                    icon: null,
+                    text: String(actionType).replace('_', ' ')
+                };
+        }
+    };
+
+    // Arama değişikliklerini işle
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFilters(prev => ({ ...prev, search: e.target.value }));
+    };
+
+    // Tarih aralığı değişikliklerini işle
+    const handleDateRangeChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
+        setDateRange(dates);
+        if (dates && dates[0] && dates[1]) {
+            setFilters(prev => ({
+                ...prev,
+                dateFrom: dates[0]?.format('YYYY-MM-DD') || '',
+                dateTo: dates[1]?.format('YYYY-MM-DD') || '',
+            }));
+        } else {
+            setFilters(prev => ({
+                ...prev,
+                dateFrom: '',
+                dateTo: '',
+            }));
+        }
+    };
+
+    // Action tipi değişikliklerini işle
+    const handleActionTypeChange = (value: string) => {
+        setFilters(prev => ({ ...prev, actionType: value }));
+    };
+
+    // Tablo sütunları
     const columns = [
         {
             title: 'User',
-            dataIndex: 'userName',
-            key: 'userName',
+            dataIndex: ['user', 'name'],
+            key: 'user.name',
+            render: (_: any, record: AccessLogData) => (
+                <Space>
+                    <Avatar size="small" icon={<UserOutlined />} className="bg-primary">
+                        {record.user.name ? record.user.name.substring(0, 1).toUpperCase() : 'U'}
+                    </Avatar>
+                    <Link href={`/users/${record.user.id}`} className="text-primary hover:text-primary-dark">
+                        {record.user.name || record.user.email}
+                    </Link>
+                </Space>
+            ),
+            sorter: true,
         },
         {
             title: 'Location',
-            dataIndex: 'locationName',
-            key: 'locationName',
+            dataIndex: ['location', 'name'],
+            key: 'location.name',
+            render: (_: any, record: AccessLogData) => (
+                <Space>
+                    <EnvironmentOutlined />
+                    <Link href={`/locations/${record.location.id}`} className="text-primary hover:text-primary-dark">
+                        {record.location.name}
+                    </Link>
+                </Space>
+            ),
+            sorter: true,
         },
         {
             title: 'Action',
             dataIndex: 'actionType',
             key: 'actionType',
-            render: (actionType: EActionType) => (
-                <Tag
-                    icon={actionType === EActionType.CHECK_IN ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-                    color={actionType === EActionType.CHECK_IN ? 'success' : 'error'}
-                >
-                    {actionType.replace('_', ' ')}
-                </Tag>
-            ),
+            render: (actionType: EActionType) => {
+                const { color, icon, text } = getActionTypeDisplay(actionType);
+                return (
+                    <Tag icon={icon} color={color as any}>
+                        {text}
+                    </Tag>
+                );
+            },
+            sorter: true,
+            filters: actionTypeOptions.map(option => ({
+                text: option.label,
+                value: option.value
+            })),
+            onFilter: (value: any, record: AccessLogData) => record.actionType === value,
         },
         {
-            title: 'Time',
-            dataIndex: 'timestamp',
-            key: 'timestamp',
-            render: (timestamp: Date) => (
+            title: 'Date / Time',
+            dataIndex: 'actionDate',
+            key: 'actionDate',
+            render: (date: string) => (
                 <Space>
-                    <ClockCircleOutlined />
-                    {timestamp.toLocaleString()}
+                    <CalendarOutlined />
+                    {dayjs(date).format('YYYY-MM-DD HH:mm:ss')}
                 </Space>
             ),
-            sorter: (a: LogData, b: LogData) => a.timestamp.getTime() - b.timestamp.getTime(),
-            defaultSortOrder: 'descend' as 'descend',
+            sorter: true,
+        },
+        {
+            title: 'Browser / Device',
+            key: 'deviceInfo',
+            render: (record: AccessLogData) => (
+                <Space direction="vertical" size="small">
+                    <div>{record.browser || 'Unknown'}</div>
+                    <div className="text-xs text-theme-text-secondary">{record.device || 'Unknown'}</div>
+                </Space>
+            )
         },
         {
             title: 'IP Address',
             dataIndex: 'ipAddress',
             key: 'ipAddress',
-            render: (text: string | null) => text || 'N/A',
+            render: (ipAddress: string | null) => ipAddress || 'N/A',
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (record: AccessLogData) => (
+                <Space size="small">
+                    <Tooltip title="View Details">
+                        <Button
+                            type="text"
+                            icon={<EyeOutlined />}
+                            onClick={() => router.push(`/access-logs/${record.id}`)}
+                            className="text-theme-text hover:text-primary"
+                        />
+                    </Tooltip>
+                </Space>
+            ),
         },
     ];
 
-    const handleDateRangeChange = (dates: any) => {
-        setDateRange(dates);
-    };
+    // Tablo değişikliklerini yakala (sayfalama, sıralama)
+    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+        // Sayfalama
+        setPagination(prev => ({
+            ...prev,
+            page: pagination.current || 1,
+            pageSize: pagination.pageSize || 10,
+        }));
 
-    const handleActionTypeChange = (value: EActionType | 'ALL') => {
-        setActionTypeFilter(value);
-    };
-
-    // Filtre işlemleri
-    const getFilteredLogs = () => {
-        let filtered = [...logs];
-
-        // Metin araması
-        if (searchText) {
-            filtered = filtered.filter(log =>
-                log.userName.toLowerCase().includes(searchText.toLowerCase()) ||
-                log.locationName.toLowerCase().includes(searchText.toLowerCase())
-            );
-        }
-
-        // Tarih aralığı
-        if (dateRange && dateRange[0] && dateRange[1]) {
-            const startDate = dateRange[0].startOf('day');
-            const endDate = dateRange[1].endOf('day');
-
-            filtered = filtered.filter(log => {
-                const logDate = dayjs(log.timestamp);
-                return logDate.isAfter(startDate) && logDate.isBefore(endDate);
+        // Sıralama
+        if (sorter && sorter.field) {
+            setSorting({
+                sortField: sorter.field,
+                sortOrder: sorter.order === 'ascend' ? 'asc' : 'desc',
+            });
+        } else {
+            setSorting({
+                sortField: 'created_at',
+                sortOrder: 'desc',
             });
         }
-
-        // İşlem tipi
-        if (actionTypeFilter !== 'ALL') {
-            filtered = filtered.filter(log => log.actionType === actionTypeFilter);
-        }
-
-        return filtered;
     };
 
     return (
-        <>
-            <h1 className="text-2xl font-bold mb-6">Access Logs</h1>
+        <div className="access-logs-container">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <Breadcrumb items={[
+                        { title: 'Dashboard', href: '/dashboard' },
+                        { title: 'Access Logs' },
+                    ]} className="mb-2" />
+                    <h1 className="text-2xl font-semibold">Access Logs</h1>
+                </div>
+            </div>
 
             <Card>
                 <div className="mb-4 flex flex-wrap gap-4">
                     <Input
                         placeholder="Search user or location"
                         prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={e => setSearchText(e.target.value)}
+                        value={filters.search}
+                        onChange={handleSearchChange}
                         style={{ width: 250 }}
                     />
 
-                    <RangePicker onChange={handleDateRangeChange} />
+                    <RangePicker
+                        value={dateRange}
+                        onChange={handleDateRangeChange}
+                    />
 
                     <Select
-                        defaultValue="ALL"
+                        value={filters.actionType || 'ALL'}
                         style={{ width: 150 }}
                         onChange={handleActionTypeChange}
                     >
-                        <Option value="ALL">All Actions</Option>
-                        <Option value={EActionType.CHECK_IN}>Check In</Option>
-                        <Option value={EActionType.CHECK_OUT}>Check Out</Option>
+                        <Option value="">All Actions</Option>
+                        {actionTypeOptions.map(option => (
+                            <Option key={option.value} value={option.value}>
+                                {option.label}
+                            </Option>
+                        ))}
                     </Select>
+
+                    <Button onClick={resetFilters}>
+                        Reset Filters
+                    </Button>
                 </div>
 
                 <Table
                     columns={columns}
-                    dataSource={getFilteredLogs()}
+                    dataSource={logs}
+                    loading={loading}
+                    pagination={{
+                        current: pagination.page,
+                        pageSize: pagination.pageSize,
+                        total: pagination.total,
+                        showSizeChanger: true,
+                    }}
+                    onChange={handleTableChange}
                     rowKey="id"
-                    pagination={{ pageSize: 10 }}
                 />
             </Card>
-        </>
+        </div>
     );
 } 

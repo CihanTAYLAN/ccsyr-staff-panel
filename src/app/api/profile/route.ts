@@ -24,10 +24,15 @@ export async function GET(req: NextRequest) {
 				userAccountStatus: true,
 				status: true,
 				lastLoginDate: true,
-				lastLoginIp: true,
+				lastLoginIpAddress: true,
+				lastLoginUseragent: true,
 				lastLoginBrowser: true,
 				lastLoginOs: true,
 				lastLoginDevice: true,
+				lastLoginLocationStaticName: true,
+				lastLoginLocationStaticAddress: true,
+				lastLoginLocationStaticLat: true,
+				lastLoginLocationStaticLong: true,
 				lastLogoutDate: true,
 				currentLocation: {
 					select: {
