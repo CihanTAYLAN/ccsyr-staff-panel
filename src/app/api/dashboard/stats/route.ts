@@ -30,6 +30,10 @@ export async function GET(req: NextRequest) {
 			where: { userAccountStatus: EUserAccountStatus.ACTIVE },
 		});
 
+		const totalActiveUsers = await prisma.user.count({
+			where: { userAccountStatus: EUserAccountStatus.ACTIVE },
+		});
+
 		// Toplam lokasyon sayısı
 		const totalLocations = await prisma.location.count();
 
@@ -99,6 +103,7 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json({
 			totalUsers,
 			activeUsers,
+			totalActiveUsers,
 			totalLocations,
 			todayCheckIns,
 			dailyStats,

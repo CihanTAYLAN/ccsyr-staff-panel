@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Input, Button, Space, Select, Tag } from 'antd';
-import { CloseOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { ClearOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 
 export type PaginationData = {
     page: number;
@@ -111,7 +111,7 @@ export function DataTable<T>({
                                 )}
                             </div>
                         ))}
-                        <Button onClick={handleResetFilters} icon={<CloseOutlined />}>Reset Filters</Button >
+                        <Button onClick={handleResetFilters} icon={<ClearOutlined />}>Clear Filters</Button >
                         {onRefresh && <Button onClick={onRefresh} icon={<ReloadOutlined />}>Refresh</Button>}
                     </Space>
                 </div>

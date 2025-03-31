@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const data = await request.json();
-		const { locationId } = data;
+		const { locationId, sessionDate } = data;
 
 		// Gerekli alanların kontrolü
 		if (!locationId) {
@@ -44,10 +44,14 @@ export async function POST(request: NextRequest) {
 		const userAgentDetails = getUserAgentDetails(request.headers.get("user-agent") || "");
 		const ipAddress = request.headers.get("x-forwarded-for") || request.ip || "127.0.0.1";
 
+		// actionDate değerini ayarla (gönderilmemişse şu anki tarih)
+		const actionDate = sessionDate ? new Date(sessionDate) : new Date();
+
 		// AccessLog oluştur
 		const accessLog = await prisma.accessLog.create({
 			data: {
 				actionType: EActionType.CHECK_IN,
+				actionDate,
 				ipAddress,
 				userAgent: request.headers.get("user-agent") || "",
 				browser: userAgentDetails.browser,

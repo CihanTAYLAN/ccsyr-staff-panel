@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { Avatar, Card, Button, Form, Input, Tabs, message, Descriptions, Badge, Timeline, Space, Divider, Tag, Alert, Modal } from 'antd';
-import { UserOutlined, LockOutlined, SaveOutlined, EnvironmentOutlined, GlobalOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, SaveOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 // Zaman formatı için
 dayjs.extend(relativeTime);
-
-const { TabPane } = Tabs;
 
 // Profil bilgileri arayüzü
 interface ProfileData {
@@ -36,6 +34,7 @@ interface ProfileData {
 interface AccessLog {
     id: string;
     actionType: string;
+    actionDate: string;
     created_at: string;
     locationStaticName: string;
     locationStaticAddress: string;
@@ -67,15 +66,15 @@ const ProfilePage = () => {
                 }
 
                 const data = await response.json();
-                setProfile(data.user);
+                setProfile(data);
 
                 // Form alanlarını doldur
                 form.setFieldsValue({
-                    name: data.user.name,
+                    name: data.name,
                 });
 
                 // Zorunlu şifre değiştirme kontrolü
-                if (data.user.forcePasswordChange) {
+                if (data.forcePasswordChange) {
                     message.warning('You need to change your password');
                     setShowPasswordModal(true);
                 }
@@ -102,7 +101,7 @@ const ProfilePage = () => {
                 }
 
                 const data = await response.json();
-                setLogs(data.logs);
+                setLogs(data.items);
             } catch (error) {
                 console.error('Error fetching logs:', error);
             }
@@ -130,7 +129,7 @@ const ProfilePage = () => {
             }
 
             const data = await response.json();
-            setProfile(prev => prev ? { ...prev, ...data.user } : null);
+            setProfile(prev => prev ? { ...prev, ...data } : null);
             message.success('Profile updated successfully');
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -190,6 +189,128 @@ const ProfilePage = () => {
         return <Alert type="warning" message="No profile data available" />;
     }
 
+    // Tabs için items
+    const tabItems = [
+        {
+            key: 'details',
+            label: 'Profile Details',
+            children: (
+                <Descriptions bordered column={1} size='small'>
+                    <Descriptions.Item label="Name">{profile.name}</Descriptions.Item>
+                    <Descriptions.Item label="Email">{profile.email}</Descriptions.Item>
+                    <Descriptions.Item label="Role">{profile.userType}</Descriptions.Item>
+                    <Descriptions.Item label="Status">
+                        <Badge
+                            status={profile.userAccountStatus === 'ACTIVE' ? 'success' : 'error'}
+                            text={profile.userAccountStatus}
+                        />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Current Location">
+                        {profile.currentLocation ? (
+                            <span>
+                                <EnvironmentOutlined /> {profile.currentLocation.name}
+                                {profile.currentLocation.address && ` (${profile.currentLocation.address})`}
+                            </span>
+                        ) : (
+                            'Not checked in'
+                        )}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Last Login">
+                        {profile.lastLoginDate ? (
+                            <span>
+                                <ClockCircleOutlined /> {dayjs(profile.lastLoginDate).format('YYYY-MM-DD HH:mm:ss')}
+                                ({dayjs(profile.lastLoginDate).fromNow()})
+                            </span>
+                        ) : (
+                            'No login recorded'
+                        )}
+                    </Descriptions.Item>
+                </Descriptions>
+            )
+        },
+        {
+            key: 'edit',
+            label: 'Edit Profile',
+            children: (
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleUpdateProfile}
+                >
+                    <Form.Item
+                        name="name"
+                        label="Name"
+                        rules={[{ required: true, message: 'Please input your name!' }]}
+                    >
+                        <Input prefix={<UserOutlined />} placeholder="Name" />
+                    </Form.Item>
+
+                    <Form.Item label="Email">
+                        <Input value={profile.email} disabled prefix={<UserOutlined />} />
+                        <small>Email cannot be changed</small>
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            onClick={() => setShowPasswordModal(true)}
+                            icon={<LockOutlined />}
+                        >
+                            Change Password
+                        </Button>
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={updating}
+                            icon={<SaveOutlined />}
+                        >
+                            Save Changes
+                        </Button>
+                    </Form.Item>
+                </Form>
+            )
+        },
+        {
+            key: 'history',
+            label: 'Access History',
+            children: (
+                <>
+                    {logs.length > 0 ? (
+                        <>
+                            <Timeline
+                                mode="left"
+                                items={logs.map(log => ({
+                                    color: log.actionType === 'CHECK_IN' ? 'green' : 'red',
+                                    label: dayjs(log.created_at).format('YYYY-MM-DD HH:mm:ss'),
+                                    children: (
+                                        <div>
+                                            <p>
+                                                <strong>{log.actionType === 'CHECK_IN' ? 'Check-in' : 'Check-out'}</strong>
+                                                {' at '}
+                                                <strong>{log.locationStaticName}</strong>
+                                                {log.locationStaticAddress && ` (${log.locationStaticAddress})`}
+                                            </p>
+                                            <p>
+                                                <small>
+                                                    Device: {log.browser} on {log.os} ({log.device})
+                                                </small>
+                                            </p>
+                                        </div>
+                                    )
+                                }))}
+                            />
+                        </>
+                    ) : (
+                        <Alert message="No access history available" type="info" />
+                    )}
+                </>
+            )
+        }
+    ];
+
     return (
         <div className="profile-page">
             <h1>My Profile</h1>
@@ -218,134 +339,7 @@ const ProfilePage = () => {
 
                 <Divider />
 
-                <Tabs defaultActiveKey="details">
-                    <TabPane tab="Profile Details" key="details">
-                        <Descriptions bordered column={1}>
-                            <Descriptions.Item label="Name">{profile.name}</Descriptions.Item>
-                            <Descriptions.Item label="Email">{profile.email}</Descriptions.Item>
-                            <Descriptions.Item label="Role">{profile.userType}</Descriptions.Item>
-                            <Descriptions.Item label="Status">
-                                <Badge
-                                    status={profile.userAccountStatus === 'ACTIVE' ? 'success' : 'error'}
-                                    text={profile.userAccountStatus}
-                                />
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Current Location">
-                                {profile.currentLocation ? (
-                                    <span>
-                                        <EnvironmentOutlined /> {profile.currentLocation.name}
-                                        {profile.currentLocation.address && ` (${profile.currentLocation.address})`}
-                                    </span>
-                                ) : (
-                                    'Not checked in'
-                                )}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Last Login">
-                                {profile.lastLoginDate ? (
-                                    <span>
-                                        <ClockCircleOutlined /> {dayjs(profile.lastLoginDate).format('YYYY-MM-DD HH:mm:ss')}
-                                        ({dayjs(profile.lastLoginDate).fromNow()})
-                                    </span>
-                                ) : (
-                                    'No login recorded'
-                                )}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Device Info">
-                                {profile.lastLoginBrowser && profile.lastLoginOs ? (
-                                    <span>
-                                        <GlobalOutlined /> {profile.lastLoginBrowser} on {profile.lastLoginOs}
-                                        ({profile.lastLoginDevice})
-                                    </span>
-                                ) : (
-                                    'No device info'
-                                )}
-                            </Descriptions.Item>
-                        </Descriptions>
-
-                        <div className="action-buttons" style={{ marginTop: 16 }}>
-                            <Button
-                                type="primary"
-                                onClick={() => setShowPasswordModal(true)}
-                                icon={<LockOutlined />}
-                            >
-                                Change Password
-                            </Button>
-                        </div>
-                    </TabPane>
-
-                    <TabPane tab="Edit Profile" key="edit">
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            onFinish={handleUpdateProfile}
-                            initialValues={{ name: profile.name }}
-                        >
-                            <Form.Item
-                                name="name"
-                                label="Name"
-                                rules={[{ required: true, message: 'Please input your name!' }]}
-                            >
-                                <Input prefix={<UserOutlined />} placeholder="Name" />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Email"
-                            >
-                                <Input
-                                    value={profile.email}
-                                    disabled
-                                    prefix={<UserOutlined />}
-                                />
-                                <div className="form-help-text">Email cannot be changed</div>
-                            </Form.Item>
-
-                            <Form.Item>
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    loading={updating}
-                                    icon={<SaveOutlined />}
-                                >
-                                    Save Changes
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </TabPane>
-
-                    <TabPane tab="Access History" key="logs">
-                        {logs.length > 0 ? (
-                            <Timeline>
-                                {logs.map(log => (
-                                    <Timeline.Item
-                                        key={log.id}
-                                        color={log.actionType === 'CHECK_IN' ? 'green' : 'red'}
-                                    >
-                                        <div className="log-item">
-                                            <div className="log-header">
-                                                <Tag color={log.actionType === 'CHECK_IN' ? 'success' : 'error'}>
-                                                    {log.actionType === 'CHECK_IN' ? 'Check In' : 'Check Out'}
-                                                </Tag>
-                                                <span>{dayjs(log.created_at).format('YYYY-MM-DD HH:mm:ss')}</span>
-                                            </div>
-
-                                            <div className="log-details">
-                                                <p>
-                                                    <EnvironmentOutlined /> {log.locationStaticName}
-                                                    {log.locationStaticAddress && ` (${log.locationStaticAddress})`}
-                                                </p>
-                                                <p>
-                                                    <GlobalOutlined /> {log.browser} on {log.os} ({log.device})
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </Timeline.Item>
-                                ))}
-                            </Timeline>
-                        ) : (
-                            <Alert message="No access logs available" type="info" />
-                        )}
-                    </TabPane>
-                </Tabs>
+                <Tabs defaultActiveKey="details" items={tabItems} />
             </Card>
 
             <Modal

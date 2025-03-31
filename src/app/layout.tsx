@@ -5,6 +5,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import { LocaleProvider } from '@/providers/locale-provider';
+import { App as AntdApp } from 'antd';
 import 'dayjs/locale/en';
 import 'dayjs/locale/fr';
 
@@ -54,7 +55,9 @@ export default function RootLayout({
           <AuthProvider>
             <ThemeProvider>
               <LocaleProvider>
-                {children}
+                <AntdApp>
+                  {children}
+                </AntdApp>
               </LocaleProvider>
             </ThemeProvider>
           </AuthProvider>

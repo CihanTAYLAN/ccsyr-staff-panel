@@ -25,7 +25,7 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - created_at
      - updated_at
      - currentLocation
-     - lastLoginDate ✅ _İmplemente edildi_
+     - lastLoginDate ✅ _İmplemente edildi_ - programatik olarak login olunan tarihi kaydeder
      - lastLoginIp ✅ _İmplemente edildi_
      - lastLoginUseragent ✅ _İmplemente edildi_
      - lastLoginOs ✅ _İmplemente edildi_
@@ -61,12 +61,13 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - Lokasyon ekleme/düzenleme/silme (Super Admin için) ⚠️ _Tam olarak implemente edilip edilmediği kontrol edilmeli_
      - Lokasyon eklerken ve düzenlerken konum seçimi için harita entegrasyonu ⚠️ _Leaflet paketi eklenmiş, ancak implementasyon kontrol edilmeli_
 
-4. **Access Logları** (Ekleme, Edit ve Delete işlemleri sadece Super Admin için yapılabilir)
+4. **Access Logları**
 
    - Model
      - user
      - location
      - actionType (Giriş, Çıkış)
+     - actionDate - kullanıcının auth bölümünün 2. adımında seçtiği session date
      - userAgent
      - browser ✅ _İmplemente edildi_
      - os
@@ -109,7 +110,9 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
 
 6. **Auth Bölümü**
 
-   - Kullanıcılar login ve logout işlemlerini yapabilir. ✅ _İmplemente edilmiş gibi görünüyor_
+   - Kullanıcı girişi iki adımdan oluşur:
+     - 1. adım: Email ve password ile giriş yapma ✅ _İmplemente edildi_
+     - 2. adım: Lokasyon ve session date seçimi ✅ _Güncellenmesi gerekiyor_
    - Kullanıcılar dışarıdan kayıt olamazlar. ✅ _İmplemente edilmiş gibi görünüyor_
    - Kullanıcılar şifrelerini sıfırlayabilirler. (Şifremi Unuttum) (8 Karakterli bir şifre oluşturulacak ve kullanıcıya email ile gönderilecek ve kullanıcının forcePasswordChange değeri true olarak güncellenecektir.) ✅ _İmplemente edildi_
 
@@ -121,14 +124,18 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri doldurur:
 
 - Email
 - Password
+
+Email ve password ile giriş yaptıktan sonra:
+
 - Location (Sistemde kayıtlı lokasyonlardan birini seçer) (default olarak tarayıcı lokasyonunun lat ve long değerlerinden, kullanıcının en yakın olduğu lokasyon seçilecektir) ✅ _İmplemente edildi_
-- Date (Giriş tarihi) (default olarak giriş yapıldığı tarih ve saat)
+- Session Date (Giriş tarihi) (default olarak giriş yapıldığı tarih ve saat)
 
 Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access log'a kaydedilir:
 
 - User (giriş yapan kullanıcı)
 - Location (giriş yapıldığı lokasyon)
-- Date (giriş yapıldığı tarih ve saat)
+- Action Date (kullanıcının seçtiği session date)
+- Created At (giriş yapıldığı tarih ve saat - otomatik olarak kaydedilir)
 - User Agent (tarayıcı bilgileri)
 - OS (işletim sistemi bilgileri)
 - Device (cihaz bilgileri)
@@ -159,6 +166,34 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 | Lokasyon Yönetimi     | READ, WRITE, DELETE(with access logs) | READ          | N/A      |
 | Access Logları        | READ                                  | READ          | N/A      |
 | Kendi Geçmişini Görme | READ                                  | READ          | READ     |
+
+## Önemli Notlar
+
+- (main) klasörü kaldırıldı. Dashboard ile ilgili sayfalar (dashboard) klasörü altında geliştirilecek.
+
+## YAPILAN DEĞİŞİKLİKLER
+
+1. **Authentication Süreci Güncellendi**
+
+   - Login işlemi iki adımlı yapıya getirildi:
+     - İlk adımda email ve password ile giriş
+     - İkinci adımda lokasyon ve session date seçimi
+
+2. **Access Log Modeli Güncellendi**
+
+   - `actionDate` alanı eklendi
+   - Kullanıcının giriş yaparken seçtiği tarih bu alana kaydedilecek
+   - Prisma migration dosyası oluşturuldu
+
+3. **API Güncellemeleri**
+
+   - Check-in API'si `actionDate` alanını kullanacak şekilde güncellendi
+   - Check-out API'si `actionDate` alanını kullanacak şekilde güncellendi
+   - Profil sayfasındaki erişim kayıtları listesi güncellendi
+
+4. **Klasör Yapısı Değişikliği**
+   - (main) klasörü kaldırıldı
+   - Dashboard ile ilgili sayfalar (dashboard) klasörü altında geliştirilecek
 
 ---
 

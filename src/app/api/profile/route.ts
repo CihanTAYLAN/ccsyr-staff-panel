@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
 				email: true,
 				userType: true,
 				userAccountStatus: true,
+				status: true,
 				lastLoginDate: true,
 				lastLoginIp: true,
 				lastLoginBrowser: true,
@@ -123,6 +124,7 @@ export async function PUT(req: NextRequest) {
 				email: true,
 				userType: true,
 				userAccountStatus: true,
+				status: true,
 				forcePasswordChange: true,
 			},
 		});

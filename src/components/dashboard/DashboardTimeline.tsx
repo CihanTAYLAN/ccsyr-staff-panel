@@ -21,31 +21,31 @@ const { Option } = Select;
 
 interface TimelineItem {
     id: string;
-    timestamp: string;
-    actionType: 'CHECK_IN' | 'CHECK_OUT';
+    actionType: string;
+    created_at: string;
+    actionDate: string;
+    ipAddress: string;
+    browser: string;
+    os: string;
+    device: string;
+    locationStaticName: string;
+    locationStaticAddress: string;
     user: {
         id: string;
         name: string;
         email: string;
-        userType: string;
-        status: string;
     };
     location: {
         id: string;
         name: string;
         address: string;
     };
-    deviceInfo: {
-        ip: string;
-        browser: string;
-        os: string;
-        device: string;
-    };
 }
 
 interface TimelineData {
-    success: boolean;
-    timeline: TimelineItem[];
+    items: TimelineItem[];
+    totalCount: number;
+    hasMore: boolean;
 }
 
 interface FilterParams {
@@ -109,7 +109,7 @@ const DashboardTimeline: React.FC = () => {
                 }
 
                 const data: TimelineData = await response.json();
-                setTimelineData(data.timeline);
+                setTimelineData(data.items);
                 setError(null);
             } catch (err) {
                 console.error('Error fetching timeline data:', err);
@@ -147,7 +147,11 @@ const DashboardTimeline: React.FC = () => {
     if (loading) {
         return (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <Spin size="large" tip="Loading timeline data..." />
+                <Spin size="large">
+                    <div style={{ padding: '50px', textAlign: 'center' }}>
+                        Loading timeline data...
+                    </div>
+                </Spin>
             </div>
         );
     }
@@ -210,7 +214,7 @@ const DashboardTimeline: React.FC = () => {
                 </Space>
             </div>
 
-            {timelineData.length > 0 ? (
+            {timelineData && timelineData.length > 0 ? (
                 <Timeline
                     mode="left"
                     items={timelineData.map((item) => ({
@@ -223,8 +227,8 @@ const DashboardTimeline: React.FC = () => {
                                         {item.actionType === 'CHECK_IN' ? 'Check In' : 'Check Out'}
                                     </Tag>
                                     <span className="timeline-time">
-                                        <ClockCircleOutlined /> {dayjs(item.timestamp).format('YYYY-MM-DD HH:mm:ss')}
-                                        ({dayjs(item.timestamp).fromNow()})
+                                        <ClockCircleOutlined /> {dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                                        ({dayjs(item.created_at).fromNow()})
                                     </span>
                                 </div>
 
@@ -233,11 +237,11 @@ const DashboardTimeline: React.FC = () => {
                                         <UserOutlined /> <strong>{item.user.name}</strong> ({item.user.email})
                                     </p>
                                     <p>
-                                        <EnvironmentOutlined /> {item.location.name}
-                                        {item.location.address && ` - ${item.location.address}`}
+                                        <EnvironmentOutlined /> {item.locationStaticName}
+                                        {item.locationStaticAddress && ` - ${item.locationStaticAddress}`}
                                     </p>
                                     <p>
-                                        <GlobalOutlined /> {item.deviceInfo.browser} on {item.deviceInfo.os} ({item.deviceInfo.device})
+                                        <GlobalOutlined /> {item.browser} on {item.os} ({item.device})
                                     </p>
                                 </div>
                             </div>

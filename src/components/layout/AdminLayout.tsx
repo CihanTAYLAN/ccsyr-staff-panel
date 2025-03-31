@@ -62,6 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             key: 'profile',
             label: 'Profile',
             icon: <UserOutlined />,
+            onClick: () => router.push('/profile'),
         },
         {
             key: 'logout',

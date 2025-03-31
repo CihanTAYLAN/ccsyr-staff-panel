@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
+		// Request body'den çıkış tarihi bilgisini alalım
+		const data = await request.json();
+		const { sessionDate } = data;
+
 		// Kullanıcı bilgilerini getir
 		const user = await prisma.user.findUnique({
 			where: { id: session.user.id },
@@ -41,10 +45,14 @@ export async function POST(request: NextRequest) {
 		const userAgentDetails = getUserAgentDetails(request.headers.get("user-agent") || "");
 		const ipAddress = request.headers.get("x-forwarded-for") || request.ip || "127.0.0.1";
 
+		// actionDate değerini ayarla (gönderilmemişse şu anki tarih)
+		const actionDate = sessionDate ? new Date(sessionDate) : new Date();
+
 		// AccessLog oluştur
 		const accessLog = await prisma.accessLog.create({
 			data: {
 				actionType: EActionType.CHECK_OUT,
+				actionDate,
 				ipAddress,
 				userAgent: request.headers.get("user-agent") || "",
 				browser: userAgentDetails.browser,

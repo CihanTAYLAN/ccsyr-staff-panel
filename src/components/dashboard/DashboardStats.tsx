@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Spin, Alert, Progress } from 'antd';
+import { Card, Statistic, Spin, Alert, Progress } from 'antd';
 import {
     UserOutlined,
     TeamOutlined,
@@ -17,16 +17,24 @@ interface StatsData {
     activeUsers: number;
     totalLocations: number;
     todayCheckIns: number;
+    totalAccessLogs: number;
     locationStats: LocationStat[];
-    dailyLogs: DailyLog[];
+    totalActiveUsers: number;
+    dailyStats: {
+        _count: {
+            id: number;
+        };
+        created_at: string;
+    }[];
 }
 
 interface LocationStat {
     id: string;
     name: string;
-    _count: {
-        activeUsers: number;
-    };
+    activeUsers: {
+        id: string;
+        name: string;
+    }[];
 }
 
 interface DailyLog {
@@ -51,7 +59,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
                 }
 
                 const data = await response.json();
-                setStats(data.stats);
+
+                setStats(data);
                 setError(null);
             } catch (err) {
                 console.error('Error fetching dashboard stats:', err);
@@ -67,7 +76,11 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
     if (loading) {
         return (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <Spin size="large" tip="Loading dashboard statistics..." />
+                <Spin size="large">
+                    <div style={{ padding: '50px', textAlign: 'center' }}>
+                        Loading dashboard statistics...
+                    </div>
+                </Spin>
             </div>
         );
     }
@@ -95,101 +108,93 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
     }
 
     // Lokasyon pie chart verileri yerine progress bar kullanacağız
+    // Toplam aktif kullanıcı sayısını hesapla
     const totalActiveUsers = stats.locationStats.reduce((sum, location) =>
-        sum + location._count.activeUsers, 0);
+        sum + (location.activeUsers.length || 0), 0);
 
     return (
         <div className="dashboard-stats">
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Total Users"
-                            value={stats.totalUsers}
-                            prefix={<TeamOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Active Users"
-                            value={stats.activeUsers}
-                            prefix={<UserOutlined />}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Total Locations"
-                            value={stats.totalLocations}
-                            prefix={<EnvironmentOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Today's Check-ins"
-                            value={stats.todayCheckIns}
-                            prefix={<LoginOutlined />}
-                            valueStyle={{ color: '#1677ff' }}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <Card>
+                    <Statistic
+                        title="Total Users"
+                        value={stats.totalUsers}
+                        prefix={<TeamOutlined />}
+                    />
+                </Card>
 
-            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                <Col xs={24} lg={12}>
-                    <Card title="Users by Location">
-                        {stats.locationStats.length > 0 ? (
-                            <div>
-                                {stats.locationStats.map((location) => {
-                                    const percentage = totalActiveUsers > 0
-                                        ? Math.round((location._count.activeUsers / totalActiveUsers) * 100)
-                                        : 0;
+                <Card>
+                    <Statistic
+                        title="Active Users"
+                        value={stats.activeUsers}
+                        prefix={<UserOutlined />}
+                        valueStyle={{ color: '#3f8600' }}
+                    />
+                </Card>
 
-                                    return (
-                                        <div key={location.id} style={{ marginBottom: 16 }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                <span>{location.name}</span>
-                                                <span>{location._count.activeUsers} users ({percentage}%)</span>
-                                            </div>
-                                            <Progress
-                                                percent={percentage}
-                                                showInfo={false}
-                                                strokeColor={percentage > 50 ? '#3f8600' : '#1677ff'}
-                                            />
+                <Card>
+                    <Statistic
+                        title="Total Locations"
+                        value={stats.totalLocations}
+                        prefix={<EnvironmentOutlined />}
+                    />
+                </Card>
+
+                <Card>
+                    <Statistic
+                        title="Today's Check-ins"
+                        value={stats.todayCheckIns}
+                        prefix={<LoginOutlined />}
+                        valueStyle={{ color: '#1677ff' }}
+                    />
+                </Card>
+            </div>
+
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2' style={{ marginTop: 16 }}>
+                <Card title="Users by Location">
+                    {stats.locationStats.length > 0 ? (
+                        <div>
+                            {stats.locationStats.map((location) => {
+                                const percentage = totalActiveUsers > 0
+                                    ? Math.round((location.activeUsers.length / totalActiveUsers) * 100)
+                                    : 0;
+
+                                return (
+                                    <div key={location.id} style={{ marginBottom: 16 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span>{location.name}</span>
+                                            <span>{location.activeUsers.length} users ({percentage}%)</span>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <Alert message="No location data available" type="info" showIcon />
-                        )}
-                    </Card>
-                </Col>
-                <Col xs={24} lg={12}>
-                    <Card title="Active Locations">
-                        {stats.locationStats.map((location) => (
-                            <div key={location.id} style={{ marginBottom: 8 }}>
-                                <Statistic
-                                    title={location.name}
-                                    value={location._count.activeUsers}
-                                    prefix={<CheckCircleOutlined />}
-                                    valueStyle={{
-                                        color: location._count.activeUsers > 0 ? '#3f8600' : '#999',
-                                        fontSize: '18px'
-                                    }}
-                                    suffix="users"
-                                />
-                            </div>
-                        ))}
-                    </Card>
-                </Col>
-            </Row>
+                                        <Progress
+                                            percent={percentage}
+                                            showInfo={false}
+                                            strokeColor={percentage > 50 ? '#3f8600' : '#1677ff'}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <Alert message="No location data available" type="info" showIcon />
+                    )}
+                </Card>
+                <Card title="Active Locations">
+                    {stats.locationStats.map((location) => (
+                        <div key={location.id} style={{ marginBottom: 8 }}>
+                            <Statistic
+                                title={location.name}
+                                value={location.activeUsers.length}
+                                prefix={<CheckCircleOutlined />}
+                                valueStyle={{
+                                    color: (location.activeUsers.length > 0) ? '#3f8600' : '#999',
+                                    fontSize: '18px'
+                                }}
+                                suffix="users"
+                            />
+                        </div>
+                    ))}
+                </Card>
+            </div>
         </div>
     );
 };

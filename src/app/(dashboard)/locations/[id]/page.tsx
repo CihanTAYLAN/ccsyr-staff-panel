@@ -242,7 +242,7 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                     key: '1',
                     label: `Active Users (${activeUsers.length})`,
                     children: (
-                        <Card styles={{ body: { padding: 0 } }}>
+                        <Card styles={{ body: { padding: 0 } }} >
                             {activeUsers.length > 0 ? (
                                 <div className="overflow-x-auto">
                                     <Table
