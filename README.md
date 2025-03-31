@@ -11,35 +11,6 @@ CCSYR Staff Panel is a personnel management system designed to track employee bu
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-cyan)](https://www.prisma.io/)
 [![Status](https://img.shields.io/badge/Status-MVP-green)]()
 
-## 🚀 Features
-
-- **Multi-level Authorization System**
-
-  - Super Admin
-  - Manager Admin
-  - Personal (Staff)
-
-- **Location Tracking**
-
-  - Multiple location support
-  - Staff check-in/check-out recording
-  - Real-time location status
-
-- **User Management**
-
-  - Add, edit, and delete users
-  - Role-based authorization
-
-- **Advanced Logging System**
-
-  - Entry and exit logs
-  - Date and time-based filtering
-  - User and location analytics
-
-- **Dashboard and Reporting**
-  - Customizable dashboard
-  - Analytical graphs and reports
-
 ## 🔧 Technology Stack
 
 - **Frontend**: Next.js, React, TailwindCSS
@@ -96,52 +67,6 @@ CCSYR Staff Panel is a personnel management system designed to track employee bu
    # or
    yarn dev
    ```
-
-## 🏗️ Project Structure
-
-```
-will be edit
-```
-
-## 👥 User Types and Permissions
-
-| Feature                | Super Admin | Manager Admin | Personal |
-| ---------------------- | ----------- | ------------- | -------- |
-| Location Management    | ✅          | ❌            | ❌       |
-| User Management        | ✅          | ❌            | ❌       |
-| All Personnel Tracking | ✅          | ✅            | ❌       |
-| View Own History       | ✅          | ✅            | ✅       |
-
-## 📊 Database Schema
-
-```
-[users]
-- id (PK)
-- name
-- email
-- password
-- userType
-- status
-- createdAt
-
-[locations]
-- id (PK)
-- name
-- description
-- address
-- latitude
-- longitude
-- createdAt
-
-[access_logs]
-- id (PK)
-- userId (FK -> users.id)
-- locationId (FK -> locations.id)
-- actionType
-- userAgent
-- ipAddress
-- createdAt
-```
 
 ## 📞 Contact
 
