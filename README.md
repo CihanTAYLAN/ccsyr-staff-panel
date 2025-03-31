@@ -2,50 +2,51 @@
 
 ![CCSYR Logo](https://ccsyr.org/wp-content/uploads/2024/12/website-logo-thin.png)
 
-## 📋 Project Overview
+## 📋 Proje Genel Bakış
 
-CCSYR Staff Panel is a personnel management system designed to track employee building access and location monitoring. Different user groups with varied permissions can track and manage staff movements through a single panel interface.
+CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini tek bir panel üzerinden yönetmek için tasarlanmış kurumsal bir yönetim sistemidir. Farklı yetki seviyelerine sahip kullanıcılar bu sistem üzerinden personel hareketlerini izleyebilir ve yönetebilir.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.1.0-black)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0+-blue)](https://www.postgresql.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-cyan)](https://www.prisma.io/)
-[![Status](https://img.shields.io/badge/Status-MVP-green)]()
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.3.0-38B2AC)](https://tailwindcss.com/)
+[![Ant Design](https://img.shields.io/badge/Ant%20Design-5.24.5-0170FE)](https://ant.design/)
+[![Status](https://img.shields.io/badge/Status-Development-orange)]()
 
-## 🔧 Technology Stack
+## 🔧 Teknoloji Stack
 
-- **Frontend**: Next.js, React, TailwindCSS
+- **Frontend**: Next.js, React, Ant Design, TailwindCSS
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL
 - **ORM**: Prisma
 - **Authentication**: NextAuth.js
+- **Mail**: Nodemailer
 - **Deployment**: Vercel / Docker
 
-## 📦 Installation
+## 📦 Kurulum
 
-### Requirements
+### Gereksinimler
 
 - Node.js (v16+)
 - PostgreSQL
-- npm/yarn
+- Yarn
 
-### Setup Steps
+### Kurulum Adımları
 
-1. Clone the repository:
+1. Repo klonlama:
 
    ```bash
    git clone https://github.com/CihanTAYLAN/ccsyr-staff-panel.git
    cd ccsyr-staff-panel
    ```
 
-2. Install dependencies:
+2. Bağımlılıkları yükleme:
 
    ```bash
-   npm install
-   # or
    yarn install
    ```
 
-3. Configure the `.env` file:
+3. `.env` dosyasını yapılandırma:
 
    ```
    DATABASE_URL="postgresql://username:password@localhost:5432/ccsyr_staff_panel"
@@ -53,27 +54,29 @@ CCSYR Staff Panel is a personnel management system designed to track employee bu
    NEXTAUTH_URL="http://localhost:3000"
    ```
 
-4. Run database migrations:
+4. Veritabanı migrasyonlarını çalıştırma:
 
    ```bash
-   npx prisma migrate dev
-   # or
    yarn prisma migrate dev
    ```
 
-5. Start the development server:
+5. Geliştirme sunucusunu başlatma:
    ```bash
-   npm run dev
-   # or
    yarn dev
    ```
 
-## 📞 Contact
+## 🔐 Kullanıcı Rolleri
 
-Project Manager - [@Murat Coskun](https://www.linkedin.com/in/murat-coskun-76a06b227/) - muraatcoskun@gmail.com
+- **Super Admin**: Tüm sisteme tam erişim
+- **Manager Admin**: Dashboard ve kayıtları görüntüleme
+- **Personal**: Sadece kendi giriş-çıkış kayıtlarını görüntüleme
+
+## 📞 İletişim
+
+Proje Yöneticisi - [@Murat Coskun](https://www.linkedin.com/in/murat-coskun-76a06b227/) - muraatcoskun@gmail.com
 
 Project Link: [https://github.com/CihanTAYLAN/ccsyr-staff-panel](https://github.com/CihanTAYLAN/ccsyr-staff-panel)
 
 ---
 
-&copy; 2025 CCSYR Corporation. All Rights Reserved.
+&copy; 2024 CCSYR Corporation. All Rights Reserved.
