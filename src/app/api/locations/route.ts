@@ -2,94 +2,73 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { EUserType } from "@prisma/client";
 
-// GET /api/locations - Lokasyonları listele
+// GET /api/locations - Tüm lokasyonları getir
 export async function GET(request: NextRequest) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		// URL parametrelerini al
-		const searchParams = request.nextUrl.searchParams;
-		const search = searchParams.get("search") || "";
-
-		// Filtreleme için where koşulu
-		const where: any = {};
-		if (search) {
-			where.OR = [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }, { address: { contains: search, mode: "insensitive" } }];
-		}
-
-		// Lokasyonları getir
+		// Tüm lokasyonları getir
 		const locations = await prisma.location.findMany({
-			select: {
-				id: true,
-				name: true,
-				description: true,
-				address: true,
-				latitude: true,
-				longitude: true,
-				created_at: true,
-				updated_at: true,
-				_count: {
-					select: {
-						activeUsers: true,
-						logs: true,
-					},
-				},
+			orderBy: {
+				name: "asc",
 			},
-			where,
-			orderBy: { name: "asc" },
 		});
 
-		return NextResponse.json({
-			locations,
-		});
+		return NextResponse.json(locations);
 	} catch (error) {
 		console.error("Error fetching locations:", error);
 		return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
 	}
 }
 
-// POST /api/locations - Yeni lokasyon oluştur
+// POST /api/locations - Yeni lokasyon ekle (sadece admin kullanıcılar için)
 export async function POST(request: NextRequest) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const data = await request.json();
+		// Kullanıcının admin olup olmadığını kontrol et
+		const user = await prisma.user.findUnique({
+			where: { id: session.user.id },
+			select: { userType: true },
+		});
 
-		// Gerekli alanların kontrolü
-		if (!data.name) {
-			return NextResponse.json({ error: "Location name is required" }, { status: 400 });
+		if (!user || user.userType !== EUserType.SUPER_ADMIN) {
+			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 		}
 
-		// Yeni lokasyon oluşturma
-		const newLocation = await prisma.location.create({
+		const data = await request.json();
+		const { name, address, latitude, longitude } = data;
+
+		// Gerekli alanların kontrolü
+		if (!name) {
+			return NextResponse.json({ error: "Name is required" }, { status: 400 });
+		}
+
+		// Lokasyon oluştur
+		const location = await prisma.location.create({
 			data: {
-				name: data.name,
-				description: data.description || null,
-				address: data.address || null,
-				latitude: data.latitude || null,
-				longitude: data.longitude || null,
-			},
-			select: {
-				id: true,
-				name: true,
-				description: true,
-				address: true,
-				latitude: true,
-				longitude: true,
-				created_at: true,
+				name,
+				address,
+				latitude: latitude ? parseFloat(latitude) : null,
+				longitude: longitude ? parseFloat(longitude) : null,
 			},
 		});
 
-		return NextResponse.json(newLocation, { status: 201 });
+		return NextResponse.json({
+			success: true,
+			message: "Location created successfully",
+			location,
+		});
 	} catch (error) {
 		console.error("Error creating location:", error);
 		return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

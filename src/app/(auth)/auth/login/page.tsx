@@ -1,28 +1,121 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Form, Image, Input, message, Typography } from 'antd';
-import { UserOutlined, LockOutlined, BulbOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Image, Input, message, Typography, Select, Spin } from 'antd';
+import { UserOutlined, LockOutlined, BulbOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
+    const [locations, setLocations] = useState<any[]>([]);
+    const [loadingLocations, setLoadingLocations] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
 
+    // Lokasyonları getir
+    const fetchLocations = async () => {
+        setLoadingLocations(true);
+        try {
+            const response = await fetch('/api/locations');
+            if (response.ok) {
+                const data = await response.json();
+                setLocations(data.locations || []);
+            } else {
+                message.error('Failed to load locations');
+            }
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+        } finally {
+            setLoadingLocations(false);
+        }
+    };
+
+    // Kullanıcının konumunu al
+    const getUserLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                }
+            );
+        }
+    };
+
+    // En yakın lokasyonu hesapla
+    const findClosestLocation = () => {
+        if (!userLocation || !locations.length) return null;
+
+        // Haversine formulü ile iki nokta arasındaki mesafeyi hesapla
+        const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+            const R = 6371; // Dünya yarıçapı km olarak
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        };
+
+        let closestLocation = null;
+        let minDistance = Infinity;
+
+        locations.forEach(location => {
+            if (location.latitude && location.longitude) {
+                const distance = getDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    location.latitude,
+                    location.longitude
+                );
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestLocation = location;
+                }
+            }
+        });
+
+        return closestLocation ? closestLocation.id : null;
+    };
+
     useEffect(() => {
         setIsMounted(true);
+        fetchLocations();
+        getUserLocation();
     }, []);
 
-    const onFinish = async (values: { email: string; password: string }) => {
+    // Kullanıcı konumu ve lokasyonlar değiştiğinde form alanını güncelle
+    useEffect(() => {
+        if (userLocation && locations.length > 0) {
+            const closestLocationId = findClosestLocation();
+            if (closestLocationId) {
+                form.setFieldsValue({ locationId: closestLocationId });
+            }
+        }
+    }, [userLocation, locations]);
+
+    const [form] = Form.useForm();
+
+    const onFinish = async (values: { email: string; password: string; locationId: string }) => {
         setLoading(true);
         try {
+            // Önce auth işlemini yapalım
             const result = await signIn('credentials', {
                 email: values.email,
                 password: values.password,
@@ -32,8 +125,31 @@ export default function LoginPage() {
             if (result?.error) {
                 message.error('Invalid email or password');
             } else {
-                message.success('Login successful');
-                router.push('/dashboard');
+                // Kullanıcı kaydını oluşturalım
+                try {
+                    const checkInResponse = await fetch('/api/access-logs/check-in', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            locationId: values.locationId,
+                        }),
+                    });
+
+                    if (checkInResponse.ok) {
+                        message.success('Login successful');
+                        router.push('/dashboard');
+                    } else {
+                        // Giriş başarılı ama log kaydı başarısız
+                        message.warning('Logged in but failed to register location');
+                        router.push('/dashboard');
+                    }
+                } catch (checkInError) {
+                    console.error('Error during check-in:', checkInError);
+                    message.warning('Logged in but failed to register location');
+                    router.push('/dashboard');
+                }
             }
         } catch (error) {
             message.error('An error occurred during login');
@@ -62,6 +178,7 @@ export default function LoginPage() {
             </div>
 
             <Form
+                form={form}
                 name="login"
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
@@ -93,6 +210,34 @@ export default function LoginPage() {
                         size="large"
                         className="bg-theme-input"
                     />
+                </Form.Item>
+
+                <Form.Item
+                    name="locationId"
+                    label="Location"
+                    rules={[{ required: true, message: 'Please select your location!' }]}
+                    tooltip="Select the location you are checking in from"
+                >
+                    {loadingLocations ? (
+                        <div className="flex items-center justify-center p-4">
+                            <Spin size="small" />
+                            <span className="ml-2">Loading locations...</span>
+                        </div>
+                    ) : (
+                        <Select
+                            placeholder="Select your location"
+                            size="large"
+                            className="w-full"
+                            suffixIcon={<EnvironmentOutlined />}
+                        >
+                            {locations.map(location => (
+                                <Option key={location.id} value={location.id}>
+                                    {location.name}
+                                    {location.address && ` (${location.address})`}
+                                </Option>
+                            ))}
+                        </Select>
+                    )}
                 </Form.Item>
 
                 <Form.Item>

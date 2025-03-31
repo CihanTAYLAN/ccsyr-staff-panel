@@ -1,59 +1,23 @@
-'use client';
+import { Metadata } from 'next';
+import DashboardStats from '@/components/dashboard/DashboardStats';
+import DashboardTimeline from '@/components/dashboard/DashboardTimeline';
 
-import { Breadcrumb, Card, Col, Row, Statistic } from 'antd';
-import {
-    UserOutlined,
-    EnvironmentOutlined,
-    ClockCircleOutlined
-} from '@ant-design/icons';
+export const metadata: Metadata = {
+    title: 'Dashboard | CCSYR Staff Panel',
+    description: 'Dashboard and analytics for CCSYR Staff Panel',
+};
 
-export default function Dashboard() {
+export default function DashboardPage() {
     return (
-        <>
-            <div className="flex justify-between items-center mb-6 h-6">
-                <Breadcrumb
-                    items={[
-                        { title: 'Dashboard' },
-                    ]}
-                />
+        <div className="dashboard-container">
+            <h1>Dashboard</h1>
+
+            <DashboardStats />
+
+            <div className="dashboard-timeline-section" style={{ marginTop: 24 }}>
+                <h2>Recent Activity Timeline</h2>
+                <DashboardTimeline />
             </div>
-            <Row gutter={16}>
-                <Col xs={24} sm={8} className="mb-4">
-                    <Card hoverable className="shadow-theme h-full">
-                        <Statistic
-                            title="Total Users"
-                            value={42}
-                            prefix={<UserOutlined className="text-primary mr-1" />}
-                            className="text-theme-text"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={8} className="mb-4">
-                    <Card hoverable className="shadow-theme h-full">
-                        <Statistic
-                            title="Total Locations"
-                            value={12}
-                            prefix={<EnvironmentOutlined className="text-primary mr-1" />}
-                            className="text-theme-text"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={8} className="mb-4">
-                    <Card hoverable className="shadow-theme h-full">
-                        <Statistic
-                            title="Today's Logs"
-                            value={156}
-                            prefix={<ClockCircleOutlined className="text-primary mr-1" />}
-                            className="text-theme-text"
-                        />
-                    </Card>
-                </Col>
-            </Row>
-            <div className="mt-8">
-                <Card title="Recent Activity" className="shadow-theme border-theme">
-                    <p className="text-theme-secondary">No recent activity to display</p>
-                </Card>
-            </div>
-        </>
+        </div>
     );
 } 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Form, Input, message, Typography } from 'antd';
+import { Button, Card, Form, Input, message, Typography, Alert } from 'antd';
 import { MailOutlined, BulbOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
@@ -10,8 +10,10 @@ const { Title, Text } = Typography;
 
 export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
+    const [form] = Form.useForm();
 
     useEffect(() => {
         setIsMounted(true);
@@ -20,11 +22,24 @@ export default function ForgotPasswordPage() {
     const onFinish = async (values: { email: string }) => {
         setLoading(true);
         try {
-            // API isteği gerçekleştirilecek
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
-            message.success('Password reset instructions have been sent to your email address');
-        } catch (error) {
-            message.error('There was an error sending the password reset email');
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error sending reset email');
+            }
+
+            setSuccess(true);
+            form.resetFields();
+        } catch (error: any) {
+            message.error(error.message || 'There was an error sending the password reset email');
         } finally {
             setLoading(false);
         }
@@ -41,7 +56,18 @@ export default function ForgotPasswordPage() {
                 <Text type="secondary">Enter your email to receive password reset instructions</Text>
             </div>
 
+            {success && (
+                <Alert
+                    message="Reset Email Sent"
+                    description="If an account with that email exists, a password reset email has been sent with instructions."
+                    type="success"
+                    showIcon
+                    className="mb-4"
+                />
+            )}
+
             <Form
+                form={form}
                 name="forgot-password"
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
