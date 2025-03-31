@@ -63,6 +63,13 @@ export async function POST(request: NextRequest) {
 				locationStaticLong: location.longitude || 0,
 				user: { connect: { id: user.id } },
 				location: { connect: { id: location.id } },
+				userStaticName: user.name,
+				userStaticEmail: user.email,
+				userStaticLastLoginDate: new Date(),
+				userStaticLastLoginLocationName: location.name,
+				userStaticLastLoginLocationAddress: location.address || "",
+				userStaticLastLoginLocationLat: location.latitude || 0,
+				userStaticLastLoginLocationLong: location.longitude || 0,
 			},
 		});
 

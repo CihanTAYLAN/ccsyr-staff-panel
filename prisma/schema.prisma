@@ -79,6 +79,12 @@ model AccessLog {
   userStaticLastLoginLocationLat     Float?
   userStaticLastLoginLocationLong    Float?
 
+  // Lokasyon bilgileri
+  locationStaticName    String?
+  locationStaticAddress String?
+  locationStaticLat     Float?
+  locationStaticLong    Float?
+
   user       User      @relation(fields: [userId], references: [id])
   userId     String
   location   Location? @relation(fields: [locationId], references: [id])

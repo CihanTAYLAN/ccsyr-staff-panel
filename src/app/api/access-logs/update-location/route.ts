@@ -71,6 +71,13 @@ export async function POST(request: NextRequest) {
 				locationStaticLong: location.longitude || 0,
 				user: { connect: { id: user.id } },
 				location: { connect: { id: location.id } },
+				userStaticName: user.name,
+				userStaticEmail: user.email,
+				userStaticLastLoginDate: new Date(),
+				userStaticLastLoginLocationName: location.name,
+				userStaticLastLoginLocationAddress: location.address || "",
+				userStaticLastLoginLocationLat: location.latitude || 0,
+				userStaticLastLoginLocationLong: location.longitude || 0,
 			},
 		});
 
@@ -79,8 +86,6 @@ export async function POST(request: NextRequest) {
 			where: { id: user.id },
 			data: {
 				currentLocationId: location.id,
-				// Status'u değiştirmiyoruz, zaten ONLINE olmalı
-				// Sadece lokasyon bilgilerini güncelliyoruz
 				lastLoginLocationStaticName: location.name,
 				lastLoginLocationStaticAddress: location.address || "",
 				lastLoginLocationStaticLat: location.latitude || 0,
