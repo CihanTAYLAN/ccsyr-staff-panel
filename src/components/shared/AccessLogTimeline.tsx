@@ -52,6 +52,8 @@ interface AccessLogTimelineProps {
     filter: TimelineFilter;
     locations?: Array<{ id: string; name: string }>;
     users?: Array<{ id: string; name: string }>;
+    locationFilter?: boolean;
+    userFilter?: boolean;
     onFilterChange: (filter: TimelineFilter) => void;
 }
 
@@ -66,7 +68,7 @@ interface UserOption {
     email: string;
 }
 
-const getItemColor = (actionType: string) => {
+export const getItemColor = (actionType: string) => {
     switch (actionType) {
         case 'CHECK_IN': return 'green';
         case 'CHECK_OUT': return 'red';
@@ -75,7 +77,7 @@ const getItemColor = (actionType: string) => {
     }
 };
 
-const getItemIcon = (actionType: string) => {
+export const getItemIcon = (actionType: string) => {
     switch (actionType) {
         case 'CHECK_IN': return <LoginOutlined />;
         case 'CHECK_OUT': return <LogoutOutlined />;
@@ -85,10 +87,12 @@ const getItemIcon = (actionType: string) => {
 };
 
 const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'users'>> = ({
-    items,
+    items = [],
     loading = false,
     total,
     filter,
+    locationFilter = true,
+    userFilter = true,
     onFilterChange
 }) => {
     const [locations, setLocations] = useState<LocationOption[]>([]);
@@ -176,41 +180,44 @@ const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'us
     return (
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
             <Space wrap>
-                <Select
-                    showSearch
-                    placeholder="Search location"
-                    style={{ width: 200 }}
-                    allowClear
-                    value={filter.locationId}
-                    onChange={(value) => handleFilterChange({ locationId: value })}
-                    onSearch={setLocationSearch}
-                    loading={loadingLocations}
-                    filterOption={false}
-                    notFoundContent={loadingLocations ? <Spin size="small" /> : null}
-                >
-                    {locations.map((location) => (
-                        <Select.Option key={location.id} value={location.id}>{location.name}</Select.Option>
-                    ))}
-                </Select>
-
-                <Select
-                    showSearch
-                    placeholder="Search user"
-                    style={{ width: 200 }}
-                    allowClear
-                    value={filter.userId}
-                    onChange={(value) => handleFilterChange({ userId: value })}
-                    onSearch={setUserSearch}
-                    loading={loadingUsers}
-                    filterOption={false}
-                    notFoundContent={loadingUsers ? <Spin size="small" /> : null}
-                >
-                    {users.map((user) => (
-                        <Select.Option key={user.id} value={user.id}>
-                            {user.name} ({user.email})
-                        </Select.Option>
-                    ))}
-                </Select>
+                {locationFilter && (
+                    <Select
+                        showSearch
+                        placeholder="Search location"
+                        style={{ width: 200 }}
+                        allowClear
+                        value={filter.locationId}
+                        onChange={(value) => handleFilterChange({ locationId: value })}
+                        onSearch={setLocationSearch}
+                        loading={loadingLocations}
+                        filterOption={false}
+                        notFoundContent={loadingLocations ? <Spin size="small" /> : null}
+                    >
+                        {locations.map((location) => (
+                            <Select.Option key={location.id} value={location.id}>{location.name}</Select.Option>
+                        ))}
+                    </Select>
+                )}
+                {userFilter && (
+                    <Select
+                        showSearch
+                        placeholder="Search user"
+                        style={{ width: 200 }}
+                        allowClear
+                        value={filter.userId}
+                        onChange={(value) => handleFilterChange({ userId: value })}
+                        onSearch={setUserSearch}
+                        loading={loadingUsers}
+                        filterOption={false}
+                        notFoundContent={loadingUsers ? <Spin size="small" /> : null}
+                    >
+                        {users.map((user) => (
+                            <Select.Option key={user.id} value={user.id}>
+                                {user.name} ({user.email})
+                            </Select.Option>
+                        ))}
+                    </Select>
+                )}
 
                 <RangePicker
                     onChange={(_, dateStrings) => handleFilterChange({
@@ -236,7 +243,7 @@ const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'us
                 </Button>
             </Space>
 
-            {items.length > 0 ? (
+            {items?.length > 0 ? (
                 <>
                     <Timeline
                         mode="left"

@@ -16,21 +16,31 @@ import {
     Popconfirm,
 } from 'antd';
 import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
-import { EActionType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { App } from 'antd';
+import AccessLogTimeline, { TimelineItem, TimelineFilter } from '@/components/shared/AccessLogTimeline';
 
 // Lokasyon detayları sayfası
 export default function LocationDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const { message } = App.useApp();
     const [location, setLocation] = useState<any>(null);
-    const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [activeUsers, setActiveUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const locationId = params.id;
+
+    // Timeline States
+    const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+    const [timelineTotal, setTimelineTotal] = useState(0);
+    const [timelineFilter, setTimelineFilter] = useState<TimelineFilter>({
+        limit: 5,
+        page: 1,
+        locationId: locationId,
+
+    });
+    const [loadingTimeline, setLoadingTimeline] = useState(false);
 
     // Lokasyon detaylarını getir
     const fetchLocationDetails = async () => {
@@ -44,7 +54,6 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
             const data = await response.json();
             setLocation(data.location);
             setActiveUsers(data.location.activeUsers || []);
-            setAccessLogs(data.location.logs || []);
         } catch (error) {
             console.error('Error fetching location details:', error);
             message.error('Failed to load location details');
@@ -57,71 +66,37 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
         fetchLocationDetails();
     }, [locationId]);
 
-    // Erişim kayıtları için tablo sütunları
-    const accessLogsColumns = [
-        {
-            title: 'User',
-            dataIndex: 'user',
-            key: 'user',
-            render: (user: any) => (
-                <Link href={`/users/${user.id}`}>
-                    {user.name || user.email}
-                </Link>
-            ),
-        },
-        {
-            title: 'Session Date',
-            dataIndex: 'actionDate',
-            key: 'actionDate',
-            render: (text: string) => <Tooltip title={dayjs(text).fromNow()}>{dayjs(text).format('LLL')}</Tooltip>,
-        },
-        {
-            title: 'Action',
-            dataIndex: 'actionType',
-            key: 'actionType',
-            render: (actionType: EActionType) => (
-                <Tag color={actionType === EActionType.CHECK_IN ? 'green' : actionType === EActionType.CHECK_OUT ? 'red' : actionType === EActionType.UPDATE_LOCATION ? 'orange' : 'default'}>
-                    {actionType.replace('_', ' ')}
-                </Tag>
-            ),
-        },
-        {
-            title: 'IP Address',
-            dataIndex: 'ipAddress',
-            key: 'ipAddress',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'Browser',
-            dataIndex: 'browser',
-            key: 'browser',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'OS',
-            dataIndex: 'os',
-            key: 'os',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'Device',
-            dataIndex: 'device',
-            key: 'device',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'Location',
-            dataIndex: 'locationStaticName',
-            key: 'locationStaticName',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'Log Date',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            render: (text: string) => <Tooltip title={dayjs(text).fromNow()}>{dayjs(text).format('LLL')}</Tooltip>,
-        },
-    ];
+    // Timeline verilerini getir
+    useEffect(() => {
+        const fetchTimeline = async () => {
+            try {
+                setLoadingTimeline(true);
+                const params = new URLSearchParams({
+                    page: timelineFilter.page.toString(),
+                    limit: timelineFilter.limit.toString(),
+                    ...(timelineFilter.dateRange ? {
+                        startDate: timelineFilter.dateRange[0],
+                        endDate: timelineFilter.dateRange[1]
+                    } : {}),
+                    ...(timelineFilter.userId ? { userId: timelineFilter.userId } : {})
+                });
+
+                const response = await fetch(`/api/access-logs/location/${locationId}/timeline?${params}`);
+                if (!response.ok) throw new Error('Failed to fetch timeline');
+
+                const data = await response.json();
+                setTimeline(data.items);
+                setTimelineTotal(data.total);
+            } catch (error) {
+                console.error('Error fetching timeline:', error);
+                message.error('Failed to load timeline');
+            } finally {
+                setLoadingTimeline(false);
+            }
+        };
+
+        fetchTimeline();
+    }, [locationId, timelineFilter]);
 
     // Aktif kullanıcılar için tablo sütunları
     const activeUsersColumns = [
@@ -302,23 +277,17 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                 },
                 {
                     key: '2',
-                    label: `Access Logs (${accessLogs.length})`,
+                    label: `Access Logs (${timelineTotal})`,
                     children: (
-                        <Card styles={{ body: { padding: 0 } }}>
-                            {accessLogs.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <Table
-                                        columns={accessLogsColumns}
-                                        dataSource={accessLogs}
-                                        rowKey="id"
-                                        className="custom-table"
-                                        scroll={{ x: 800 }}
-                                        pagination={{ pageSize: 10, hideOnSinglePage: true }}
-                                    />
-                                </div>
-                            ) : (
-                                <Empty description="No access logs found" />
-                            )}
+                        <Card size='small' >
+                            <AccessLogTimeline
+                                items={timeline}
+                                loading={loadingTimeline}
+                                total={timelineTotal}
+                                filter={timelineFilter}
+                                onFilterChange={setTimelineFilter}
+                                locationFilter={false}
+                            />
                         </Card>
                     )
                 }

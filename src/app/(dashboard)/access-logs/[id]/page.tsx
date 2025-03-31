@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Descriptions, message, Breadcrumb, Spin } from 'antd';
+import { Card, Descriptions, message, Breadcrumb, Spin, Tag, Tooltip } from 'antd';
 import { EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { DynamicMapProps } from '@/types/map';
 import Link from 'next/link';
-import AccessLogTimeline, { TimelineItem, TimelineFilter } from '@/components/shared/AccessLogTimeline';
-
+import AccessLogTimeline, { TimelineItem, TimelineFilter, getItemColor } from '@/components/shared/AccessLogTimeline';
+import dayjs from 'dayjs';
 const DynamicMap = dynamic<DynamicMapProps>(() => import('../../../../components/shared/DynamicMap'), {
     ssr: false,
     loading: () => <div className="h-[400px] bg-gray-100 flex items-center justify-center">Loading map...</div>
@@ -42,46 +42,34 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [logDetail, setLogDetail] = useState<AccessLogDetailData | null>(null);
-    const [userTimeline, setUserTimeline] = useState<TimelineItem[]>([]);
-    const [locationTimeline, setLocationTimeline] = useState<TimelineItem[]>([]);
-    const [userTimelineFilter, setUserTimelineFilter] = useState<TimelineFilter>({
-        limit: 10,
-        page: 1
-    });
-    const [locationTimelineFilter, setLocationTimelineFilter] = useState<TimelineFilter>({
-        limit: 10,
-        page: 1
-    });
-    const [userTimelineTotal, setUserTimelineTotal] = useState(0);
-    const [locationTimelineTotal, setLocationTimelineTotal] = useState(0);
 
+    // User Timeline States
+    const [userTimeline, setUserTimeline] = useState<TimelineItem[]>([]);
+    const [userTimelineTotal, setUserTimelineTotal] = useState(0);
+    const [userTimelineFilter, setUserTimelineFilter] = useState<TimelineFilter>({
+        limit: 5,
+        page: 1
+    });
+    const [loadingUserTimeline, setLoadingUserTimeline] = useState(false);
+
+    // Location Timeline States
+    const [locationTimeline, setLocationTimeline] = useState<TimelineItem[]>([]);
+    const [locationTimelineTotal, setLocationTimelineTotal] = useState(0);
+    const [locationTimelineFilter, setLocationTimelineFilter] = useState<TimelineFilter>({
+        limit: 5,
+        page: 1
+    });
+    const [loadingLocationTimeline, setLoadingLocationTimeline] = useState(false);
+
+    // Fetch log detail
     useEffect(() => {
         const fetchLogDetail = async () => {
             try {
+                setLoading(true);
                 const response = await fetch(`/api/access-logs/${params.id}`);
                 if (!response.ok) throw new Error('Failed to fetch log detail');
                 const data = await response.json();
                 setLogDetail(data);
-
-                // Fetch user timeline
-                if (data.user?.id) {
-                    const userTimelineResponse = await fetch(`/api/access-logs/user/${data.user.id}/timeline`);
-                    if (userTimelineResponse.ok) {
-                        const userTimelineData = await userTimelineResponse.json();
-                        setUserTimeline(userTimelineData.items);
-                        setUserTimelineTotal(userTimelineData.total);
-                    }
-                }
-
-                // Fetch location timeline
-                if (data.location?.id) {
-                    const locationTimelineResponse = await fetch(`/api/access-logs/location/${data.location.id}/timeline`);
-                    if (locationTimelineResponse.ok) {
-                        const locationTimelineData = await locationTimelineResponse.json();
-                        setLocationTimeline(locationTimelineData.items);
-                        setLocationTimelineTotal(locationTimelineData.total);
-                    }
-                }
             } catch (error) {
                 console.error('Error fetching log detail:', error);
                 message.error('Failed to load log details');
@@ -93,57 +81,73 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
         fetchLogDetail();
     }, [params.id]);
 
-    const handleUserTimelineFilterChange = async (filter: TimelineFilter) => {
-        setUserTimelineFilter(filter);
-        if (logDetail?.user?.id) {
-            try {
-                const response = await fetch(`/api/access-logs/user/${logDetail.user.id}/timeline?${new URLSearchParams({
-                    page: filter.page.toString(),
-                    limit: filter.limit.toString(),
-                    ...(filter.dateRange ? {
-                        startDate: filter.dateRange[0],
-                        endDate: filter.dateRange[1]
-                    } : {}),
-                    ...(filter.locationId ? { locationId: filter.locationId } : {})
-                })}`);
+    // Fetch user timeline
+    useEffect(() => {
+        const fetchUserTimeline = async () => {
+            if (!logDetail?.user?.id) return;
 
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserTimeline(data.items);
-                    setUserTimelineTotal(data.total);
-                }
+            try {
+                setLoadingUserTimeline(true);
+                const params = new URLSearchParams({
+                    page: userTimelineFilter.page.toString(),
+                    limit: userTimelineFilter.limit.toString(),
+                    ...(userTimelineFilter.dateRange ? {
+                        startDate: userTimelineFilter.dateRange[0],
+                        endDate: userTimelineFilter.dateRange[1]
+                    } : {}),
+                    ...(userTimelineFilter.locationId ? { locationId: userTimelineFilter.locationId } : {})
+                });
+
+                const response = await fetch(`/api/access-logs/user/${logDetail.user.id}/timeline?${params}`);
+                if (!response.ok) throw new Error('Failed to fetch user timeline');
+
+                const data = await response.json();
+                setUserTimeline(data.items);
+                setUserTimelineTotal(data.total);
             } catch (error) {
                 console.error('Error fetching user timeline:', error);
-                message.error('Failed to update user timeline');
+                message.error('Failed to load user timeline');
+            } finally {
+                setLoadingUserTimeline(false);
             }
-        }
-    };
+        };
 
-    const handleLocationTimelineFilterChange = async (filter: TimelineFilter) => {
-        setLocationTimelineFilter(filter);
-        if (logDetail?.location?.id) {
+        fetchUserTimeline();
+    }, [logDetail?.user?.id, userTimelineFilter]);
+
+    // Fetch location timeline
+    useEffect(() => {
+        const fetchLocationTimeline = async () => {
+            if (!logDetail?.location?.id) return;
+
             try {
-                const response = await fetch(`/api/access-logs/location/${logDetail.location.id}/timeline?${new URLSearchParams({
-                    page: filter.page.toString(),
-                    limit: filter.limit.toString(),
-                    ...(filter.dateRange ? {
-                        startDate: filter.dateRange[0],
-                        endDate: filter.dateRange[1]
+                setLoadingLocationTimeline(true);
+                const params = new URLSearchParams({
+                    page: locationTimelineFilter.page.toString(),
+                    limit: locationTimelineFilter.limit.toString(),
+                    ...(locationTimelineFilter.dateRange ? {
+                        startDate: locationTimelineFilter.dateRange[0],
+                        endDate: locationTimelineFilter.dateRange[1]
                     } : {}),
-                    ...(filter.userId ? { userId: filter.userId } : {})
-                })}`);
+                    ...(locationTimelineFilter.userId ? { userId: locationTimelineFilter.userId } : {})
+                });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    setLocationTimeline(data.items);
-                    setLocationTimelineTotal(data.total);
-                }
+                const response = await fetch(`/api/access-logs/location/${logDetail.location.id}/timeline?${params}`);
+                if (!response.ok) throw new Error('Failed to fetch location timeline');
+
+                const data = await response.json();
+                setLocationTimeline(data.items);
+                setLocationTimelineTotal(data.total);
             } catch (error) {
                 console.error('Error fetching location timeline:', error);
-                message.error('Failed to update location timeline');
+                message.error('Failed to load location timeline');
+            } finally {
+                setLoadingLocationTimeline(false);
             }
-        }
-    };
+        };
+
+        fetchLocationTimeline();
+    }, [logDetail?.location?.id, locationTimelineFilter]);
 
     return (
         <>
@@ -171,8 +175,16 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                 <div className="flex flex-col gap-4 w-full">
                     <Card title="Access Log Details" size='small'>
                         <Descriptions bordered column={2}>
-                            <Descriptions.Item label="Action Type">{logDetail?.actionType || 'N/A'}</Descriptions.Item>
-                            <Descriptions.Item label="Action Date">{logDetail?.actionDate ? new Date(logDetail?.actionDate).toLocaleString() : 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Action Type">
+                                <Tag color={getItemColor(logDetail?.actionType || '')}>
+                                    {logDetail?.actionType || 'N/A'}
+                                </Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Action Date">
+                                <Tooltip title={dayjs(logDetail?.actionDate).fromNow()}>
+                                    {logDetail?.actionDate ? dayjs(logDetail?.actionDate).format('LLL') : 'N/A'}
+                                </Tooltip>
+                            </Descriptions.Item>
                             <Descriptions.Item label="IP Address">{logDetail?.ipAddress || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="User Agent">{logDetail?.userAgent || 'N/A'}</Descriptions.Item>
                             <Descriptions.Item label="Browser">{logDetail?.browser || 'N/A'}</Descriptions.Item>
@@ -190,9 +202,11 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                         <div className="mt-4">
                             <AccessLogTimeline
                                 items={userTimeline}
+                                loading={loadingUserTimeline}
                                 total={userTimelineTotal}
                                 filter={userTimelineFilter}
-                                onFilterChange={handleUserTimelineFilterChange}
+                                onFilterChange={setUserTimelineFilter}
+                                userFilter={false}
                             />
                         </div>
                     </Card>
@@ -219,9 +233,11 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                                 <div className="mt-4">
                                     <AccessLogTimeline
                                         items={locationTimeline}
+                                        loading={loadingLocationTimeline}
                                         total={locationTimelineTotal}
                                         filter={locationTimelineFilter}
-                                        onFilterChange={handleLocationTimelineFilterChange}
+                                        onFilterChange={setLocationTimelineFilter}
+                                        locationFilter={false}
                                     />
                                 </div>
                             </>

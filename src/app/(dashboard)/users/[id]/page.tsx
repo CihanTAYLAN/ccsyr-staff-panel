@@ -1,16 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Descriptions, Table, Tag, Button, Spin, Tabs, Empty, Breadcrumb, Space, Modal, Tooltip, Popconfirm } from 'antd';
+import {
+    Card,
+    Descriptions,
+    Tag,
+    Button,
+    Spin,
+    Empty,
+    Breadcrumb,
+    Space,
+    Tooltip,
+    Popconfirm,
+} from 'antd';
 import { DeleteOutlined, EditOutlined, EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
-import { EUserStatus, EUserType, EActionType, EUserAccountStatus } from '@prisma/client';
+import { EUserStatus, EUserType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { App } from 'antd';
-
-const { TabPane } = Tabs;
-const { confirm } = Modal;
+import AccessLogTimeline, { TimelineItem, TimelineFilter } from '@/components/shared/AccessLogTimeline';
 
 // Kullanıcı tipi bilgileri
 const getUserTypeLabel = (type: EUserType) => {
@@ -31,9 +40,17 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const { message } = App.useApp();
     const [user, setUser] = useState<any>(null);
-    const [accessLogs, setAccessLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const userId = params.id;
+
+    // Timeline States
+    const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+    const [timelineTotal, setTimelineTotal] = useState(0);
+    const [timelineFilter, setTimelineFilter] = useState<TimelineFilter>({
+        limit: 5,
+        page: 1,
+    });
+    const [loadingTimeline, setLoadingTimeline] = useState(false);
 
     // Kullanıcı detaylarını getir
     const fetchUserDetails = async () => {
@@ -46,7 +63,6 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
 
             const data = await response.json();
             setUser(data.user);
-            setAccessLogs(data.accessLogs);
         } catch (error) {
             console.error('Error fetching user details:', error);
             message.error('Failed to load user details');
@@ -55,53 +71,41 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
         }
     };
 
+    // Timeline verilerini getir
+    useEffect(() => {
+        const fetchTimeline = async () => {
+            try {
+                setLoadingTimeline(true);
+                const params = new URLSearchParams({
+                    page: timelineFilter.page.toString(),
+                    limit: timelineFilter.limit.toString(),
+                    ...(timelineFilter.dateRange ? {
+                        startDate: timelineFilter.dateRange[0],
+                        endDate: timelineFilter.dateRange[1]
+                    } : {}),
+                    ...(timelineFilter.locationId ? { locationId: timelineFilter.locationId } : {})
+                });
+
+                const response = await fetch(`/api/access-logs/user/${userId}/timeline?${params}`);
+                if (!response.ok) throw new Error('Failed to fetch timeline');
+
+                const data = await response.json();
+                setTimeline(data.items);
+                setTimelineTotal(data.total);
+            } catch (error) {
+                console.error('Error fetching timeline:', error);
+                message.error('Failed to load timeline');
+            } finally {
+                setLoadingTimeline(false);
+            }
+        };
+
+        fetchTimeline();
+    }, [userId, timelineFilter]);
+
     useEffect(() => {
         fetchUserDetails();
     }, [userId]);
-
-    // Erişim kayıtları için tablo sütunları
-    const accessLogsColumns = [
-        {
-            title: 'Date & Time',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            render: (text: string) => dayjs(text).format('LLL'),
-        },
-        {
-            title: 'Action',
-            dataIndex: 'actionType',
-            key: 'actionType',
-            render: (actionType: EActionType) => (
-                <Tag color={actionType === EActionType.CHECK_IN ? 'green' : actionType === EActionType.CHECK_OUT ? 'red' : actionType === EActionType.UPDATE_LOCATION ? 'orange' : 'default'}>
-                    {actionType.replace('_', ' ')}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Location',
-            dataIndex: 'location',
-            key: 'location',
-            render: (location: any) => location.name,
-        },
-        {
-            title: 'Address',
-            dataIndex: 'location',
-            key: 'address',
-            render: (location: any) => location.address || 'N/A',
-        },
-        {
-            title: 'Browser',
-            dataIndex: 'browser',
-            key: 'browser',
-            render: (text: string) => text || 'N/A',
-        },
-        {
-            title: 'IP Address',
-            dataIndex: 'ipAddress',
-            key: 'ipAddress',
-            render: (text: string) => text || 'N/A',
-        },
-    ];
 
     const deleteUser = async (userId: string, userName: string | null) => {
         try {
@@ -283,21 +287,15 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                 </Descriptions>
             </Card>
 
-            <Card title="Access Logs" className="mb-6" size='small' styles={{ body: { padding: 0 } }}>
-                {accessLogs.length > 0 ? (
-                    <div className="overflow-x-auto">
-                        <Table
-                            columns={accessLogsColumns}
-                            dataSource={accessLogs}
-                            rowKey="id"
-                            className="custom-table"
-                            scroll={{ x: 800 }}
-                            pagination={{ pageSize: 10, hideOnSinglePage: true }}
-                        />
-                    </div>
-                ) : (
-                    <Empty description="No access logs found" />
-                )}
+            <Card title="Access Logs" className="mb-6" size='small'>
+                <AccessLogTimeline
+                    items={timeline}
+                    loading={loadingTimeline}
+                    total={timelineTotal}
+                    filter={timelineFilter}
+                    onFilterChange={setTimelineFilter}
+                    userFilter={false}
+                />
             </Card>
         </>
     );

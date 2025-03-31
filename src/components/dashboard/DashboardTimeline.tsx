@@ -29,9 +29,7 @@ const DashboardTimeline: React.FC = () => {
                 });
 
                 const response = await fetch(`/api/dashboard/timeline?${params}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch timeline data');
-                }
+                if (!response.ok) throw new Error('Failed to fetch timeline data');
 
                 const data = await response.json();
                 setTimeline(data.items);
