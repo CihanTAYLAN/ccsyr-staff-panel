@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import DashboardStats from '@/components/dashboard/DashboardStats';
 import DashboardTimeline from '@/components/dashboard/DashboardTimeline';
-
+import { Breadcrumb, Space } from 'antd';
+import DashboardStats from '../../../components/dashboard/DashboardStats';
+import DashboardMap from '../../../components/dashboard/DashboardMap';
 export const metadata: Metadata = {
     title: 'Dashboard | CCSYR Staff Panel',
     description: 'Dashboard and analytics for CCSYR Staff Panel',
@@ -9,15 +10,17 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
     return (
-        <div className="dashboard-container">
-            <h1>Dashboard</h1>
-
-            <DashboardStats />
-
-            <div className="dashboard-timeline-section" style={{ marginTop: 24 }}>
-                <h2>Recent Activity Timeline</h2>
-                <DashboardTimeline />
+        <>
+            <div className="flex justify-between items-center mb-6 h-6">
+                <Breadcrumb items={[
+                    { title: 'Dashboard' },
+                ]} />
             </div>
-        </div>
+            <Space direction='vertical' size={16} className='w-full'>
+                <DashboardStats />
+                <DashboardMap />
+                <DashboardTimeline />
+            </Space>
+        </>
     );
 }

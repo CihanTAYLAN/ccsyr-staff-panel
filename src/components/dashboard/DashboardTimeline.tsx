@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Timeline, Card, Spin, Alert, Tag, Select, DatePicker, Button, Space } from 'antd';
+import { Timeline, Spin, Alert, Tag, Select, DatePicker, Button, Space, Card } from 'antd';
 import {
     LoginOutlined,
     LogoutOutlined,
@@ -168,7 +168,7 @@ const DashboardTimeline: React.FC = () => {
     }
 
     return (
-        <Card className="dashboard-timeline-card" size='small'>
+        <Card title="Recent Activity Timeline" size='small'>
             <div className="timeline-filters" style={{ marginBottom: 16 }}>
                 <Space wrap>
                     <Select

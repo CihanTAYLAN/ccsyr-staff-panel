@@ -113,7 +113,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
         sum + (location.activeUsers.length || 0), 0);
 
     return (
-        <div className="dashboard-stats">
+        <>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 <Card>
                     <Statistic
@@ -195,7 +195,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
                     ))}
                 </Card>
             </div>
-        </div>
+        </>
     );
 };
 

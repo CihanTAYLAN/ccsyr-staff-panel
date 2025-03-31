@@ -127,8 +127,8 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri doldurur:
 
 Email ve password ile giriş yaptıktan sonra:
 
-- Location (Sistemde kayıtlı lokasyonlardan birini seçer) (default olarak tarayıcı lokasyonunun lat ve long değerlerinden, kullanıcının en yakın olduğu lokasyon seçilecektir)
-- Session Date (Giriş tarihi) (default olarak giriş yapıldığı tarih ve saat)
+- [⚠️ EKSIK] Location (Sistemde kayıtlı lokasyonlardan birini seçer) (default olarak tarayıcı lokasyonunun lat ve long değerlerinden, kullanıcının en yakın olduğu lokasyon seçilecektir)
+- [⚠️ EKSIK] Session Date (Giriş tarihi) (default olarak giriş yapıldığı tarih ve saat)
 
 Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access log'a kaydedilir:
 
@@ -171,31 +171,39 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 
 1. **Lokasyon Yönetimi İyileştirmeleri**
 
-   - Lokasyon detay sayfasında personel verileriyle birlikte görüntüleme özelliğinin tamamlanması
-   - Lokasyonda aktif bulunan kullanıcıların listesini görüntüleme özelliğinin geliştirilmesi
+   - [⚠️ EKSIK] Lokasyon detay sayfasında personel verileriyle birlikte görüntüleme özelliğinin tamamlanması
+   - [⚠️ EKSIK] Lokasyonda aktif bulunan kullanıcıların listesini görüntüleme özelliğinin geliştirilmesi
 
 2. **Access Log Modelinin Tamamlanması**
 
-   - OS, device ve diğer eksik alanların API'de doğru bir şekilde kaydedilmesi
-   - Çıkış loglarında kullanıcı durumu güncellemesinin tamamlanması
-   - Lokasyon aktif kullanıcı sayısı güncellemesinin tamamlanması
+   - [⚠️ EKSIK] OS, device ve diğer eksik alanların API'de doğru bir şekilde kaydedilmesi
+   - [⚠️ EKSIK] Çıkış loglarında kullanıcı durumu güncellemesinin tamamlanması
+   - [⚠️ EKSIK] Lokasyon aktif kullanıcı sayısı güncellemesinin tamamlanması
 
 3. **Genel İyileştirmeler**
 
-   - Mock veri yerine gerçek API verilerinin kullanılması
-   - Yetkilendirme kontrollerinin kapsamlı olarak uygulanması
-   - Hata yönetimi ve kullanıcı bildirimlerinin geliştirilmesi
+   - [⚠️ EKSIK] Mock veri yerine gerçek API verilerinin kullanılması
+   - [⚠️ EKSIK] Yetkilendirme kontrollerinin kapsamlı olarak uygulanması
+   - [⚠️ EKSIK] Hata yönetimi ve kullanıcı bildirimlerinin geliştirilmesi
 
 4. **UI İyileştirmeleri**
 
-   - Duyarlı tasarımın tüm sayfalarda uygulanması
-   - Tema desteğinin geliştirilmesi
-   - Erişilebilirlik özelliklerinin iyileştirilmesi
+   - [⚠️ EKSIK] Duyarlı tasarımın tüm sayfalarda uygulanması
+   - [MEVCUT] Tema desteğinin geliştirilmesi
+   - [⚠️ EKSIK] Erişilebilirlik özelliklerinin iyileştirilmesi
 
 5. **Performans Optimizasyonları**
-   - Veri yükleme stratejilerinin optimize edilmesi
-   - Önbelleğe alma mekanizmalarının uygulanması
-   - Sayfa yükleme sürelerinin iyileştirilmesi
+
+   - [⚠️ EKSIK] Veri yükleme stratejilerinin optimize edilmesi
+   - [⚠️ EKSIK] Önbelleğe alma mekanizmalarının uygulanması
+   - [⚠️ EKSIK] Sayfa yükleme sürelerinin iyileştirilmesi
+
+6. **Ek Geliştirmeler** [YENI]
+   - [YENI] İki adımlı giriş sürecinin tamamlanması (Lokasyon/tarih seçimi)
+   - [YENI] Şifre değiştirme/sıfırlama mekanizmasının geliştirilmesi
+   - [YENI] Access log sistemi için tüm gerekli client ve server-side işlemlerin tamamlanması
+   - [YENI] Dashboard sayfasında gerçek zamanlı veri görselleştirmelerinin eklenmesi
+   - [YENI] Dil desteğinin eklenmesi (Türkçe/İngilizce)
 
 ---
 
