@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { EUserType } from "@prisma/client";
+import { extractRequestParams, getPaginationValues, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/locations - Tüm lokasyonları getir
 export async function GET(request: NextRequest) {
@@ -13,14 +14,51 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
+		// URL parametrelerini al
+		const searchParams = request.nextUrl.searchParams;
+		const { page, pageSize, search, sortField, sortOrder } = extractRequestParams(searchParams);
+
+		// Sıralama için parametreleri al
+		const sortQuery = parseSortingToQuery({ sortField, sortOrder });
+
+		// Sayfalama için hesaplamalar
+		const { skip, take } = getPaginationValues({ page, pageSize });
+
+		// Filtreler için where koşulu oluştur
+		let where: any = {};
+
+		// Arama filtresi
+		if (search) {
+			where = { ...where, ...createSearchQuery({ search, searchFields: ["name", "address"] }) };
+		}
+
 		// Tüm lokasyonları getir
 		const locations = await prisma.location.findMany({
-			orderBy: {
-				name: "asc",
+			where,
+			orderBy: sortQuery,
+			skip,
+			take,
+			select: {
+				id: true,
+				name: true,
+				address: true,
+				latitude: true,
+				longitude: true,
+				created_at: true,
+				updated_at: true,
+				_count: {
+					select: {
+						activeUsers: true,
+					},
+				},
 			},
 		});
 
-		return NextResponse.json(locations);
+		return NextResponse.json({
+			success: true,
+			message: "Locations fetched successfully",
+			locations,
+		});
 	} catch (error) {
 		console.error("Error fetching locations:", error);
 		return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

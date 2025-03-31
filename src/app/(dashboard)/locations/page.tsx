@@ -311,9 +311,9 @@ export default function LocationsPage() {
         },
         {
             title: 'Active Users',
-            dataIndex: '_count',
+            dataIndex: 'activeUsers._count',
             key: 'activeUsers',
-            render: (count: any) => count.activeUsers || 0,
+            render: (count: any, row: LocationData) => row._count.activeUsers || 0,
             sorter: true,
         },
         {
