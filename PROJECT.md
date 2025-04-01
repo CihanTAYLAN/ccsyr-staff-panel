@@ -26,7 +26,6 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - updated_at
      - currentLocation
      - lastLoginDate - programatik olarak login olunan tarihi kaydeder
-     -
      - lastLoginUseragent
      - lastLoginOs
      - lastLoginDevice
@@ -118,6 +117,9 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
          - Kullanıcı email'ini değiştiremez
          - Kullanıcı şifresini değiştirebilir
          - Kullancı status'unu değiştiremez
+   - Update location özelliği
+     - Kullanıcı şu anki lokasyonunu güncelleyebilir
+     - Kullanıcı şu anki lokasyonunu güncellerken tarayıcının lokasyon bilgileri kullanılır ve kullanıcıya en yakın olan lokasyon default olarak seçili gelir.
    - Çıkış yapma seçeneği
 
 6. **Auth Bölümü**
@@ -175,48 +177,6 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 | Lokasyon Yönetimi     | READ, WRITE, DELETE(with access logs) | READ          | N/A      |
 | Access Logları        | READ                                  | READ          | N/A      |
 | Kendi Geçmişini Görme | READ                                  | READ          | READ     |
-
-## YAPILACAKLAR LİSTESİ
-
-1. **Lokasyon Yönetimi İyileştirmeleri**
-
-   - Lokasyon detay sayfasında personel verileriyle birlikte görüntüleme özelliğinin tamamlanması
-   - Lokasyonda aktif bulunan kullanıcıların listesini görüntüleme özelliğinin geliştirilmesi
-
-2. **Access Log Modelinin Tamamlanması**
-
-   - OS, device ve diğer eksik alanların API'de doğru bir şekilde kaydedilmesi
-   - Çıkış loglarında kullanıcı durumu güncellemesinin tamamlanması
-   - Lokasyon aktif kullanıcı sayısı güncellemesinin tamamlanması
-
-3. **Genel İyileştirmeler**
-
-   - Mock veri yerine gerçek API verilerinin kullanılması
-   - Yetkilendirme kontrollerinin kapsamlı olarak uygulanması
-   - Hata yönetimi ve kullanıcı bildirimlerinin geliştirilmesi
-
-4. **UI İyileştirmeleri**
-
-   - Duyarlı tasarımın tüm sayfalarda uygulanması
-   - Tema desteğinin geliştirilmesi
-   - Erişilebilirlik özelliklerinin iyileştirilmesi
-
-5. **Performans Optimizasyonları**
-
-   - Veri yükleme stratejilerinin optimize edilmesi
-   - Önbelleğe alma mekanizmalarının uygulanması
-   - Sayfa yükleme sürelerinin iyileştirilmesi
-
-6. **Auth Sistemi İyileştirmeleri**
-
-   - Kullanıcının giriş sonrası lokasyon ve session date seçimini yapabileceği ikinci adımın tamamlanması
-   - Kullanıcı ilk giriş yaparken şifre değiştirme zorunluluğu mekanizmasının (forcePasswordChange) iyileştirilmesi
-   - Şifremi unuttum fonksiyonunun e-posta gönderme ve yeni şifre oluşturma süreçlerinin optimize edilmesi
-
-7. **Kullanıcı Deneyimi İyileştirmeleri**
-   - Mobil cihazlarda daha iyi deneyim için responsive tasarım iyileştirmeleri
-
----
 
 ## Teknik Gereksinimler
 
