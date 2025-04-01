@@ -43,7 +43,8 @@ export default function EditLocationPage({ params }: { params: { id: string } })
         try {
             const response = await fetch(`/api/locations/${locationId}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch location details');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch location details');
             }
 
             const data = await response.json();
@@ -99,7 +100,8 @@ export default function EditLocationPage({ params }: { params: { id: string } })
                 );
 
                 if (!response.ok) {
-                    throw new Error('Geocoding request failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Geocoding request failed');
                 }
 
                 const data = await response.json();

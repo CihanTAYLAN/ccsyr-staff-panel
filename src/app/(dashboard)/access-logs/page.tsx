@@ -1,5 +1,4 @@
-'use client';
-
+'use client';;
 import { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Breadcrumb, Tooltip, DatePicker, message, Avatar } from 'antd';
 import {
@@ -120,7 +119,8 @@ export default function AccessLogsPage() {
             const response = await fetch(`/api/access-logs?${params.toString()}`);
 
             if (!response.ok) {
-                throw new Error('Failed to fetch access logs');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch access logs');
             }
 
             const data = await response.json();

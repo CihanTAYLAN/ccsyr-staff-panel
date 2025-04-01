@@ -32,7 +32,8 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         try {
             const response = await fetch(`/api/users/${userId}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch user details');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch user details');
             }
 
             const data = await response.json();

@@ -37,7 +37,8 @@ export default function DynamicMap({ center, zoom = 13, markers = [], height = '
             );
 
             if (!response.ok) {
-                throw new Error('Address search failed');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Address search failed');
             }
 
             const data = await response.json();

@@ -100,7 +100,8 @@ export default function LocationsPage() {
             const response = await fetch(`/api/locations?${params.toString()}`);
 
             if (!response.ok) {
-                throw new Error('Failed to fetch locations');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch locations');
             }
 
             const data = await response.json();
@@ -180,7 +181,8 @@ export default function LocationsPage() {
                 );
 
                 if (!response.ok) {
-                    throw new Error('Geocoding request failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Geocoding request failed');
                 }
 
                 const data = await response.json();

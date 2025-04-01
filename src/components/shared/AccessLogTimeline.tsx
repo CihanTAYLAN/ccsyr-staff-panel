@@ -113,12 +113,15 @@ const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'us
                     params.append('search', locationSearch);
                 }
                 const response = await fetch(`/api/locations/search?${params}`);
-                if (!response.ok) throw new Error('Failed to fetch locations');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch locations');
+                }
                 const data = await response.json();
                 setLocations(data.locations);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching locations:', error);
-                message.error('Failed to load locations');
+                message.error(error.message || 'Failed to load locations');
             } finally {
                 setLoadingLocations(false);
             }
@@ -138,12 +141,15 @@ const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'us
                     params.append('search', userSearch);
                 }
                 const response = await fetch(`/api/users/search?${params}`);
-                if (!response.ok) throw new Error('Failed to fetch users');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch users');
+                }
                 const data = await response.json();
                 setUsers(data.users);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching users:', error);
-                message.error('Failed to load users');
+                message.error(error.message || 'Failed to load users');
             } finally {
                 setLoadingUsers(false);
             }

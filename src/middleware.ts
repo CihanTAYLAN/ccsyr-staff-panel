@@ -21,7 +21,7 @@ const apiRulesOfAccess = [
 		methods: [
 			{
 				method: "GET",
-				roles: [EUserType.SUPER_ADMIN, EUserType.MANAGER_ADMIN],
+				roles: [EUserType.SUPER_ADMIN, EUserType.MANAGER_ADMIN, EUserType.PERSONAL],
 			},
 			{
 				method: "POST",
@@ -43,6 +43,10 @@ const apiRulesOfAccess = [
 			{
 				method: "GET",
 				roles: [EUserType.SUPER_ADMIN, EUserType.MANAGER_ADMIN],
+			},
+			{
+				method: "POST",
+				roles: [EUserType.SUPER_ADMIN, EUserType.MANAGER_ADMIN, EUserType.PERSONAL],
 			},
 		],
 	},

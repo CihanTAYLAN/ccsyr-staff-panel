@@ -181,7 +181,8 @@ export default function UsersPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete user');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete user');
             }
 
             message.success('User deleted successfully');

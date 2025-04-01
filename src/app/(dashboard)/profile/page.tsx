@@ -64,7 +64,8 @@ const ProfilePage = () => {
                 const response = await fetch('/api/profile');
 
                 if (!response.ok) {
-                    throw new Error('Failed to load profile data');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to load profile data');
                 }
 
                 const data = await response.json();
@@ -99,7 +100,8 @@ const ProfilePage = () => {
                 const response = await fetch('/api/profile/logs');
 
                 if (!response.ok) {
-                    throw new Error('Failed to load access logs');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to load access logs');
                 }
 
                 const data = await response.json();
@@ -127,7 +129,8 @@ const ProfilePage = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update profile');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update profile');
             }
 
             const data = await response.json();
