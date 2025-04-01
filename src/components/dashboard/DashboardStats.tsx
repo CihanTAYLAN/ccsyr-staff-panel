@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, Statistic, Spin, Alert, Progress } from 'antd';
 import {
     UserOutlined,
@@ -9,70 +9,11 @@ import {
     LoginOutlined,
     CheckCircleOutlined
 } from '@ant-design/icons';
+import { StatsData } from '../../app/(dashboard)/dashboard/page';
 
-interface DashboardStatsProps { }
+interface DashboardStatsProps { stats: StatsData | null, loading: boolean, error: string | null }
 
-interface StatsData {
-    totalUsers: number;
-    onlineUsers: number;
-    totalLocations: number;
-    todayCheckIns: number;
-    totalAccessLogs: number;
-    locationStats: LocationStat[];
-    totalActiveUsers: number;
-    dailyStats: {
-        _count: {
-            id: number;
-        };
-        created_at: string;
-    }[];
-}
-
-interface LocationStat {
-    id: string;
-    name: string;
-    activeUsers: {
-        id: string;
-        name: string;
-    }[];
-}
-
-interface DailyLog {
-    date: string;
-    actionType: string;
-    count: number;
-}
-
-const DashboardStats: React.FC<DashboardStatsProps> = () => {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [stats, setStats] = useState<StatsData | null>(null);
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch('/api/dashboard/stats');
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch dashboard statistics');
-                }
-
-                const data = await response.json();
-
-                setStats(data);
-                setError(null);
-            } catch (err) {
-                console.error('Error fetching dashboard stats:', err);
-                setError('Failed to load dashboard statistics');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStats();
-    }, []);
-
+const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, loading, error }) => {
     if (loading) {
         return (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
@@ -107,8 +48,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = () => {
         );
     }
 
-    // Lokasyon pie chart verileri yerine progress bar kullanacağız
-    // Toplam aktif kullanıcı sayısını hesapla
     const totalActiveUsers = stats.locationStats.reduce((sum, location) =>
         sum + (location.activeUsers.length || 0), 0);
 

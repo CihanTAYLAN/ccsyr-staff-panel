@@ -75,6 +75,8 @@ export async function GET(req: NextRequest) {
 				id: true,
 				name: true,
 				address: true,
+				latitude: true,
+				longitude: true,
 				activeUsers: {
 					where: {
 						status: EUserStatus.ONLINE,

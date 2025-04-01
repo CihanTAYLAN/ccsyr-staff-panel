@@ -225,7 +225,11 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                                         markers={[{
                                             lat: logDetail?.location?.latitude,
                                             lng: logDetail?.location?.longitude,
-                                            title: logDetail?.location?.name
+                                            html: `<div class='flex flex-col gap-1'>
+                                            <a href="/locations/${logDetail?.location?.id}" target="_blank"><strong>${logDetail?.location?.name} 🔗</strong></a>
+                                            <div>${logDetail?.location?.address}</div>
+                                            <a href="https://www.google.com/maps/search/?api=1&query=${logDetail?.location?.latitude},${logDetail?.location?.longitude}" target="_blank"><strong>View on google maps 🔗</strong></a>
+                                            </div>`
                                         }]}
                                     />
                                 </div>

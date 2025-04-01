@@ -2,6 +2,7 @@ export type MapMarker = {
 	lat: number;
 	lng: number;
 	title?: string;
+	html?: string;
 };
 
 export type DynamicMapProps = {

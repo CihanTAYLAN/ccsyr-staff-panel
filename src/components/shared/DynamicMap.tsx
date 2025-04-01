@@ -96,7 +96,7 @@ export default function DynamicMap({ center, zoom = 13, markers = [], height = '
         // Add markers
         markers.forEach(marker => {
             L.marker([marker.lat, marker.lng], { icon })
-                .bindPopup(marker.title || '')
+                .bindPopup(marker.html || marker.title || '')
                 .addTo(map);
         });
 

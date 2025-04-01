@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { App } from 'antd';
 import AccessLogTimeline, { TimelineItem, TimelineFilter } from '@/components/shared/AccessLogTimeline';
+import DynamicMap from '../../../../components/shared/DynamicMap';
 
 // Lokasyon detayları sayfası
 export default function LocationDetailPage({ params }: { params: { id: string } }) {
@@ -216,41 +217,55 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                 </div>
             </div>
 
-            <Card className="mb-6" title="Location Information" styles={{ body: { padding: 0 } }} size='small'>
-                <Descriptions bordered size='small'>
-                    <Descriptions.Item label="Name" span={3}>
-                        <Space>
-                            <EnvironmentOutlined />
-                            {location.name}
-                        </Space>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Description" span={3}>
-                        {location.description || 'N/A'}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Address" span={3}>
-                        {location.address || 'N/A'}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Coordinates" span={3}>
-                        {location.latitude && location.longitude
-                            ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
-                            : 'N/A'
-                        }
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Active Users">
-                        {location._count?.onlineUsers || 0}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Created At">
-                        <Tooltip title={dayjs(location.created_at).fromNow()}>
-                            {dayjs(location.created_at).format('LLL')}
-                        </Tooltip>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Last Updated">
-                        <Tooltip title={dayjs(location.updated_at).fromNow()}>
-                            {dayjs(location.updated_at).format('LLL')}
-                        </Tooltip>
-                    </Descriptions.Item>
-                </Descriptions>
-            </Card>
+            <div className='flex flex-col lg:flex-row gap-4 mb-6 w-full'>
+                <Card title="Location Information" styles={{ body: { padding: 0 } }} size='small' className='w-full lg:w-1/2'>
+                    <Descriptions bordered size='small'>
+                        <Descriptions.Item label="Name" span={3}>
+                            <Space>
+                                <EnvironmentOutlined />
+                                {location.name}
+                            </Space>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Description" span={3}>
+                            {location.description || 'N/A'}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Address" span={3}>
+                            {location.address || 'N/A'}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Coordinates" span={3}>
+                            {location.latitude && location.longitude
+                                ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
+                                : 'N/A'
+                            }
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Active Users">
+                            {location.activeUsers.length || 0}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Created At">
+                            <Tooltip title={dayjs(location.created_at).fromNow()}>
+                                {dayjs(location.created_at).format('LLL')}
+                            </Tooltip>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Last Updated">
+                            <Tooltip title={dayjs(location.updated_at).fromNow()}>
+                                {dayjs(location.updated_at).format('LLL')}
+                            </Tooltip>
+                        </Descriptions.Item>
+                    </Descriptions>
+                </Card>
+                <Card title="Location Map" styles={{ body: { padding: 0 } }} size='small' className='w-full lg:w-1/2'>
+                    <DynamicMap center={[location.latitude, location.longitude]} zoom={15} markers={[{
+                        lat: location.latitude,
+                        lng: location.longitude,
+                        html: `<div class='flex flex-col gap-1'>
+                        <a href="/locations/${location.id}" target="_blank"><strong>${location.name} 🔗</strong></a>
+                        <div>${location.address}</div>
+                        <strong style="color: #6abe39">Active users: ${location.activeUsers.length}</strong>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}" target="_blank"><strong>View on google maps 🔗</strong></a>
+                        </div>`
+                    }]} />
+                </Card>
+            </div>
 
             <Tabs defaultActiveKey="1" className="mb-6" items={[
                 {
