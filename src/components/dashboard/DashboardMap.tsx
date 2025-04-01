@@ -1,8 +1,15 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Spin, Alert, Card } from 'antd';
-import DynamicMap from '../shared/DynamicMap';
+import dynamic from 'next/dynamic';
+import type { DynamicMapProps } from '@/types/map';
 import { StatsData } from '../../app/(dashboard)/dashboard/page';
+
+// DynamicMap'i SSR olmadan yükle
+const DynamicMap = dynamic<DynamicMapProps>(
+    () => import('../shared/DynamicMap'),
+    { ssr: false }
+);
 
 interface DashboardMapProps { stats: StatsData | null, loading: boolean, error: string | null }
 
