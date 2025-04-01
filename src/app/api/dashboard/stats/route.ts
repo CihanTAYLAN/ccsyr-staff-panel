@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { EUserAccountStatus, EActionType, EUserType, EUserStatus } from "@prisma/client";
+import { EUserAccountStatus, EActionType, EUserStatus } from "@prisma/client";
 
 // GET /api/dashboard/stats - Dashboard istatistikleri
 export async function GET(req: NextRequest) {
@@ -11,15 +11,6 @@ export async function GET(req: NextRequest) {
 		const session = await getServerSession(authOptions);
 		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
-		// Kullanıcının rolünü kontrol et (sadece SuperAdmin ve ManagerAdmin erişebilir)
-		const user = await prisma.user.findUnique({
-			where: { email: session.user.email as string },
-		});
-
-		if (!user || (user.userType !== EUserType.SUPER_ADMIN && user.userType !== EUserType.MANAGER_ADMIN)) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 		}
 
 		// Toplam kullanıcı sayısı

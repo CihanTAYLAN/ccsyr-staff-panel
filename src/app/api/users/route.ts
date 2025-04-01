@@ -8,9 +8,9 @@ import { extractRequestParams, getPaginationValues, calculatePaginationMeta, par
 // GET /api/users - Kullanıcıları listele (pagination, filtreleme ve arama desteği ile)
 export async function GET(request: NextRequest) {
 	try {
-		// Oturum kontrolü
+		// Kullanıcı oturumunu kontrol et
 		const session = await getServerSession(authOptions);
-		if (!session) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 

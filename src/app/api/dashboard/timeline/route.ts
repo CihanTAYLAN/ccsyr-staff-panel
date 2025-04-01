@@ -6,9 +6,9 @@ import { prisma } from "@/lib/prisma";
 // GET /api/dashboard/timeline - Dashboard için zaman çizelgesi olayları
 export async function GET(request: NextRequest) {
 	try {
-		// Auth kontrolü
+		// Kullanıcı oturumunu kontrol et
 		const session = await getServerSession(authOptions);
-		if (!session) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 

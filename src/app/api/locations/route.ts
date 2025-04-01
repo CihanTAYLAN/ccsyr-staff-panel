@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType } from "@prisma/client";
 import { extractRequestParams, getPaginationValues, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/locations - Tüm lokasyonları getir
@@ -72,16 +71,6 @@ export async function POST(request: NextRequest) {
 		const session = await getServerSession(authOptions);
 		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
-		// Kullanıcının admin olup olmadığını kontrol et
-		const user = await prisma.user.findUnique({
-			where: { id: session.user.id },
-			select: { userType: true },
-		});
-
-		if (!user || user.userType !== EUserType.SUPER_ADMIN) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 		}
 
 		const data = await request.json();

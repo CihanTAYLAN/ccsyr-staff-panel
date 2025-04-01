@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EActionType, EUserType } from "@prisma/client";
+import { EActionType } from "@prisma/client";
 import { extractRequestParams, getPaginationValues } from "@/lib/utils/queryUtils";
 
 // GET /api/access-logs - Access log listesi
@@ -12,11 +12,6 @@ export async function GET(request: NextRequest) {
 		const session = await getServerSession(authOptions);
 		if (!session) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
-		// Yetki kontrolü
-		if (session.user.userType === EUserType.PERSONAL) {
-			return NextResponse.json({ error: "Access denied" }, { status: 403 });
 		}
 
 		// Sorgu parametrelerini al
