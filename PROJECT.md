@@ -1,31 +1,31 @@
-# CCSYR Staff Panel Dokümantasyonu
+# CCSYR Staff Panel Documentation
 
-## Genel Bakış
+## Overview
 
-CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek için geliştirilmiş bir yönetim sistemidir. Tek bir panel üzerinden farklı yetki seviyelerine sahip kullanıcılar tarafından erişilebilir.
+CCSYR Staff Panel is a management system developed to track personnel check-ins/outs and locations. It can be accessed by users with different authorization levels through a single panel.
 
-### Proje Yapısı
+### Project Structure
 
 1. **Dashboard**
 
-   - Genel istatistikler
-   - Aktif personel sayısı
-   - Son 10 giriş-çıkış loglarını timeline olarak görüntüleme
-   - Lokasyonlara göre kullanıcı sayısını harita üzerinde ve liste olarak görüntüleme
+   - General statistics
+   - Active personnel count
+   - Timeline view of the last 10 check-in/out logs
+   - Map and list view of user distribution by location
 
-2. **Kullanıcılar** (Edit ve Delete işlemleri sadece Super Admin için yapılabilir)
+2. **Users** (Edit and Delete operations available only for Super Admin)
 
    - Model
      - name
      - email
      - password
-     - forcePasswordChange (true/false) default false (true ise kullanıcı ilk girişte yeni şifre modal ı otomatik olarak açılacak, kullanıcı kullanmak istediği şifreyi belirlenen şifre standartlarında güncelleyecek ve forcePasswordChange değeri false olarak güncellenecektir.)
+     - forcePasswordChange (true/false) default false (if true, a new password modal will automatically open on first login, the user will update their password according to the specified password standards, and the forcePasswordChange value will be updated to false.)
      - userType (Super Admin, Manager Admin, Personal)
      - status (Active, Inactive)
      - created_at
      - updated_at
      - currentLocation
-     - lastLoginDate - programatik olarak login olunan tarihi kaydeder
+     - lastLoginDate - programmatically records the login date
      - lastLoginUseragent
      - lastLoginOs
      - lastLoginDevice
@@ -38,12 +38,12 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - lastLoginLocationStaticLong
      - lastLogoutDate
      - userAccountStatus
-   - Arayüz Özellikleri
-     - Kullanıcı listesi
-     - Kullanıcı detay görüntüleme
-     - Kullanıcı ekleme/düzenleme/silme (Super Admin için)
+   - Interface Features
+     - User list
+     - User detail view
+     - User add/edit/delete (for Super Admin)
 
-3. **Lokasyonlar** (Ekleme, Edit ve Delete işlemleri sadece Super Admin için yapılabilir)
+3. **Locations** (Add, Edit, and Delete operations available only for Super Admin)
 
    - Model
      - name
@@ -53,21 +53,21 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - longitude
      - created_at
      - updated_at
-   - Arayüz Özellikleri
-     - Lokasyon listesi
-     - Lokasyon detay görüntüleme (Personel verileri ile birlikte)
-       - Lokasyon konumunu haritada görüntüleme
-       - Lokasyonda aktif bulunan kullanıcıların listesini görüntüleme
-     - Lokasyon ekleme/düzenleme/silme (Super Admin için)
-     - Lokasyon eklerken ve düzenlerken konum seçimi için harita entegrasyonu
+   - Interface Features
+     - Location list
+     - Location detail view (with Personnel data)
+       - View location on map
+       - View list of active users at the location
+     - Location add/edit/delete (for Super Admin)
+     - Map integration for location selection when adding and editing locations
 
-4. **Access Logları**
+4. **Access Logs**
 
    - Model
      - user
      - location
-     - actionType (Giriş, Çıkış)
-     - actionDate - kullanıcının auth bölümünün 2. adımında seçtiği session date
+     - actionType (Check-in, Check-out)
+     - actionDate - session date selected by the user in the 2nd step of the auth section
      - userAgent
      - browser
      - os
@@ -86,99 +86,99 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
      - locationStaticAddress
      - locationStaticLat
      - locationStaticLong
-   - Arayüz Özellikleri
-     - Access Log listesi
-     - Access Log detay görüntüleme
-       - Kullanıcı bilgileri
-       - Lokasyon bilgileri
+   - Interface Features
+     - Access Log list
+     - Access Log detail view
+       - User information
+       - Location information
        - Action Type
        - User Agent
        - IP Address
        - Created At
        - Updated At
-       - Kullanıcının şu anki lokasyonu görüntüyebilir
-       - Bu log ile ilişkili kullanıcının detayına erişebilir
-       - Bu log ile ilişkili kullanıcının son 10 giriş-çıkış loglarını timeline olarak görüntüyebilir
-       - Bu log ile ilişkili lokasyonun detayına erişebilir
-       - Bu log ile ilişkili lokasyonun son 10 giriş-çıkış loglarını timeline olarak görüntüyebilir
-     - Access Log ekleme ve düzenleme ve silme işlemleri sadece sistemden otomatik olarak gerçekleşecektir, panelde herhangi bir ekleme düzenleme ve silme işlemi yapılamaz.
+       - User can view their current location
+       - Access to the details of the user associated with this log
+       - Timeline view of the last 10 check-in/out logs of the user associated with this log
+       - Access to the details of the location associated with this log
+       - Timeline view of the last 10 check-in/out logs of the location associated with this log
+     - Access Log add, edit, and delete operations will only be performed automatically by the system; no add, edit, or delete operations can be performed on the panel.
 
-5. **Profil Yönetimi**
+5. **Profile Management**
 
-   - Sağ üst köşedeki profil dropdown menüsü
-     - Profil Butonu
-       - Profil bilgilerini görüntüleme
-         - Kullanıcı şu anki lokasyonu görüntüyebilir
-         - Kullanıcı kendi giriş-çıkış loglarını görüntüyebilir
-       - Profil fotoğrafı yerine Baş harften üretilen avatar kullanılacak
-       - Profil bilgilerini düzenleme
-         - Kullanıcı adını değiştirebilir
-         - Kullanıcı avatarını değiştiremez
-         - Kullanıcı email'ini değiştiremez
-         - Kullanıcı şifresini değiştirebilir
-         - Kullancı status'unu değiştiremez
-   - Update location özelliği
-     - Kullanıcı şu anki lokasyonunu güncelleyebilir
-     - Kullanıcı şu anki lokasyonunu güncellerken tarayıcının lokasyon bilgileri kullanılır ve kullanıcıya en yakın olan lokasyon default olarak seçili gelir.
-   - Çıkış yapma seçeneği
+   - Profile dropdown menu in the top right corner
+     - Profile Button
+       - View profile information
+         - User can view their current location
+         - User can view their check-in/out logs
+       - Avatar generated from initials will be used instead of profile photo
+       - Edit profile information
+         - User can change their name
+         - User cannot change their avatar
+         - User cannot change their email
+         - User can change their password
+         - User cannot change their status
+   - Update location feature
+     - User can update their current location
+     - When updating their current location, the browser's location information is used, and the location closest to the user is selected by default.
+   - Sign out option
 
-6. **Auth Bölümü**
+6. **Auth Section**
 
-   - Kullanıcılar dışarıdan kayıt olamazlar.
-   - Kullanıcılar şifrelerini sıfırlayabilirler. (Şifremi Unuttum) (8 Karakterli bir şifre oluşturulacak ve kullanıcıya email ile gönderilecek ve kullanıcının forcePasswordChange değeri true olarak güncellenecektir.)
+   - Users cannot register from outside.
+   - Users can reset their passwords. (Forgot Password) (An 8-character password will be created and sent to the user via email, and the user's forcePasswordChange value will be updated to true.)
 
-## Access Log Sistemi
+## Access Log System
 
-### Giriş Logları
+### Check-in Logs
 
-Personel sisteme giriş yaparken aşağıdaki bilgileri doldurur:
+When personnel log into the system, they fill in the following information:
 
 - Email
 - Password
 
-Email ve password ile giriş yaptıktan sonra:
+After logging in with email and password:
 
-- Location (Sistemde kayıtlı lokasyonlardan birini seçer) (default olarak tarayıcı lokasyonunun lat ve long değerlerinden, kullanıcının en yakın olduğu lokasyon seçilecektir)
-- Session Date (Giriş tarihi) (default olarak giriş yapıldığı tarih ve saat)
+- Location (Selects one of the locations registered in the system) (by default, the location closest to the user will be selected based on the browser's lat and long values)
+- Session Date (Login date) (by default, the current date and time)
 
-Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access log'a kaydedilir:
+The following information is automatically recorded in the access log when personnel log into the system:
 
-- User (giriş yapan kullanıcı)
-- Location (giriş yapıldığı lokasyon)
-- Action Date (kullanıcının seçtiği session date)
-- Created At (giriş yapıldığı tarih ve saat - otomatik olarak kaydedilir)
-- User Agent (tarayıcı bilgileri)
-- OS (işletim sistemi bilgileri)
-- Device (cihaz bilgileri)
-- Action Type (login eventi için "Giriş" olarak kaydedilir)
-- IP Address (giriş yapıldığı IP adresi)
-- Kullanıcının şu anki lokasyonu güncellenir
-- Lokasyonun aktif kullanıcı sayısı güncellenir
+- User (the user logging in)
+- Location (the location logged in from)
+- Action Date (the session date selected by the user)
+- Created At (date and time of login - automatically recorded)
+- User Agent (browser information)
+- OS (operating system information)
+- Device (device information)
+- Action Type (recorded as "Check-in" for login event)
+- IP Address (IP address of login)
+- The user's current location is updated
+- The active user count of the location is updated
 
-### Çıkış Logları
+### Check-out Logs
 
-- Kullanıcı "Sign Out" yaptığında bulunduğu lokasyondan çıkış yapmış kabul edilir ve çıkış logu kaydedilir: "X kullanıcısı, Y saatinde Z lokasyonundan çıkış yaptı"
-  - User (çıkış yapan kullanıcı)
-  - Location (en son giriş yapıldığı lokasyon)
-  - Date (çıkış yapıldığı tarih ve saat)
-  - User Agent (tarayıcı bilgileri)
-  - Browser (tarayıcı bilgileri)
-  - OS (işletim sistemi bilgileri)
-  - Device (cihaz bilgileri)
-  - Çıkış yapıldığında kullanıcı durumu "offline" olarak güncellenir
-  - Lokasyonun aktif kullanıcı sayısı güncellenir
+- When a user "Signs Out", they are considered to have left their location, and a checkout log is recorded: "User X checked out from location Z at time Y"
+  - User (the user checking out)
+  - Location (the location last logged in from)
+  - Date (date and time of checkout)
+  - User Agent (browser information)
+  - Browser (browser information)
+  - OS (operating system information)
+  - Device (device information)
+  - When checked out, the user's status is updated to "offline"
+  - The active user count of the location is updated
 
-## Yetkilendirme Özeti
+## Authorization Summary
 
-| Özellik               | Super Admin                           | Manager Admin | Personal |
-| --------------------- | ------------------------------------- | ------------- | -------- |
-| Dashboard             | READ                                  | READ          | N/A      |
-| Kullanıcı Yönetimi    | READ, WRITE, DELETE(with access logs) | READ          | N/A      |
-| Lokasyon Yönetimi     | READ, WRITE, DELETE(with access logs) | READ          | N/A      |
-| Access Logları        | READ                                  | READ          | N/A      |
-| Kendi Geçmişini Görme | READ                                  | READ          | READ     |
+| Feature             | Super Admin                    | Manager Admin | Personal |
+| ------------------- | ------------------------------ | ------------- | -------- |
+| Dashboard           | READ                           | READ          | N/A      |
+| User Management     | READ, WRITE, DELETE(with logs) | READ          | N/A      |
+| Location Management | READ, WRITE, DELETE(with logs) | READ          | N/A      |
+| Access Logs         | READ                           | READ          | N/A      |
+| View Own History    | READ                           | READ          | READ     |
 
-## Teknik Gereksinimler
+## Technical Requirements
 
 - **Frontend**: Next.js, React, Ant Design, TailwindCSS
 - **Backend**: Next.js API Routes
@@ -187,4 +187,4 @@ Personel sisteme giriş yaparken aşağıdaki bilgileri otomatik olarak access l
 - **ORM**: Prisma
 - **Authentication**: NextAuth.js
 - **Deployment**: Vercel / Docker
-- **Harita**: Leaflet.js
+- **Map**: Leaflet.js

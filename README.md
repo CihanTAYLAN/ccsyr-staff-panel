@@ -2,9 +2,9 @@
 
 ![CCSYR Logo](https://ccsyr.org/wp-content/uploads/2024/12/website-logo-thin.png)
 
-## Genel Bakış
+## Overview
 
-CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek için geliştirilmiş merkezi bir yönetim sistemidir. Farklı yetki seviyelerine sahip kullanıcılar (Super Admin, Manager Admin, Personal) bu platform üzerinden personel hareketlerini izleyebilir ve yönetebilir.
+CCSYR Staff Panel is a centralized management system developed to track personnel check-ins/outs and locations. Users with different authorization levels (Super Admin, Manager Admin, Personal) can monitor and manage staff movements through this platform.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.1.0-black)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0+-blue)](https://www.postgresql.org/)
@@ -13,54 +13,54 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
 [![Ant Design](https://img.shields.io/badge/Ant%20Design-5.24.5-0170FE)](https://ant.design/)
 [![Status](https://img.shields.io/badge/Status-Development-orange)]()
 
-## Proje Yapısı
+## Project Structure
 
 ### Dashboard
 
-- Genel istatistikler ve aktif personel sayısı
-- Son 10 giriş-çıkış loglarını timeline olarak görüntüleme
-- Lokasyonlara göre kullanıcı sayısını harita üzerinde ve liste olarak görüntüleme
+- General statistics and active personnel count
+- Timeline view of the last 10 check-in/out logs
+- Map and list view of user distribution by location
 
-### Kullanıcı Yönetimi
+### User Management
 
-- Kullanıcı kayıtlarının oluşturulması ve yönetimi
-- Rol tabanlı erişim kontrolleri (Super Admin, Manager Admin, Personal)
-- Kullanıcı detay ve aktivite görüntüleme
+- Creation and management of user records
+- Role-based access controls (Super Admin, Manager Admin, Personal)
+- User details and activity monitoring
 
-### Lokasyon Yönetimi
+### Location Management
 
-- Lokasyon kayıtlarının oluşturulması ve yönetimi
-- Lokasyon detay görüntüleme ve haritada gösterim
-- Lokasyonda aktif bulunan kullanıcıların takibi
+- Creation and management of location records
+- Location details and map display
+- Tracking of active users at locations
 
-### Access Log Sistemi
+### Access Log System
 
-- Kullanıcı giriş-çıkış kayıtlarının otomatik tutulması
-- Detaylı log bilgileri ve kullanıcı aktivitesi takibi
-- Lokasyon bazlı personel hareketliliği analizi
+- Automatic tracking of user check-ins and check-outs
+- Detailed log information and user activity monitoring
+- Location-based personnel movement analysis
 
-### Profil Yönetimi
+### Profile Management
 
-- Kullanıcı profil bilgilerini görüntüleme ve düzenleme
-- Konum güncelleme ve kişisel log kayıtlarını görüntüleme
-- Şifre değiştirme ve güvenlik yönetimi
+- View and edit user profile information
+- Location updates and personal log record viewing
+- Password changes and security management
 
-### Kimlik Doğrulama
+### Authentication
 
-- İki aşamalı giriş: Email/şifre doğrulaması + lokasyon/tarih seçimi
-- Şifre sıfırlama ve güvenli oturum yönetimi
+- Two-step login: Email/password verification + location/date selection
+- Password reset and secure session management
 
-## Yetkilendirme Özeti
+## Authorization Summary
 
-| Özellik               | Super Admin         | Manager Admin | Personal |
-| --------------------- | ------------------- | ------------- | -------- |
-| Dashboard             | READ                | READ          | N/A      |
-| Kullanıcı Yönetimi    | READ, WRITE, DELETE | READ          | N/A      |
-| Lokasyon Yönetimi     | READ, WRITE, DELETE | READ          | N/A      |
-| Access Logları        | READ                | READ          | N/A      |
-| Kendi Geçmişini Görme | READ                | READ          | READ     |
+| Feature             | Super Admin         | Manager Admin | Personal |
+| ------------------- | ------------------- | ------------- | -------- |
+| Dashboard           | READ                | READ          | N/A      |
+| User Management     | READ, WRITE, DELETE | READ          | N/A      |
+| Location Management | READ, WRITE, DELETE | READ          | N/A      |
+| Access Logs         | READ                | READ          | N/A      |
+| View Own History    | READ                | READ          | READ     |
 
-## Teknoloji Stack
+## Technology Stack
 
 - **Frontend**: Next.js, React, Ant Design, TailwindCSS
 - **Backend**: Next.js API Routes
@@ -69,32 +69,32 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
 - **Authentication**: NextAuth.js
 - **Mail**: Nodemailer
 - **Deployment**: Vercel / Docker
-- **Harita**: Leaflet.js
+- **Map**: Leaflet.js
 
-## Kurulum
+## Installation
 
-### Gereksinimler
+### Requirements
 
 - Node.js (v16+)
 - PostgreSQL
 - Yarn
 
-### Kurulum Adımları
+### Installation Steps
 
-1. Repo klonlama:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/CihanTAYLAN/ccsyr-staff-panel.git
    cd ccsyr-staff-panel
    ```
 
-2. Bağımlılıkları yükleme:
+2. Install dependencies:
 
    ```bash
    yarn install
    ```
 
-3. `.env` dosyasını yapılandırma:
+3. Configure the `.env` file:
 
    ```
    NODE_ENV=development
@@ -111,22 +111,22 @@ CCSYR Staff Panel, personel giriş-çıkış ve lokasyon takibini yönetmek içi
    MAIL_FROM_ADDRESS=no-reply@ccsyr.org
    ```
 
-4. Veritabanı migrasyonlarını çalıştırma:
+4. Run database migrations:
 
    ```bash
    yarn prisma migrate dev
    ```
 
-5. Geliştirme sunucusunu başlatma:
+5. Start the development server:
    ```bash
    yarn dev
    ```
 
-## İletişim
+## Contact
 
-Proje Yöneticisi: [@Murat Coskun](https://www.linkedin.com/in/murat-coskun-76a06b227/) - muraatcoskun@gmail.com
+Project Manager: [@Murat Coskun](https://www.linkedin.com/in/murat-coskun-76a06b227/) - muraatcoskun@gmail.com
 
-Proje Linki: [https://github.com/CihanTAYLAN/ccsyr-staff-panel](https://github.com/CihanTAYLAN/ccsyr-staff-panel)
+Project Link: [https://github.com/CihanTAYLAN/ccsyr-staff-panel](https://github.com/CihanTAYLAN/ccsyr-staff-panel)
 
 ---
 
