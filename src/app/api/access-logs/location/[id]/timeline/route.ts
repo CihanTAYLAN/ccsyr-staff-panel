@@ -46,12 +46,26 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 					locationStaticAddress: true,
 					locationStaticLat: true,
 					locationStaticLong: true,
+					userStaticName: true,
+					userStaticEmail: true,
+					userStaticLastLoginDate: true,
+					userStaticLastLoginLocationName: true,
+					userStaticLastLoginLocationAddress: true,
+					userStaticLastLoginLocationLat: true,
+					userStaticLastLoginLocationLong: true,
 					created_at: true,
 					user: {
 						select: {
 							id: true,
 							name: true,
 							email: true,
+						},
+					},
+					location: {
+						select: {
+							id: true,
+							name: true,
+							address: true,
 						},
 					},
 				},

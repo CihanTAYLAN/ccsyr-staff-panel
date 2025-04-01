@@ -173,8 +173,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 		const userId = params.id;
 
 		// Kullanıcının erişim kayıtlarını sil (Foreign key constraint)
-		await prisma.accessLog.deleteMany({
+		await prisma.accessLog.updateMany({
 			where: { userId },
+			data: {
+				locationId: null,
+			},
 		});
 
 		// Kullanıcıyı sil

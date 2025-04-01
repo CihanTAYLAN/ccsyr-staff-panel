@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/dashboard/timeline - Dashboard için zaman çizelgesi olayları
 export async function GET(request: NextRequest) {
 	try {
-		// Kullanıcı oturumunu kontrol et
-		const session = await getServerSession(authOptions);
-		if (!session || !session.user) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
 		// URL parametrelerini al
 		const searchParams = request.nextUrl.searchParams;
 		const page = parseInt(searchParams.get("page") || "1");
@@ -81,6 +73,13 @@ export async function GET(request: NextRequest) {
 				locationStaticName: item.locationStaticName,
 				locationStaticAddress: item.locationStaticAddress,
 				user: item.user,
+				locationStaticLatitude: item.locationStaticLat,
+				locationStaticLongitude: item.locationStaticLong,
+				userStaticName: item.userStaticName,
+				userStaticEmail: item.userStaticEmail,
+				userStaticLastLoginDate: item.userStaticLastLoginDate,
+				userStaticLastLoginLocationName: item.userStaticLastLoginLocationName,
+				userStaticLastLoginLocationAddress: item.userStaticLastLoginLocationAddress,
 				location: item.location,
 			})),
 			total,

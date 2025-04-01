@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { extractRequestParams, getPaginationValues, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/locations - Tüm lokasyonları getir
 export async function GET(request: NextRequest) {
 	try {
-		// Oturum kontrolü
-		const session = await getServerSession(authOptions);
-		if (!session || !session.user) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
 		// URL parametrelerini al
 		const searchParams = request.nextUrl.searchParams;
 		const { page, pageSize, search, sortField, sortOrder } = extractRequestParams(searchParams);
@@ -67,12 +59,6 @@ export async function GET(request: NextRequest) {
 // POST /api/locations - Yeni lokasyon ekle (sadece admin kullanıcılar için)
 export async function POST(request: NextRequest) {
 	try {
-		// Oturum kontrolü
-		const session = await getServerSession(authOptions);
-		if (!session || !session.user) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
 		const data = await request.json();
 		const { name, address, latitude, longitude } = data;
 

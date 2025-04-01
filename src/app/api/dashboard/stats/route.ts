@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EUserAccountStatus, EActionType, EUserStatus } from "@prisma/client";
 
 // GET /api/dashboard/stats - Dashboard istatistikleri
 export async function GET(req: NextRequest) {
 	try {
-		// Kullanıcı oturumunu kontrol et
-		const session = await getServerSession(authOptions);
-		if (!session || !session.user) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
 		// Toplam kullanıcı sayısı
 		const totalUsers = await prisma.user.count();
 

@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
 		let where: any = {};
 
 		if (userId) {
-			where.userId = userId;
+			where.userId = userId || undefined;
 		}
 
 		if (locationId) {
-			where.locationId = locationId;
+			where.locationId = locationId || undefined;
 		}
 
 		if (actionType) {

@@ -29,6 +29,13 @@ export interface TimelineItem {
     locationStaticAddress?: string;
     locationStaticLatitude?: number;
     locationStaticLongitude?: number;
+    userStaticName?: string;
+    userStaticEmail?: string;
+    userStaticLastLoginDate?: string;
+    userStaticLastLoginLocationName?: string;
+    userStaticLastLoginLocationAddress?: string;
+    userStaticLastLoginLocationLatitude?: number;
+    userStaticLastLoginLocationLongitude?: number;
     created_at?: string; // log recored time
     user?: {
         id: string;
@@ -285,9 +292,9 @@ const AccessLogTimeline: React.FC<Omit<AccessLogTimelineProps, 'locations' | 'us
                                     </div>
 
                                     <div className='flex flex-col gap-0'>
-                                        {item.user && (
+                                        {item?.userStaticName && (
                                             <div>
-                                                <UserOutlined /> <strong>{item.user.name}</strong> ({item.user.email})
+                                                <UserOutlined /> <strong>{item?.userStaticName}</strong> ({item?.userStaticEmail})
                                             </div>
                                         )}
                                         {item.locationStaticName && (

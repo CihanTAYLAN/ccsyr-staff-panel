@@ -85,8 +85,8 @@ model AccessLog {
   locationStaticLat     Float?
   locationStaticLong    Float?
 
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
   location   Location? @relation(fields: [locationId], references: [id])
   locationId String?
 

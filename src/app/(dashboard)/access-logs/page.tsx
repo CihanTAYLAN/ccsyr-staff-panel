@@ -37,6 +37,13 @@ type AccessLogData = {
     locationStaticAddress: string | null;
     locationStaticLat: number | null;
     locationStaticLong: number | null;
+    userStaticName: string | null;
+    userStaticEmail: string | null;
+    userStaticLastLoginDate: string | null;
+    userStaticLastLoginLocationName: string | null;
+    userStaticLastLoginLocationAddress: string | null;
+    userStaticLastLoginLocationLat: number | null;
+    userStaticLastLoginLocationLong: number | null;
     created_at: string;
     updated_at: string;
     user: {
@@ -220,11 +227,17 @@ export default function AccessLogsPage() {
             render: (_: any, record: AccessLogData) => (
                 <Space>
                     <Avatar size={32} style={{ backgroundColor: 'var(--theme)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)' }}>
-                        {record.user.name?.charAt(0).toUpperCase()}
+                        {record?.user?.name?.charAt(0).toUpperCase() || record?.userStaticName?.charAt(0).toUpperCase()}
                     </Avatar>
-                    <Link href={`/users/${record.user.id}`} className="text-primary hover:text-primary-dark">
-                        {record.user.name || record.user.email}
-                    </Link>
+                    {record?.user?.id ? (
+                        <Link href={`/users/${record?.user?.id}`} className="text-primary hover:text-primary-dark">
+                            {record?.user?.name}
+                        </Link>
+                    ) : (
+                        <Tooltip title='Delete User'>
+                            {record?.userStaticName}
+                        </Tooltip>
+                    )}
                 </Space>
             ),
             sorter: true,
@@ -236,9 +249,15 @@ export default function AccessLogsPage() {
             render: (_: any, record: AccessLogData) => (
                 <Space>
                     <EnvironmentOutlined />
-                    <Link href={`/locations/${record.location.id}`} className="text-primary hover:text-primary-dark">
-                        {record.location.name}
-                    </Link>
+                    {record?.location?.id ? (
+                        <Link href={`/locations/${record?.location?.id}`} className="text-primary hover:text-primary-dark">
+                            {record?.location?.name}
+                        </Link>
+                    ) : (
+                        <Tooltip title='Deleted Location'>
+                            {record?.locationStaticName}
+                        </Tooltip>
+                    )}
                 </Space>
             ),
             sorter: true,
