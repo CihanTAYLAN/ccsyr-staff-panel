@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button, Card, Form, Image, Input, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined, BulbOutlined } from '@ant-design/icons';
 import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
 
@@ -13,6 +13,7 @@ const { Title, Text } = Typography;
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
     const { status } = useSession();
@@ -22,29 +23,32 @@ export default function LoginPage() {
     }, []);
 
     useEffect(() => {
-        // Kullanıcı zaten giriş yapmışsa doğrudan dashboard'a yönlendir
         if (status === 'authenticated') {
-            router.push('/dashboard');
+            const callbackUrl = searchParams.get('callbackUrl');
+            router.push(callbackUrl || '/dashboard');
+            router.refresh();
         }
-    }, [status, router]);
+    }, [status, router, searchParams]);
 
     const [form] = Form.useForm();
 
     const handleLoginSubmit = async (values: { email: string; password: string }) => {
         setLoading(true);
         try {
-            // Auth işlemi
+            const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
             const result = await signIn('credentials', {
                 email: values.email,
                 password: values.password,
                 redirect: false,
+                callbackUrl,
             });
 
             if (result?.error) {
-                message.error('Invalid email or password');
+                message.error(result.error);
             } else {
                 message.success('Login successful');
-                router.push('/dashboard');
+                router.push(callbackUrl);
+                router.refresh();
             }
         } catch (error: any) {
             message.error(error.message || 'An error occurred during login');
@@ -54,7 +58,6 @@ export default function LoginPage() {
         }
     };
 
-    // İlk render'da içeriği sakla
     if (!isMounted) {
         return null;
     }

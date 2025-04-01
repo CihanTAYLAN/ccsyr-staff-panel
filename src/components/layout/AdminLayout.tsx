@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
 import dayjs from 'dayjs';
+import { EUserType } from '@prisma/client';
 
 const { Header, Sider, Content } = Layout;
 const { Option } = Select;
@@ -288,7 +289,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         },
     ];
 
-    const menuItems = [
+    const menuItems = session?.user?.userType === EUserType.PERSONAL ? [
+        {
+            key: 'profile',
+            icon: <UserOutlined />,
+            label: <Link href="/profile">Profile</Link>
+        }
+    ] : [
         {
             key: 'dashboard',
             icon: <DashboardOutlined />,

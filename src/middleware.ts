@@ -88,13 +88,14 @@ const apiRulesOfAccess = [
 
 export async function middleware(request: NextRequest) {
 	const path = request.nextUrl.pathname;
-	// console.log(request.nextUrl);
-
-	// Define public paths that don't require authentication
-	const isPublicPath = publicPaths.includes(path);
 
 	// Allow access to public files without authentication
 	if (path.startsWith("/_next/") || publicFiles.includes(path)) {
+		return NextResponse.next();
+	}
+
+	// Allow access to auth API routes
+	if (path.startsWith("/api/auth")) {
 		return NextResponse.next();
 	}
 
@@ -104,9 +105,14 @@ export async function middleware(request: NextRequest) {
 		secret: process.env.NEXTAUTH_SECRET,
 	});
 
+	// Define public paths that don't require authentication
+	const isPublicPath = publicPaths.includes(path);
+
 	// Redirect logic
 	if (!token && !isPublicPath) {
-		return NextResponse.redirect(new URL("/auth/login", request.url));
+		const url = new URL("/auth/login", request.url);
+		url.searchParams.set("callbackUrl", encodeURI(path));
+		return NextResponse.redirect(url);
 	}
 
 	if (token && isPublicPath) {
@@ -114,27 +120,28 @@ export async function middleware(request: NextRequest) {
 	}
 
 	// API Authorization
-	const userRole = token?.userType as EUserType;
+	if (path.startsWith("/api/")) {
+		const userRole = token?.userType as EUserType;
 
-	// Find matching rule
-	const rule = apiRulesOfAccess.find((r) => path.startsWith(r.pathStartsWith));
-	if (rule) {
-		// Find matching method
-		const methodRule = rule.methods.find((m) => m.method === request.method);
-		if (!methodRule) {
-			return new NextResponse(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } });
-		}
+		// Find matching rule
+		const rule = apiRulesOfAccess.find((r) => path.startsWith(r.pathStartsWith));
+		if (rule) {
+			// Find matching method
+			const methodRule = rule.methods.find((m) => m.method === request.method);
+			if (!methodRule) {
+				return new NextResponse(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } });
+			}
 
-		// Check role authorization
-		if (!methodRule.roles.includes(userRole)) {
-			return new NextResponse(JSON.stringify({ error: "You are not authorized to access this resource" }), { status: 403, headers: { "Content-Type": "application/json" } });
+			// Check role authorization
+			if (!methodRule.roles.includes(userRole)) {
+				return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers: { "Content-Type": "application/json" } });
+			}
 		}
 	}
 
 	return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
 	matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

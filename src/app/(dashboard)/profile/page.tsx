@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Avatar, Card, Button, Form, Input, Tabs, Descriptions, Badge, Timeline, Space, Divider, Tag, Alert, Modal } from 'antd';
+import { Avatar, Card, Button, Form, Input, Tabs, Descriptions, Badge, Timeline, Space, Divider, Tag, Alert, Modal, Breadcrumb } from 'antd';
 import { UserOutlined, LockOutlined, SaveOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { App } from 'antd';
+import Link from 'next/link';
 
 // Zaman formatı için
 dayjs.extend(relativeTime);
@@ -317,9 +318,13 @@ const ProfilePage = () => {
     ];
 
     return (
-        <div className="profile-page">
-            <h1>My Profile</h1>
-
+        <>
+            <div className="flex justify-between items-center mb-6 h-6">
+                <Breadcrumb items={[
+                    { title: <Link href="/dashboard">Dashboard</Link> },
+                    { title: 'Profile' },
+                ]} />
+            </div>
             <Card className="profile-card" loading={loading}>
                 <div className="profile-header">
                     <Avatar
@@ -422,7 +427,7 @@ const ProfilePage = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-        </div>
+        </>
     );
 };
 

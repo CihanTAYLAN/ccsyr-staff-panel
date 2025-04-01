@@ -44,6 +44,7 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthOptions = {
+	debug: process.env.NODE_ENV === "development",
 	adapter: PrismaAdapter(prisma),
 	providers: [
 		CredentialsProvider({
@@ -54,7 +55,7 @@ export const authOptions: NextAuthOptions = {
 			},
 			async authorize(credentials) {
 				if (!credentials?.email || !credentials?.password) {
-					return null;
+					throw new Error("Email and password are required");
 				}
 
 				const user = await prisma.user.findUnique({
@@ -67,7 +68,7 @@ export const authOptions: NextAuthOptions = {
 				});
 
 				if (!user) {
-					return null;
+					throw new Error("Invalid email or password");
 				}
 
 				if (user.userAccountStatus === EUserAccountStatus.INACTIVE) {
@@ -77,7 +78,7 @@ export const authOptions: NextAuthOptions = {
 				const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
 				if (!isPasswordValid) {
-					return null;
+					throw new Error("Invalid email or password");
 				}
 
 				return {
@@ -108,16 +109,14 @@ export const authOptions: NextAuthOptions = {
 		signOut: "/auth/signout",
 	},
 	callbacks: {
-		jwt: async ({ token, user, trigger, session }) => {
+		async jwt({ token, user, trigger, session }) {
 			if (user) {
 				token.id = user.id;
 				token.userType = user.userType;
 				token.currentLocation = user.currentLocation;
 			}
 
-			// update() çağrıldığında yeni session verilerini al
 			if (trigger === "update" && session) {
-				// Session nesnesinden currentLocation bilgisini al
 				if (session.currentLocation) {
 					token.currentLocation = session.currentLocation;
 				}
@@ -125,7 +124,7 @@ export const authOptions: NextAuthOptions = {
 
 			return token;
 		},
-		session: async ({ session, token }) => {
+		async session({ session, token }) {
 			if (token && session.user) {
 				session.user.id = token.id;
 				session.user.userType = token.userType;

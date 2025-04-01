@@ -1,4 +1,5 @@
 'use client';
+
 import DashboardTimeline from '@/components/dashboard/DashboardTimeline';
 import { Breadcrumb, Space } from 'antd';
 import DashboardStats from '../../../components/dashboard/DashboardStats';
@@ -34,14 +35,12 @@ export interface LocationStat {
     }[];
 }
 
-
 export default function DashboardPage() {
     const [stats, setStats] = useState<StatsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Sayfa başlığını dinamik olarak ayarla
         document.title = 'Dashboard | CCSYR Staff Panel';
     }, []);
 
@@ -57,7 +56,6 @@ export default function DashboardPage() {
                 }
 
                 const data = await response.json();
-
                 setStats(data);
                 setError(null);
             } catch (err) {
