@@ -84,7 +84,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session || session.user.userType !== EUserType.SUPER_ADMIN) {
+		if (!session) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 

@@ -62,9 +62,9 @@ export default function EditLocationPage({ params }: { params: { id: string } })
                 latitude: data.location.latitude,
                 longitude: data.location.longitude,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching location details:', error);
-            message.error('Failed to load location details');
+            message.error(error.message || 'Failed to load location details');
             router.push('/locations');
         } finally {
             setLoading(false);
@@ -115,7 +115,7 @@ export default function EditLocationPage({ params }: { params: { id: string } })
                         address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
                     });
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching address:', error);
                 // Hata durumunda koordinatları kullan
                 form.setFieldsValue({

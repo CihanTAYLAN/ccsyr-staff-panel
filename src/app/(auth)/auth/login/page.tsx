@@ -46,8 +46,8 @@ export default function LoginPage() {
                 message.success('Login successful');
                 router.push('/dashboard');
             }
-        } catch (error) {
-            message.error('An error occurred during login');
+        } catch (error: any) {
+            message.error(error.message || 'An error occurred during login');
             console.error('Login error:', error);
         } finally {
             setLoading(false);

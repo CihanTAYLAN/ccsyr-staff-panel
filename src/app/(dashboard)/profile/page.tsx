@@ -81,9 +81,9 @@ const ProfilePage = () => {
                     setShowPasswordModal(true);
                 }
 
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-                setError('Failed to load profile data');
+            } catch (error: any) {
+                console.error("Error fetching profile:", error);
+                setError(error.message || "Failed to load profile data");
             } finally {
                 setLoading(false);
             }
@@ -104,7 +104,7 @@ const ProfilePage = () => {
 
                 const data = await response.json();
                 setLogs(data.items);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching logs:', error);
             }
         };
@@ -133,9 +133,9 @@ const ProfilePage = () => {
             const data = await response.json();
             setProfile(prev => prev ? { ...prev, ...data } : null);
             message.success('Profile updated successfully');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating profile:', error);
-            message.error('Failed to update profile');
+            message.error(error.message || 'Failed to update profile');
         } finally {
             setUpdating(false);
         }

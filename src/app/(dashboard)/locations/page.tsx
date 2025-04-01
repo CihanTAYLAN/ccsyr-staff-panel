@@ -106,9 +106,9 @@ export default function LocationsPage() {
             const data = await response.json();
             setLocations(data.locations);
             setPagination(data.pagination || pagination);
-        } catch (error) {
-            console.error('Error fetching locations:', error);
-            message.error('Failed to load locations');
+        } catch (error: any) {
+            console.error("Error fetching locations:", error);
+            message.error(error.message || "Failed to load locations");
         } finally {
             setLoading(false);
         }
@@ -196,7 +196,7 @@ export default function LocationsPage() {
                         address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
                     });
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching address:', error);
                 // Hata durumunda koordinatları kullan
                 form.setFieldsValue({

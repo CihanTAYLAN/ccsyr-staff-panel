@@ -63,9 +63,9 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
 
             const data = await response.json();
             setUser(data.user);
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-            message.error('Failed to load user details');
+        } catch (error: any) {
+            console.error("Error fetching user details:", error);
+            message.error(error.message || "Failed to load user details");
         } finally {
             setLoading(false);
         }
@@ -92,9 +92,9 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
                 const data = await response.json();
                 setTimeline(data.items);
                 setTimelineTotal(data.total);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching timeline:', error);
-                message.error('Failed to load timeline');
+                message.error(error.message || 'Failed to load timeline');
             } finally {
                 setLoadingTimeline(false);
             }
@@ -119,9 +119,9 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
 
             message.success('User deleted successfully');
             router.push('/users');
-        } catch (error) {
-            message.error('Failed to delete user');
+        } catch (error: any) {
             console.error('Error deleting user:', error);
+            message.error(error.message || 'Failed to delete user');
         }
     };
 

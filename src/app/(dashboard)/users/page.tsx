@@ -126,15 +126,16 @@ export default function UsersPage() {
             const response = await fetch(`/api/users?${params.toString()}`);
 
             if (!response.ok) {
-                throw new Error('Failed to fetch users');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch users');
             }
 
             const data = await response.json();
             setUsers(data.users);
             setPagination(data.pagination);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-            message.error('Failed to load users');
+        } catch (error: any) {
+            console.error("Error fetching users:", error);
+            message.error(error.message || "Failed to load users");
         } finally {
             setLoading(false);
         }
@@ -185,8 +186,8 @@ export default function UsersPage() {
 
             message.success('User deleted successfully');
             fetchUsers(); // Listeyi yenile
-        } catch (error) {
-            message.error('Failed to delete user');
+        } catch (error: any) {
+            message.error(error.message || 'Failed to delete user');
             console.error('Error deleting user:', error);
         }
     };

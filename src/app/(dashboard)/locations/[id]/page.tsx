@@ -55,9 +55,9 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
             const data = await response.json();
             setLocation(data.location);
             setActiveUsers(data.location.activeUsers || []);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching location details:', error);
-            message.error('Failed to load location details');
+            message.error(error.message || 'Failed to load location details');
         } finally {
             setLoading(false);
         }
@@ -88,9 +88,9 @@ export default function LocationDetailPage({ params }: { params: { id: string } 
                 const data = await response.json();
                 setTimeline(data.items);
                 setTimelineTotal(data.total);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching timeline:', error);
-                message.error('Failed to load timeline');
+                message.error(error.message || 'Failed to load timeline');
             } finally {
                 setLoadingTimeline(false);
             }

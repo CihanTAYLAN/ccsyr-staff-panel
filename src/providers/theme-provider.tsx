@@ -84,7 +84,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
             setMounted(true);
         } catch (error) {
-            console.warn('Tema başlatılırken bir hata oluştu:', error);
+            console.warn('Theme provider error:', error);
             setMounted(true);
         }
     }, []);
@@ -100,7 +100,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
             document.documentElement.classList.toggle('dark', newTheme === 'dark');
             document.documentElement.setAttribute('data-theme', newTheme);
         } catch (error) {
-            console.warn('Tema değiştirilirken bir hata oluştu:', error);
+            console.warn('Theme toggle error:', error);
         }
     };
 

@@ -70,9 +70,9 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                 if (!response.ok) throw new Error('Failed to fetch log detail');
                 const data = await response.json();
                 setLogDetail(data);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching log detail:', error);
-                message.error('Failed to load log details');
+                message.error(error.message || 'Failed to load log details');
             } finally {
                 setLoading(false);
             }
@@ -104,9 +104,9 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                 const data = await response.json();
                 setUserTimeline(data.items);
                 setUserTimelineTotal(data.total);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error fetching user timeline:', error);
-                message.error('Failed to load user timeline');
+                message.error(error.message || 'Failed to load user timeline');
             } finally {
                 setLoadingUserTimeline(false);
             }
@@ -138,9 +138,9 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                 const data = await response.json();
                 setLocationTimeline(data.items);
                 setLocationTimelineTotal(data.total);
-            } catch (error) {
-                console.error('Error fetching location timeline:', error);
-                message.error('Failed to load location timeline');
+            } catch (error: any) {
+                console.error("Error fetching location timeline:", error);
+                message.error(error.message || "Failed to load location timeline");
             } finally {
                 setLoadingLocationTimeline(false);
             }

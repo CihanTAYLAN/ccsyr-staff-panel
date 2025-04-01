@@ -47,10 +47,10 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
                 forcePasswordChange: data.user.forcePasswordChange || false,
                 password: '', // Şifreyi güvenlik nedeniyle boş bırak
             });
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-            message.error('Failed to load user details');
-            router.push('/users');
+        } catch (error: any) {
+            console.error("Error fetching user details:", error);
+            message.error(error.message || "Failed to load user details");
+            router.push("/users");
         } finally {
             setLoading(false);
         }

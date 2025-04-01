@@ -126,9 +126,9 @@ export default function AccessLogsPage() {
             const data = await response.json();
             setLogs(data.logs);
             setPagination(data.pagination);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching access logs:', error);
-            message.error('Failed to load access logs');
+            message.error(error.message || 'Failed to load access logs');
         } finally {
             setLoading(false);
         }
