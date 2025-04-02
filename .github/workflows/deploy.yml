@@ -24,7 +24,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_IMAGE_NAME}}:${{ secrets.PROJECT_KEY }}
+          tags: ${{ secrets.DOCKER_REPO }}:${{ secrets.PROJECT_KEY }}
 
       - name: Sleep for 10 seconds
         run: sleep 10s
@@ -38,4 +38,4 @@ jobs:
           password: ${{ secrets.PORTAINER_PASSWORD }}
           stack-name: ${{ secrets.PROJECT_KEY }}-stack
           stack-definition: ".docker/stack-definition.yml"
-          image: ${{ secrets.DOCKER_IMAGE_NAME}}:${{ secrets.PROJECT_KEY }}
+          image: ${{ secrets.DOCKER_REPO }}:${{ secrets.PROJECT_KEY }}
