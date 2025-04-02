@@ -26,6 +26,7 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 COPY .docker/.docker.env ./.env
 
+RUN yarn db:generate
 RUN yarn build
 
 FROM node:22-bullseye AS runner
