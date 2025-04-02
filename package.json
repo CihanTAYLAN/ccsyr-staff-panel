@@ -3,17 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"yarn first-check\" \"next dev\"",
     "build": "next build",
-    "start": "next start",
+    "start": "concurrently \"yarn first-check\" \"next start\"",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "prisma db seed",
-    "db:view": "prisma studio"
+    "db:view": "prisma studio",
+    "first-check": "tsx src/firstCheck.ts"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.23.0",
@@ -53,7 +54,7 @@
     "concurrently": "^9.1.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
 }
