@@ -26,6 +26,8 @@ ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 COPY .docker/.docker.env ./.env
 
+COPY prisma ./prisma
+
 RUN yarn prisma generate
 RUN yarn build
 
@@ -40,7 +42,6 @@ COPY --from=builder /usr/builder/public ./public
 COPY --from=builder /usr/builder/tsconfig.json ./tsconfig.json
 COPY --from=builder /usr/builder/tailwind.config.ts ./tailwind.config.ts
 COPY --from=builder /usr/builder/postcss.config.js ./postcss.config.js
-
 
 COPY .docker/docker-runtime.env.sh ./docker-runtime.env.sh
 RUN chmod +x docker-runtime.env.sh
