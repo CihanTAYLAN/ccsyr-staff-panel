@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar, Popconfirm } from 'antd';
-import { UserAddOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Card, Tag, Modal, Form, message, Tooltip, Breadcrumb, Input, Select, Space, Avatar, Popconfirm, Upload } from 'antd';
+import { UserAddOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ImportOutlined, DownloadOutlined } from '@ant-design/icons';
 import { EUserStatus, EUserType, EUserAccountStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ import {
     FilterConfig,
     SortingState
 } from '@/components/shared/DataTable';
+import * as XLSX from 'xlsx';
 
 
 // Kullanıcı tipi bilgileri
@@ -78,6 +79,8 @@ export default function UsersPage() {
     const [addUserModalVisible, setAddUserModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [importModalVisible, setImportModalVisible] = useState(false);
+    const [importLoading, setImportLoading] = useState(false);
 
     // Tablo filtre konfigürasyonu
     const tableFilters: Record<string, FilterConfig> = {
@@ -374,6 +377,79 @@ export default function UsersPage() {
         setPagination(prev => ({ ...prev, page: 1 }));
     };
 
+    // Excel template indirme fonksiyonu
+    const handleDownloadTemplate = () => {
+        const template = [
+            ['name', 'email', 'password', 'userType'],
+            ['John Doe', 'john@example.com', 'password123', 'SUPER_ADMIN'],
+            ['Jane Doe', 'jane@example.com', 'password123', 'MANAGER_ADMIN'],
+            ['John Smith', 'johnsmith@example.com', 'password123', 'PERSONAL'],
+        ];
+
+        const ws = XLSX.utils.aoa_to_sheet(template);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Template');
+        XLSX.writeFile(wb, 'user_import_template.xlsx');
+    };
+
+    // Excel dosyasını işleme fonksiyonu
+    const handleImportExcel = async (file: File) => {
+        setImportLoading(true);
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data);
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            // Veri doğrulama
+            const errors = [];
+            const validUsers = [];
+
+            for (const row of jsonData) {
+                const user = row as any;
+                if (!user.name || !user.email || !user.password || !user.userType) {
+                    errors.push(`Missing required fields for user: ${user.email || 'Unknown'}`);
+                    continue;
+                }
+
+                if (!Object.values(EUserType).includes(user.userType)) {
+                    errors.push(`Invalid user type for user: ${user.email} userType must be one of the following: (SUPER_ADMIN, MANAGER_ADMIN, PERSONAL)`);
+                    continue;
+                }
+
+                validUsers.push(user);
+            }
+
+            if (errors.length > 0) {
+                throw new Error(`Validation errors:\n${errors.join('\n')}`);
+            }
+
+            // Email kontrolü ve bulk insert
+            const response = await fetch('/api/users/bulk-import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ users: validUsers }),
+            }).catch(err => {
+                console.log(err.response.json());
+
+                throw new Error(err.message);
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error);
+            }
+
+            message.success('Users imported successfully');
+            setImportModalVisible(false);
+            fetchUsers();
+        } catch (error: any) {
+            message.error(error.message || 'Failed to import users');
+        } finally {
+            setImportLoading(false);
+        }
+    };
+
     return (
         <>
             <div className="flex justify-between items-center mb-6 h-6">
@@ -383,13 +459,21 @@ export default function UsersPage() {
                         { title: 'Users' },
                     ]}
                 />
-                <Button
-                    type="primary"
-                    icon={<UserAddOutlined />}
-                    onClick={() => setAddUserModalVisible(true)}
-                >
-                    Add User
-                </Button>
+                <Space>
+                    <Button
+                        icon={<ImportOutlined />}
+                        onClick={() => setImportModalVisible(true)}
+                    >
+                        Import from Excel
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={<UserAddOutlined />}
+                        onClick={() => setAddUserModalVisible(true)}
+                    >
+                        Add User
+                    </Button>
+                </Space>
             </div>
 
             <Card title="Users" className="shadow-theme border-theme" styles={{ body: { padding: 0 } }}>
@@ -463,6 +547,48 @@ export default function UsersPage() {
                         </div>
                     </Form.Item>
                 </Form>
+            </Modal>
+
+            <Modal
+                title="Import Users from Excel"
+                open={importModalVisible}
+                onCancel={() => setImportModalVisible(false)}
+                footer={null}
+            >
+                <div className="space-y-4">
+                    <div>
+                        <Button
+                            icon={<DownloadOutlined />}
+                            type="link"
+                            onClick={handleDownloadTemplate}
+                        >
+                            Download Template
+                        </Button>
+                    </div>
+
+
+                    <Upload.Dragger
+                        name="file"
+                        accept=".xlsx,.xls"
+                        showUploadList={false}
+                        beforeUpload={(file) => {
+                            handleImportExcel(file);
+                            return false;
+                        }}
+                        disabled={importLoading}
+                    >
+                        <p className="ant-upload-drag-icon">
+                            <ImportOutlined />
+                        </p>
+                        <p className="ant-upload-text">Click or drag Excel file to upload</p>
+                    </Upload.Dragger>
+
+                    {importLoading && (
+                        <div className="text-center mt-4">
+                            <div>Processing...</div>
+                        </div>
+                    )}
+                </div>
             </Modal>
         </>
     );
