@@ -7,15 +7,19 @@ escape_regex() {
     echo "$regex" | sed -e 's/[]\/$*.^|[]/\\&/g'
 }
 
-# Read variables from .docker/.docker.env file
-if [ -f ".docker/.docker.env" ]; then
-    # Extract all variable names from .docker/.docker.env file
-    declare -a variables=($(grep -v '^#' .docker/.docker.env | cut -d= -f1 | grep -v '^$'))
-    echo "Found ${#variables[@]} environment variables in .docker/.docker.env"
-else
-    echo "Error: .docker/.docker.env file not found"
-    exit 1
-fi
+declare -a variables=(
+    NODE_ENV
+    DATABASE_URL
+    NEXTAUTH_URL
+    NEXTAUTH_SECRET
+    MAIL_HOST
+    MAIL_PORT
+    MAIL_USER
+    MAIL_PASSWORD
+    MAIL_SECURE
+    MAIL_FROM_NAME
+    MAIL_FROM_ADDRESS
+)
 
 for variable in "${variables[@]}"
 do
