@@ -474,7 +474,7 @@ export default function LocationsPage() {
                             </div>
                             <div style={{ height: 400, width: '100%', position: 'relative' }}>
                                 <DynamicMap
-                                    center={defaultPosition}
+                                    center={markerPosition ? [markerPosition[0], markerPosition[1]] : defaultPosition}
                                     markers={markerPosition ? [{ lat: markerPosition[0], lng: markerPosition[1] }] : []}
                                     onMapClick={handleMapClick}
                                     height="400px"

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType } from "@prisma/client";
 
 // GET /api/users/[id] - Kullanıcı detaylarını getir
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -166,7 +165,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session || session.user.userType !== EUserType.SUPER_ADMIN) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 

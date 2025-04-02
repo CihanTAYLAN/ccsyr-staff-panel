@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { EUserType, EUserAccountStatus } from "@prisma/client";
+import { EUserAccountStatus } from "@prisma/client";
 import { extractRequestParams, getPaginationValues, calculatePaginationMeta, parseSortingToQuery, createSearchQuery } from "@/lib/utils/queryUtils";
 
 // GET /api/users - Kullanıcıları listele (pagination, filtreleme ve arama desteği ile)
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
-		if (!session || session.user.userType !== EUserType.SUPER_ADMIN) {
+		if (!session || !session.user) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 

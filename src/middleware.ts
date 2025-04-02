@@ -134,7 +134,7 @@ export async function middleware(request: NextRequest) {
 
 			// Check role authorization
 			if (!methodRule.roles.includes(userRole)) {
-				return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers: { "Content-Type": "application/json" } });
+				return new NextResponse(JSON.stringify({ error: "You are not authorized to access this resource" }), { status: 403, headers: { "Content-Type": "application/json" } });
 			}
 		}
 	}

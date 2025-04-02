@@ -7,6 +7,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/providers/theme-provider';
+import { EUserType } from '@prisma/client';
 
 const { Title, Text } = Typography;
 
@@ -16,7 +17,7 @@ export default function LoginPage() {
     const searchParams = useSearchParams();
     const { theme, toggleTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
-    const { status } = useSession();
+    const { status, data: session } = useSession();
 
     useEffect(() => {
         setIsMounted(true);
@@ -25,7 +26,11 @@ export default function LoginPage() {
     useEffect(() => {
         if (status === 'authenticated') {
             const callbackUrl = searchParams.get('callbackUrl');
-            router.push(callbackUrl || '/dashboard');
+            if (session?.user.userType === EUserType.PERSONAL) {
+                router.push(callbackUrl || '/profile');
+            } else {
+                router.push(callbackUrl || '/dashboard');
+            }
             router.refresh();
         }
     }, [status, router, searchParams]);
