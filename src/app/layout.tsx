@@ -29,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={notoSans.variable}>
       <head>
+        <link rel="icon" href="/images/ccsyr-logo.png" sizes="32x32" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

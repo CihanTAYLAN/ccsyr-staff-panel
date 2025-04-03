@@ -327,9 +327,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 theme={theme === 'dark' ? 'dark' : 'light'}
                 className="border-r border-theme h-full"
             >
-                <Link href="/dashboard" className={`${!collapsed ? 'px-4' : ''} h-8 m-4 flex items-center gap-4 justify-start`}>
-                    <Image src="/images/ccsyr-logo.png" alt="logo" className='h-8 w-auto' preview={false} />
-                    {!collapsed && <h1 className='text-primary'>CCSYR</h1>}
+                <Link href="/dashboard" className={`h-10 m-4 flex items-center gap-4 justify-start`}>
+                    {collapsed ? (
+                        <Image src="/images/ccsyr-logo.png" alt="logo" className='h-10 w-auto' preview={false} />
+                    ) : (
+                        <Image src="/images/ccsyr-logo-2.png" alt="logo" className='h-10 w-auto' preview={false} />
+                    )}
+                    {/* {!collapsed && <h1 className='text-primary'>CCSYR</h1>} */}
                 </Link>
                 <Menu
                     theme={theme === 'dark' ? 'dark' : 'light'}
