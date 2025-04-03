@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { EUserType } from "@prisma/client";
 
 const publicPaths = ["/auth/login", "/auth/forgot-password"];
-const publicFiles = ["/favicon.ico", "/images/ccsyr-logo.png", "/images/marker-icon.png", "/images/marker-shadow.png"];
+const publicFiles = ["/favicon.ico", "/images/ccsyr-logo-2.png", "/images/marker-icon.png", "/images/marker-shadow.png"];
 
 const apiRulesOfAccess = [
 	{

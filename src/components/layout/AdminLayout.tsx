@@ -249,6 +249,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             label: 'Change Location',
             icon: <EnvironmentOutlined />,
             onClick: () => {
+                form.setFieldsValue({ sessionDate: dayjs() });
                 setLocationModalVisible(true);
                 fetchLocations();
                 getUserLocation();
