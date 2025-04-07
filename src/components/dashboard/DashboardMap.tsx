@@ -48,16 +48,16 @@ const calculateZoom = (coordinates: Array<{ lat: number, lng: number }>) => {
 };
 
 const DashboardMap: React.FC<DashboardMapProps> = ({ stats, loading, error }) => {
-    const [center, setCenter] = useState<[number, number]>([37.7749, -122.4194]);
+    const [center, setCenter] = useState<[number, number]>([43.65107, -79.347015]); // Default center is toronto
     const [markers, setMarkers] = useState<any[]>([]);
     const [zoom, setZoom] = useState(11);
 
     useEffect(() => {
         // Convert location stats to map markers
-        const mrks = stats?.locationStats.map((location) => ({
-            lat: location.latitude,
-            lng: location.longitude,
-            title: location.name,
+        let mrks = stats?.locationStats.map((location) => ({
+            lat: location?.latitude,
+            lng: location?.longitude,
+            title: location?.name,
             html: `<div class='flex flex-col gap-1'>
             <a href="/locations/${location.id}" target="_blank"><strong>${location.name} 🔗</strong></a>
             <div>${location.address}</div>
@@ -65,7 +65,8 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ stats, loading, error }) =>
             <a href="https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}" target="_blank"><strong>View on google maps 🔗</strong></a>
             </div>`
         })) || [];
-        mrks.filter((mark) => mark.lat && mark.lng);
+
+        mrks = mrks.filter((mark) => mark.lat && mark.lng);
 
         // Calculate map center and zoom from markers
         const mapCenter = calculateCenter(mrks);
