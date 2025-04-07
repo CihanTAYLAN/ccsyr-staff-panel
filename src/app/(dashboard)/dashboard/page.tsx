@@ -1,9 +1,7 @@
-'use client';
-
+'use client';;
 import DashboardTimeline from '@/components/dashboard/DashboardTimeline';
 import { Breadcrumb, Space } from 'antd';
 import DashboardStats from '../../../components/dashboard/DashboardStats';
-import DashboardMap from '../../../components/dashboard/DashboardMap';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -78,7 +76,7 @@ export default function DashboardPage() {
             </div>
             <Space direction='vertical' size={16} className='w-full'>
                 <DashboardStats stats={stats} loading={loading} error={error} />
-                <DashboardMap stats={stats} loading={loading} error={error} />
+                {/* <DashboardMap stats={stats} loading={loading} error={error} /> */}
                 <DashboardTimeline />
             </Space>
         </>
