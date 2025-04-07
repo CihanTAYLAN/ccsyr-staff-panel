@@ -38,7 +38,6 @@ const calculateZoom = (coordinates: Array<{ lat: number, lng: number }>) => {
     const latDiff = Math.max(...lats) - Math.min(...lats);
     const lngDiff = Math.max(...lngs) - Math.min(...lngs);
     const maxDiff = Math.max(latDiff, lngDiff);
-    console.log(maxDiff);
 
     // Adjust these values based on your needs
     if (maxDiff > 10) return 4;
@@ -66,6 +65,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ stats, loading, error }) =>
             <a href="https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}" target="_blank"><strong>View on google maps 🔗</strong></a>
             </div>`
         })) || [];
+        mrks.filter((mark) => mark.lat && mark.lng);
 
         // Calculate map center and zoom from markers
         const mapCenter = calculateCenter(mrks);
