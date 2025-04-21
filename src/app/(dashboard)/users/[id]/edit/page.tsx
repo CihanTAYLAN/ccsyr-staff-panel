@@ -1,4 +1,4 @@
-'use client';;
+'use client';
 import { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb, Switch } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';

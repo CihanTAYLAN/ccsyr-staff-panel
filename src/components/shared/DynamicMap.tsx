@@ -74,6 +74,9 @@ export default function DynamicMap({ center, zoom = 13, markers = [], height = '
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
+        if (!center[0] || !center[1]) return;
+        if (!zoom) return;
+
 
         // Initialize map
         const map = L.map(mapContainerRef.current).setView(center, zoom);
@@ -114,6 +117,12 @@ export default function DynamicMap({ center, zoom = 13, markers = [], height = '
             mapRef.current = null;
         };
     }, [center, zoom, markers, onMapClick]);
+
+    if (!center[0] || !center[1] || !zoom) return <>
+        <div className='w-full h-full flex justify-center items-center text-theme-text mt-4'>
+            No provided location data
+        </div>
+    </>;
 
     return (
         <div style={{ position: 'relative', height, width: '100%' }}>

@@ -36,6 +36,20 @@ type AccessLogDetailData = {
         latitude: number;
         longitude: number;
     };
+    locationId: string;
+    locationStaticAddress: string;
+    locationStaticLat: number;
+    locationStaticLong: number;
+    locationStaticName: string;
+
+    userId: string;
+    userStaticEmail: string;
+    userStaticLastLoginDate: string;
+    userStaticLastLoginLocationAddress: string;
+    userStaticLastLoginLocationLat: number;
+    userStaticLastLoginLocationLong: number;
+    userStaticLastLoginLocationName: string;
+    userStaticName: string;
 };
 
 export default function AccessLogDetailPage({ params }: { params: { id: string } }) {
@@ -193,26 +207,35 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                         </Descriptions>
                     </Card>
 
-                    <Card title="User Information" size='small'>
-                        <Descriptions bordered>
-                            <Descriptions.Item label="Name">{logDetail?.user?.name || 'N/A'}</Descriptions.Item>
-                            <Descriptions.Item label="Email">{logDetail?.user?.email || 'N/A'}</Descriptions.Item>
-                        </Descriptions>
 
-                        <div className="mt-4">
-                            <AccessLogTimeline
-                                items={userTimeline}
-                                loading={loadingUserTimeline}
-                                total={userTimelineTotal}
-                                filter={userTimelineFilter}
-                                onFilterChange={setUserTimelineFilter}
-                                userFilter={false}
-                            />
-                        </div>
-                    </Card>
+                    {logDetail?.userId ? (
+                        <Card title="User Information" size='small'>
+                            <Descriptions bordered>
+                                <Descriptions.Item label="Name">{logDetail?.user?.name || 'N/A'}</Descriptions.Item>
+                                <Descriptions.Item label="Email">{logDetail?.user?.email || 'N/A'}</Descriptions.Item>
+                            </Descriptions>
+                            <div className="mt-4">
+                                <AccessLogTimeline
+                                    items={userTimeline}
+                                    loading={loadingUserTimeline}
+                                    total={userTimelineTotal}
+                                    filter={userTimelineFilter}
+                                    onFilterChange={setUserTimelineFilter}
+                                    userFilter={false}
+                                />
+                            </div>
+                        </Card>
+                    ) : (
+                        <Card title="User Information (Deleted)" size='small'>
+                            <Descriptions bordered>
+                                <Descriptions.Item label="Name">{logDetail?.userStaticName || 'N/A'}</Descriptions.Item>
+                                <Descriptions.Item label="Email">{logDetail?.userStaticEmail || 'N/A'}</Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+                    )}
 
-                    <Card title="Location Information" size='small'>
-                        {logDetail?.location && (
+                    <Card title={`Location Information ${logDetail?.locationId ? '' : '(Deleted)'}`} size='small'>
+                        {logDetail?.locationId ? (
                             <>
                                 <Descriptions bordered>
                                     <Descriptions.Item label="Name">{logDetail?.location?.name || 'N/A'}</Descriptions.Item>
@@ -245,6 +268,13 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
                                     />
                                 </div>
                             </>
+                        ) : (
+                            <div className='w-full h-full flex justify-center items-center text-theme-text mt-4'>
+                                <Descriptions bordered>
+                                    <Descriptions.Item label="Name">{logDetail?.locationStaticName || 'N/A'}</Descriptions.Item>
+                                    <Descriptions.Item label="Address">{logDetail?.locationStaticAddress || 'N/A'}</Descriptions.Item>
+                                </Descriptions>
+                            </div>
                         )}
                     </Card>
                 </div>
