@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
     Card,
     Descriptions,
@@ -24,13 +24,13 @@ import AccessLogTimeline, { TimelineItem, TimelineFilter } from '@/components/sh
 import DynamicMap from '../../../../components/shared/DynamicMap';
 
 // Lokasyon detayları sayfası
-export default function LocationDetailPage({ params }: { params: { id: string } }) {
+export default function LocationDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const { message } = App.useApp();
     const [location, setLocation] = useState<any>(null);
     const [activeUsers, setActiveUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const locationId = params.id;
+    const locationId = use(params).id;
 
     // Timeline States
     const [timeline, setTimeline] = useState<TimelineItem[]>([]);

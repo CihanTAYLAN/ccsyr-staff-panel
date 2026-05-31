@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { Form, Input, Button, Card, message, Spin, Breadcrumb, Checkbox } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -27,12 +27,12 @@ const DynamicMap = dynamic<DynamicMapProps>(
     }
 );
 
-export default function EditLocationPage({ params }: { params: { id: string } }) {
+export default function EditLocationPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const locationId = params.id;
+    const locationId = use(params).id;
     const [markerPosition, setMarkerPosition] = useState<[number, number] | null>(null);
     const [centerPosition, setCenterPosition] = useState<[number, number]>([43.7181228, -79.5428638]);
     const [useManualAddress, setUseManualAddress] = useState(false);

@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 // GET /api/users/[id] - Kullanıcı detaylarını getir
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const userId = params.id;
+		const userId = (await params).id;
 
 		// Kullanıcı detaylarını getir (şifre hariç)
 		const user = await prisma.user.findUnique({
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/users/[id] - Kullanıcı bilgilerini güncelle
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const userId = params.id;
+		const userId = (await params).id;
 		const data = await request.json();
 
 		// Güncelleme için gerekli alanların kontrolü
@@ -161,7 +161,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/users/[id] - Kullanıcıyı sil
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -169,7 +169,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const userId = params.id;
+		const userId = (await params).id;
 
 		// Kullanıcının erişim kayıtlarını sil (Foreign key constraint)
 		await prisma.accessLog.updateMany({

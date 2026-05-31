@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
     Card,
     Descriptions,
@@ -36,12 +36,12 @@ const getUserTypeLabel = (type: EUserType) => {
 };
 
 // Kullanıcı detayları sayfası
-export default function UserDetailPage({ params }: { params: { id: string } }) {
+export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const { message } = App.useApp();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const userId = params.id;
+    const userId = use(params).id;
 
     // Timeline States
     const [timeline, setTimeline] = useState<TimelineItem[]>([]);
