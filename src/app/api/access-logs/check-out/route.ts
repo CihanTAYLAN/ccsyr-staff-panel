@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
 		// Tarayıcı ve cihaz bilgilerini al
 		const userAgentDetails = getUserAgentDetails(request.headers.get("user-agent") || "");
-		const ipAddress = request.headers.get("x-forwarded-for") || request.ip || "127.0.0.1";
+		const ipAddress = request.headers.get("x-forwarded-for") || "127.0.0.1";
 
 		// actionDate değerini ayarla (gönderilmemişse şu anki tarih)
 		const actionDate = sessionDate ? new Date(sessionDate) : new Date();

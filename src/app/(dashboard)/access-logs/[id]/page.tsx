@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { Card, Descriptions, message, Breadcrumb, Spin, Tag, Tooltip } from 'antd';
 import { EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -52,7 +52,8 @@ type AccessLogDetailData = {
     userStaticName: string;
 };
 
-export default function AccessLogDetailPage({ params }: { params: { id: string } }) {
+export default function AccessLogDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [logDetail, setLogDetail] = useState<AccessLogDetailData | null>(null);
@@ -80,7 +81,7 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
         const fetchLogDetail = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/access-logs/${params.id}`);
+                const response = await fetch(`/api/access-logs/${id}`);
                 if (!response.ok) throw new Error('Failed to fetch log detail');
                 const data = await response.json();
                 setLogDetail(data);
@@ -93,7 +94,7 @@ export default function AccessLogDetailPage({ params }: { params: { id: string }
         };
 
         fetchLogDetail();
-    }, [params.id]);
+    }, [id]);
 
     // Fetch user timeline
     useEffect(() => {

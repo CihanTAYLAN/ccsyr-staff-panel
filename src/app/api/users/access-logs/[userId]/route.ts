@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 // GET /api/users/access-logs/[userId] - Belirli bir kullanıcının erişim kayıtlarını getir
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const userId = params.userId;
+		const userId = (await params).userId;
 
 		// URL parametrelerini al (Sayfalama için)
 		const searchParams = request.nextUrl.searchParams;
