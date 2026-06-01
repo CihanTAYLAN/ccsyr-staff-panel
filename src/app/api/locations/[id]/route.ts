@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 // GET /api/locations/[id] - Lokasyon detaylarını getir
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const locationId = params.id;
+		const locationId = (await params).id;
 
 		// Lokasyon detaylarını getir
 		const location = await prisma.location.findUnique({
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/locations/[id] - Lokasyon bilgilerini güncelle
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -89,7 +89,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const locationId = params.id;
+		const locationId = (await params).id;
 		const data = await request.json();
 
 		// Gerekli alanların kontrolü
@@ -135,7 +135,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/locations/[id] - Lokasyonu sil
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Oturum kontrolü
 		const session = await getServerSession(authOptions);
@@ -143,7 +143,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const locationId = params.id;
+		const locationId = (await params).id;
 
 		// Lokasyonun ilişkili kullanıcılarını kontrol et
 		const locationWithUsers = await prisma.location.findUnique({

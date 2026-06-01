@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { Form, Input, Select, Button, Card, message, Spin, Breadcrumb, Switch } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { EUserType, EUserAccountStatus } from '@prisma/client';
@@ -19,12 +19,12 @@ const userAccountStatusOptions = [
     { value: EUserAccountStatus.INACTIVE, label: 'Inactive' },
 ];
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const userId = params.id;
+    const userId = use(params).id;
 
     // Kullanıcı bilgilerini getir
     const fetchUser = async () => {
